@@ -30,6 +30,7 @@ public class MainActivity extends ActionBarActivity
      */
     private CharSequence mTitle;
 
+    // bla bla
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
