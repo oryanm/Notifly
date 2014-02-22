@@ -13,11 +13,11 @@ repositories {
 }
 
 android {
-    compileSdkVersion 18
-    buildToolsVersion "18.1.1"
+    compileSdkVersion 19
+    buildToolsVersion "19.0.2"
 
     defaultConfig {
-        minSdkVersion 7
+        minSdkVersion 8
         targetSdkVersion 19
         versionCode 1
         versionName "1.0"
@@ -31,7 +31,8 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:18.0.0'
+    compile 'net.danlew:android.joda:2.3@aar'
+    compile 'com.android.support:appcompat-v7:19.0.1'
     compile 'com.android.support:gridlayout-v7:18.0.0'
-    compile 'com.android.support:support-v4:18.0.0'
+    compile 'com.android.support:support-v4:19.0.1'
 }

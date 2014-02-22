@@ -14,9 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-/**
- * todo delete
- */
+import net.danlew.android.joda.ResourceZoneInfoProvider;
+
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -30,10 +29,12 @@ public class MainActivity extends ActionBarActivity
      */
     private CharSequence mTitle;
 
-    // bla bla
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // init joda time
+        ResourceZoneInfoProvider.init(this);
+
         setContentView(R.layout.activity_main);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
