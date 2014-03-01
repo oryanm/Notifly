@@ -12,9 +12,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import net.danlew.android.joda.ResourceZoneInfoProvider;
+
+import org.joda.time.LocalDateTime;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -133,7 +139,23 @@ public class MainActivity extends ActionBarActivity
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
+            int section = getArguments().getInt(ARG_SECTION_NUMBER);
+            textView.setText(Integer.toString(section));
+
+            switch (section) {
+                case 1: {
+                    // TODO: create data base
+                    List<Note> notes = new ArrayList<Note>();
+                    notes.add(new Note("pay taxes", LocalDateTime.now()));
+                    notes.add(new Note("meet tim", new LocalDateTime(2014, 3, 22, 10, 10)));
+                    notes.add(new Note("april fools", new LocalDateTime(2014, 4, 1, 21, 12)));
+                    notes.add(new Note("meet tim", new LocalDateTime(2014, 5, 11, 12, 55)));
+                    NotesAdapter adapter = new NotesAdapter(getActivity(), notes);
+
+                    ListView list = (ListView) rootView.findViewById(R.id.notes_list_view);
+                    list.setAdapter(adapter);
+                }
+            }
             return rootView;
         }
 
