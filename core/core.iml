@@ -75,6 +75,7 @@
     <orderEntry type="library" exported="" name="android.joda-2.3" level="project" />
     <orderEntry type="library" exported="" name="joda-convert-1.5" level="project" />
     <orderEntry type="library" exported="" name="support-v4-19.0.1" level="project" />
+    <orderEntry type="library" exported="" name="play-services-4.1.32" level="project" />
   </component>
 </module>
 
