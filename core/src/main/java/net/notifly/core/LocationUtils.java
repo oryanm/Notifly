@@ -13,6 +13,11 @@ import java.util.Locale;
  */
 public class LocationUtils
 {
+  private final static double LOWER_LEFT_LATITUDE = 29.39406;
+  private final static double LOWER_LEFT_LONGITUDE = 33.21458;
+  private final static double UPPER_RIGHT_LATITUDE = 33.14897;
+  private final static double UPPER_RIGHT_LONGITUDE = 36.09300;
+
   static
   {
     Locale.setDefault(new Locale("he", "IL"));
@@ -23,8 +28,8 @@ public class LocationUtils
     try
     {
       Geocoder geo = new Geocoder(activity.getBaseContext(), Locale.getDefault());
-      List<Address> addresses = geo.getFromLocationName(address, 5, 29.39406, 33.21458,
-        33.14897, 36.09300);
+      List<Address> addresses = geo.getFromLocationName(address, 5, LOWER_LEFT_LATITUDE, LOWER_LEFT_LONGITUDE,
+        UPPER_RIGHT_LATITUDE, UPPER_RIGHT_LONGITUDE);
       return addresses.get(0).getFeatureName();
     }
     catch (IOException e)
