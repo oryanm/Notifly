@@ -8,9 +8,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Created by Barak on 27/02/14.
- */
 public class LocationUtils
 {
   private final static double LOWER_LEFT_LATITUDE = 29.39406;
@@ -20,23 +17,22 @@ public class LocationUtils
 
   static
   {
+    // todo whay is the default before we set a new default?
     Locale.setDefault(new Locale("he", "IL"));
   }
 
-  public static String getLocationByName(Activity activity, String address)
+  public static Address getAddress(Activity activity, double longitude, double latitude) throws IOException
   {
-    try
-    {
-      Geocoder geo = new Geocoder(activity.getBaseContext(), Locale.getDefault());
-      List<Address> addresses = geo.getFromLocationName(address, 5, LOWER_LEFT_LATITUDE, LOWER_LEFT_LONGITUDE,
-        UPPER_RIGHT_LATITUDE, UPPER_RIGHT_LONGITUDE);
-      return addresses.get(0).getFeatureName();
-    }
-    catch (IOException e)
-    {
-      e.printStackTrace();
-    }
-    return "";
+    Geocoder geocoder = new Geocoder(activity.getBaseContext());
+
+    return geocoder.getFromLocation(latitude, longitude, 1).iterator().next();
   }
 
+  public static String getLocationByName(Activity activity, String name) throws IOException
+  {
+    Geocoder geo = new Geocoder(activity.getBaseContext());
+    List<Address> addresses = geo.getFromLocationName(name, /* TODO why 5?*/ 5,
+      LOWER_LEFT_LATITUDE, LOWER_LEFT_LONGITUDE, UPPER_RIGHT_LATITUDE, UPPER_RIGHT_LONGITUDE);
+    return addresses.iterator().next().getFeatureName();
+  }
 }
