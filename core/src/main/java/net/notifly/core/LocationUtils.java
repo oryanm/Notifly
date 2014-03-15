@@ -4,12 +4,24 @@ import android.app.Activity;
 import android.location.Address;
 import android.location.Geocoder;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 
 public class LocationUtils
 {
+  private final static String DISTANCE_MATRIX_URL = "http://maps.googleapis.com/maps/api/distancematrix/json?origins=:org&destinations=:dest&mode=:mode&language=en-US&sensor=false";
+
   private final static double LOWER_LEFT_LATITUDE = 29.39406;
   private final static double LOWER_LEFT_LONGITUDE = 33.21458;
   private final static double UPPER_RIGHT_LATITUDE = 33.14897;
@@ -34,5 +46,43 @@ public class LocationUtils
     List<Address> addresses = geo.getFromLocationName(name, /* TODO why 5?*/ 5,
       LOWER_LEFT_LATITUDE, LOWER_LEFT_LONGITUDE, UPPER_RIGHT_LATITUDE, UPPER_RIGHT_LONGITUDE);
     return addresses.iterator().next().getFeatureName();
+  }
+
+  public static String getDistanceMatrix(String orgAddress, String destAddress, String mode) throws IOException, JSONException
+  {
+    String urlString = DISTANCE_MATRIX_URL;
+    urlString = urlString.replace(":org", orgAddress);
+    urlString = urlString.replace(":dest", destAddress);
+    urlString = urlString.replace(":mode", mode);
+
+    // get the JSON And parse it to get the data.
+    URL url = new URL(urlString);
+    HttpURLConnection urlConnection=(HttpURLConnection)url.openConnection();
+    urlConnection.setRequestMethod("GET");
+    urlConnection.connect();
+
+    InputStream inStream = urlConnection.getInputStream();
+    BufferedReader bReader = new BufferedReader(new InputStreamReader(inStream));
+
+    String temp, response = "";
+    while((temp = bReader.readLine()) != null){
+      //Parse data
+      response += temp;
+    }
+    //Close the reader, stream & connection
+    bReader.close();
+    inStream.close();
+    urlConnection.disconnect();
+
+    //Sortout JSONresponse
+    JSONObject object = (JSONObject) new JSONTokener(response).nextValue();
+    JSONArray rows = object.getJSONArray("rows");
+
+    JSONArray elements = (JSONArray) rows.getJSONObject(0).get("elements");
+
+    JSONObject distance = (JSONObject) ((JSONObject)elements.get(0)).get("distance");
+    JSONObject duration = (JSONObject) ((JSONObject)elements.get(0)).get("duration");
+
+    return distance.getString("text") + " " + duration.getString("text");
   }
 }

@@ -1,12 +1,16 @@
 package net.notifly.core;
 
 import android.app.Activity;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.danlew.android.joda.ResourceZoneInfoProvider;
 
@@ -21,11 +26,14 @@ import org.joda.time.LocalDateTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
-    /**
+  private static final long LOCATION_REFRESH_TIME = 5;
+  private static final float LOCATION_REFRESH_DISTANCE = 5;
+  /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
@@ -34,6 +42,9 @@ public class MainActivity extends ActionBarActivity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+
+  private LocationManager locationManager;
+  private Location currentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +62,63 @@ public class MainActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+      setLocationTracker();
+
+      sample();
     }
 
-    @Override
+  private void sample()
+  {
+    try
+    {
+      String distanceAndDuration = new RetreiveResultTask().execute("Rishon-LeZion", "Tel-Aviv", "walking").get();
+      Toast.makeText(this, distanceAndDuration, Toast.LENGTH_LONG).show();
+    } catch (InterruptedException e)
+    {
+      e.printStackTrace();
+    } catch (ExecutionException e)
+    {
+      e.printStackTrace();
+    }
+  }
+
+  private void setLocationTracker()
+  {
+    locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+    currentLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+
+    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME,
+      LOCATION_REFRESH_DISTANCE, new LocationListener()
+      {
+        @Override
+        public void onLocationChanged(Location location)
+        {
+          MainActivity.this.currentLocation = location;
+          Log.d("Location Update: ", location.toString());
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle)
+        {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String s)
+        {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String s)
+        {
+
+        }
+      });
+  }
+
+  @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
