@@ -17,7 +17,7 @@ public class LocationUtils
 
   static
   {
-    // todo whay is the default before we set a new default?
+    // todo way is the default before we set a new default?
     Locale.setDefault(new Locale("he", "IL"));
   }
 
