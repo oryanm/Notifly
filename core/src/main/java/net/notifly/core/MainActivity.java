@@ -1,6 +1,7 @@
 package net.notifly.core;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,19 +17,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import net.danlew.android.joda.ResourceZoneInfoProvider;
-
-import org.joda.time.LocalDateTime;
-
-import java.util.ArrayList;
-import java.util.List;
+import net.notifly.core.sql.NotesDAO;
 
 public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+  implements NavigationDrawerFragment.NavigationDrawerCallbacks
+{
+  private static final int NEW_NOTE_CODE = 1;
 
-    /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-     */
-    private NavigationDrawerFragment mNavigationDrawerFragment;
+  /**
+   * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
+   */
+  private NavigationDrawerFragment mNavigationDrawerFragment;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -97,19 +96,64 @@ public class MainActivity extends ActionBarActivity
         return super.onCreateOptionsMenu(menu);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item)
+  {
+    // Handle action bar item clicks here. The action bar will
+    // automatically handle clicks on the Home/Up button, so long
+    // as you specify a parent activity in AndroidManifest.xml.
+    int id = item.getItemId();
+
+    if (id == R.id.action_settings)
+    {
+      return true;
+    } else if (id == R.id.action_add_note)
+    {
+      openNewNoteActivity();
     }
 
-    /**
+    return super.onOptionsItemSelected(item);
+  }
+
+  private void openNewNoteActivity()
+  {
+    Intent intent = new Intent(this, NewNoteActivity.class);
+    startActivityForResult(intent, NEW_NOTE_CODE);
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent intent)
+  {
+    super.onActivityResult(requestCode, resultCode, intent);
+
+    switch (requestCode)
+    {
+      case NEW_NOTE_CODE:
+        if (resultCode == RESULT_OK)
+        {
+          reloadNotes();
+        }
+    }
+  }
+
+  private void reloadNotes()
+  {
+    ListView list = (ListView)findViewById(R.id.notes_list_view);
+    NotesAdapter adapter = (NotesAdapter) list.getAdapter();
+
+    adapter.clear();
+
+    NotesDAO notesDAO = new NotesDAO(this);
+    // todo: maybe use addAll (requires minSDKLevel 11)
+    for (Note note : notesDAO.getAllNotes())
+    {
+      adapter.add(note);
+    }
+
+    notesDAO.close();
+  }
+
+  /**
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
@@ -134,32 +178,36 @@ public class MainActivity extends ActionBarActivity
         public PlaceholderFragment() {
         }
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            int section = getArguments().getInt(ARG_SECTION_NUMBER);
-            textView.setText(Integer.toString(section));
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState)
+    {
+      View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+      TextView textView = (TextView) rootView.findViewById(R.id.section_label);
+      int section = getArguments().getInt(ARG_SECTION_NUMBER);
+      textView.setText(Integer.toString(section));
 
-            switch (section) {
-                case 1: {
-                    // TODO: create data base
-                    List<Note> notes = new ArrayList<Note>();
-                    notes.add(new Note("pay taxes", LocalDateTime.now()));
-                    notes.add(new Note("meet tim", new LocalDateTime(2014, 3, 22, 10, 10)));
-                    notes.add(new Note("april fools", new LocalDateTime(2014, 4, 1, 21, 12)));
-                    notes.add(new Note("meet tim", new LocalDateTime(2014, 5, 11, 12, 55)));
-                    NotesAdapter adapter = new NotesAdapter(getActivity(), notes);
-
-                    ListView list = (ListView) rootView.findViewById(R.id.notes_list_view);
-                    list.setAdapter(adapter);
-                }
-            }
-            return rootView;
+      switch (section)
+      {
+        case 1:
+        {
+          createNotesListView(rootView);
         }
+      }
+      return rootView;
+    }
 
-        @Override
+    private void createNotesListView(View rootView)
+    {
+      NotesDAO notesDAO = new NotesDAO(getActivity());
+      NotesAdapter adapter = new NotesAdapter(getActivity(), notesDAO.getAllNotes());
+      notesDAO.close();
+
+      ListView list = (ListView) rootView.findViewById(R.id.notes_list_view);
+      list.setAdapter(adapter);
+    }
+
+      @Override
         public void onAttach(Activity activity) {
             super.onAttach(activity);
             ((MainActivity) activity).onSectionAttached(

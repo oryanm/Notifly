@@ -24,6 +24,10 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyBnXj7WSvHnFKJ90Uv8t9E4dIsowR6fX98" />
 
+        <activity
+            android:name="net.notifly.core.NewNoteActivity"
+            android:label="@string/title_activity_new_note" >
+        </activity>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
