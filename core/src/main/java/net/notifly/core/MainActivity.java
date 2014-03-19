@@ -24,10 +24,6 @@ import android.widget.Toast;
 import net.danlew.android.joda.ResourceZoneInfoProvider;
 import net.notifly.core.sql.NotesDAO;
 
-import org.joda.time.LocalDateTime;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends ActionBarActivity
@@ -250,30 +246,34 @@ public class MainActivity extends ActionBarActivity
         public PlaceholderFragment() {
         }
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            int section = getArguments().getInt(ARG_SECTION_NUMBER);
-            textView.setText(Integer.toString(section));
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState)
+    {
+      View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+      TextView textView = (TextView) rootView.findViewById(R.id.section_label);
+      int section = getArguments().getInt(ARG_SECTION_NUMBER);
+      textView.setText(Integer.toString(section));
 
-            switch (section) {
-                case 1: {
-                    // TODO: create data base
-                    List<Note> notes = new ArrayList<Note>();
-                    notes.add(new Note("pay taxes", LocalDateTime.now()));
-                    notes.add(new Note("meet tim", new LocalDateTime(2014, 3, 22, 10, 10)));
-                    notes.add(new Note("april fools", new LocalDateTime(2014, 4, 1, 21, 12)));
-                    notes.add(new Note("meet tim", new LocalDateTime(2014, 5, 11, 12, 55)));
-                    NotesAdapter adapter = new NotesAdapter(getActivity(), notes);
-
-                    ListView list = (ListView) rootView.findViewById(R.id.notes_list_view);
-                    list.setAdapter(adapter);
-                }
-            }
-            return rootView;
+      switch (section)
+      {
+        case 1:
+        {
+          createNotesListView(rootView);
         }
+      }
+      return rootView;
+    }
+
+    private void createNotesListView(View rootView)
+    {
+      NotesDAO notesDAO = new NotesDAO(getActivity());
+      NotesAdapter adapter = new NotesAdapter(getActivity(), notesDAO.getAllNotes());
+      notesDAO.close();
+
+      ListView list = (ListView) rootView.findViewById(R.id.notes_list_view);
+      list.setAdapter(adapter);
+    }
 
         @Override
         public void onAttach(Activity activity) {
