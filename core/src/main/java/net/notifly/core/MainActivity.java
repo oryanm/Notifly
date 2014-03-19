@@ -1,7 +1,6 @@
 package net.notifly.core;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,24 +14,37 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.danlew.android.joda.ResourceZoneInfoProvider;
 import net.notifly.core.sql.NotesDAO;
+
+import org.joda.time.LocalDateTime;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends ActionBarActivity
   implements NavigationDrawerFragment.NavigationDrawerCallbacks
 {
   private static final int NEW_NOTE_CODE = 1;
 
+  private static final long LOCATION_REFRESH_TIME = 5;
+  private static final float LOCATION_REFRESH_DISTANCE = 5;
+
   /**
-   * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-   */
-  private NavigationDrawerFragment mNavigationDrawerFragment;
+     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
+     */
+    private NavigationDrawerFragment mNavigationDrawerFragment;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+
+  private LocationManager locationManager;
+  private Location currentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +62,63 @@ public class MainActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+      setLocationTracker();
+
+      sample();
     }
 
-    @Override
+  private void sample()
+  {
+    try
+    {
+      String distanceAndDuration = new RetreiveResultTask().execute("Rishon-LeZion", "Tel-Aviv", "walking").get();
+      Toast.makeText(this, distanceAndDuration, Toast.LENGTH_LONG).show();
+    } catch (InterruptedException e)
+    {
+      e.printStackTrace();
+    } catch (ExecutionException e)
+    {
+      e.printStackTrace();
+    }
+  }
+
+  private void setLocationTracker()
+  {
+    locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+    currentLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+
+    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME,
+      LOCATION_REFRESH_DISTANCE, new LocationListener()
+      {
+        @Override
+        public void onLocationChanged(Location location)
+        {
+          MainActivity.this.currentLocation = location;
+          Log.d("Location Update: ", location.toString());
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle)
+        {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String s)
+        {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String s)
+        {
+
+        }
+      });
+  }
+
+  @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -133,6 +199,7 @@ public class MainActivity extends ActionBarActivity
         {
           reloadNotes();
         }
+        return super.onOptionsItemSelected(item);
     }
   }
 
@@ -178,36 +245,32 @@ public class MainActivity extends ActionBarActivity
         public PlaceholderFragment() {
         }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
-    {
-      View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-      TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-      int section = getArguments().getInt(ARG_SECTION_NUMBER);
-      textView.setText(Integer.toString(section));
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
+            int section = getArguments().getInt(ARG_SECTION_NUMBER);
+            textView.setText(Integer.toString(section));
 
-      switch (section)
-      {
-        case 1:
-        {
-          createNotesListView(rootView);
+            switch (section) {
+                case 1: {
+                    // TODO: create data base
+                    List<Note> notes = new ArrayList<Note>();
+                    notes.add(new Note("pay taxes", LocalDateTime.now()));
+                    notes.add(new Note("meet tim", new LocalDateTime(2014, 3, 22, 10, 10)));
+                    notes.add(new Note("april fools", new LocalDateTime(2014, 4, 1, 21, 12)));
+                    notes.add(new Note("meet tim", new LocalDateTime(2014, 5, 11, 12, 55)));
+                    NotesAdapter adapter = new NotesAdapter(getActivity(), notes);
+
+                    ListView list = (ListView) rootView.findViewById(R.id.notes_list_view);
+                    list.setAdapter(adapter);
+                }
+            }
+            return rootView;
         }
-      }
-      return rootView;
-    }
 
-    private void createNotesListView(View rootView)
-    {
-      NotesDAO notesDAO = new NotesDAO(getActivity());
-      NotesAdapter adapter = new NotesAdapter(getActivity(), notesDAO.getAllNotes());
-      notesDAO.close();
-
-      ListView list = (ListView) rootView.findViewById(R.id.notes_list_view);
-      list.setAdapter(adapter);
-    }
-
-      @Override
+        @Override
         public void onAttach(Activity activity) {
             super.onAttach(activity);
             ((MainActivity) activity).onSectionAttached(
