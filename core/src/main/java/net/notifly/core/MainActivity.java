@@ -1,12 +1,17 @@
 package net.notifly.core;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,7 +49,7 @@ public class MainActivity extends ActionBarActivity
     private CharSequence mTitle;
 
   private LocationManager locationManager;
-  private Location currentLocation;
+  private android.location.Location currentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,23 +104,24 @@ public class MainActivity extends ActionBarActivity
         }
 
         @Override
-        public void onStatusChanged(String s, int i, Bundle bundle)
+        public void onStatusChanged(String provider, int status, Bundle extras)
         {
 
         }
 
         @Override
-        public void onProviderEnabled(String s)
+        public void onProviderEnabled(String provider)
         {
 
         }
 
         @Override
-        public void onProviderDisabled(String s)
+        public void onProviderDisabled(String provider)
         {
 
         }
-      });
+      }
+    );
   }
 
   @Override
@@ -199,7 +205,6 @@ public class MainActivity extends ActionBarActivity
         {
           reloadNotes();
         }
-        return super.onOptionsItemSelected(item);
     }
   }
 
