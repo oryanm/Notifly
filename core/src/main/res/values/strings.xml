@@ -12,8 +12,9 @@
     <string name="note_title">Title</string>
     <string name="note_time">Time</string>
     <string name="action_add_note">New note</string>
-    <string name="title_activity_new_note">NewNoteActivity</string>
+    <string name="title_activity_new_note">New note</string>
     <string name="hello_world">Hello world!</string>
     <string name="note_description">Description</string>
+    <string name="action_save_note">Save</string>
 
 </resources>

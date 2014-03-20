@@ -2,9 +2,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="net.notifly.core.NewNoteActivity" >
-    
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_save_note"
+        android:icon="@drawable/abc_ic_cab_done_holo_dark"
+        android:title="@string/action_save_note"
+        app:showAsAction="always"/>
 </menu>
