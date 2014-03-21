@@ -54,6 +54,14 @@ public class NotesDAO
     database.close();
   }
 
+  public void deleteNote(Note note)
+  {
+    SQLiteDatabase database = sqlHelper.getWritableDatabase();
+    //todo use id col
+    database.delete(NAME, String.format("%s = ? ", COLUMNS.TITLE.name()), new String[] { note.getTitle() });
+    database.close();
+  }
+
   public List<Note> getAllNotes()
   {
     // TODO: move to JDK 1.7
