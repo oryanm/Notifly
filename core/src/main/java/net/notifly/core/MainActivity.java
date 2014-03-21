@@ -259,12 +259,6 @@ public class MainActivity extends ActionBarActivity
 
       SwipeListView list = (SwipeListView) rootView.findViewById(R.id.notes_list_view);
       list.setAdapter(adapter);
-
-//      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-//        list.setMultiChoiceModeListener(new NotesListMultiChoiceModeListener(list));
-//      }
-
-//      list.setSwipeListViewListener(new NotesSwipeListViewListener(getActivity(), adapter));
     }
 
         @Override
