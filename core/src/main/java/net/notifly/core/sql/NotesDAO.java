@@ -15,14 +15,14 @@ import java.util.List;
 
 public class NotesDAO
 {
-  public static final String NAME = "note";
+  public static final String TABLE_NAME = "note";
 
-  public static final String CREATE_STATEMENT = " CREATE TABLE " + NAME + "(" +
+  public static final String CREATE_STATEMENT = " CREATE TABLE " + TABLE_NAME + "(" +
     COLUMNS.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
     COLUMNS.TITLE + " TEXT NOT NULL, " +
     COLUMNS.TIME + " DATETIME " + ")";
 
-  public static final String DROP_STATEMENT = "DROP TABLE IF EXISTS " + NAME;
+  public static final String DROP_STATEMENT = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
   enum COLUMNS
   {
@@ -50,7 +50,7 @@ public class NotesDAO
     values.put(COLUMNS.TITLE.name(), note.getTitle());
     values.put(COLUMNS.TIME.name(), note.getTime().toString(NotiflySQLiteHelper.DATETIME_PATTERN));
 
-    database.insert(NAME, null, values);
+    database.insert(TABLE_NAME, null, values);
     database.close();
   }
 
@@ -58,7 +58,7 @@ public class NotesDAO
   {
     SQLiteDatabase database = sqlHelper.getWritableDatabase();
     //todo use id col
-    database.delete(NAME, String.format("%s = ? ", COLUMNS.TITLE.name()), new String[] { note.getTitle() });
+    database.delete(TABLE_NAME, String.format("%s = ? ", COLUMNS.TITLE.name()), new String[]{note.getTitle()});
     database.close();
   }
 
@@ -67,8 +67,9 @@ public class NotesDAO
     // TODO: move to JDK 1.7
     List<Note> notes = new ArrayList<Note>();
     SQLiteDatabase database = sqlHelper.getWritableDatabase();
-    Cursor cursor = query(database, QueryBuilder.select(NAME,
-      COLUMNS.ID.name(), COLUMNS.TITLE.name(), COLUMNS.TIME.name()));
+    Cursor cursor = query(database, QueryBuilder
+      .select(COLUMNS.ID.name(), COLUMNS.TITLE.name(), COLUMNS.TIME.name())
+      .from(TABLE_NAME));
 
     if (cursor.moveToFirst())
     {
