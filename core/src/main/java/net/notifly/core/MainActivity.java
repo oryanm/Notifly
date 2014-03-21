@@ -3,7 +3,6 @@ package net.notifly.core;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,15 +10,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.fortysevendeg.swipelistview.SwipeListView;
 
 import net.danlew.android.joda.ResourceZoneInfoProvider;
 import net.notifly.core.sql.NotesDAO;
@@ -30,6 +29,8 @@ public class MainActivity extends ActionBarActivity
   implements NavigationDrawerFragment.NavigationDrawerCallbacks
 {
   private static final int NEW_NOTE_CODE = 1;
+
+  public static final int NAVIGATION_SECTION_NOTES = 1;
 
   private static final long LOCATION_REFRESH_TIME = 5;
   private static final float LOCATION_REFRESH_DISTANCE = 5;
@@ -90,31 +91,14 @@ public class MainActivity extends ActionBarActivity
     currentLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
 
     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME,
-      LOCATION_REFRESH_DISTANCE, new LocationListener()
+      LOCATION_REFRESH_DISTANCE, new LocationAdapter()
       {
         @Override
         public void onLocationChanged(Location location)
         {
           MainActivity.this.currentLocation = location;
-          Log.d("Location Update: ", location.toString());
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras)
-        {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider)
-        {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider)
-        {
-
+          Toast.makeText(MainActivity.this,
+            String.format("Location Update: %s", location.toString()), Toast.LENGTH_SHORT).show();
         }
       }
     );
@@ -131,8 +115,8 @@ public class MainActivity extends ActionBarActivity
 
     public void onSectionAttached(int number) {
         switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
+            case NAVIGATION_SECTION_NOTES:
+                mTitle = getString(R.string.title_section_notes);
                 break;
             case 2:
                 mTitle = getString(R.string.title_section2);
@@ -185,6 +169,9 @@ public class MainActivity extends ActionBarActivity
 
   private void openNewNoteActivity()
   {
+    SwipeListView list = (SwipeListView) findViewById(R.id.notes_list_view);
+    list.closeOpenedItems();
+
     Intent intent = new Intent(this, NewNoteActivity.class);
     startActivityForResult(intent, NEW_NOTE_CODE);
   }
@@ -218,6 +205,7 @@ public class MainActivity extends ActionBarActivity
       adapter.add(note);
     }
 
+    adapter.notifyDataSetChanged();
     notesDAO.close();
   }
 
@@ -251,13 +239,11 @@ public class MainActivity extends ActionBarActivity
                              Bundle savedInstanceState)
     {
       View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-      TextView textView = (TextView) rootView.findViewById(R.id.section_label);
       int section = getArguments().getInt(ARG_SECTION_NUMBER);
-      textView.setText(Integer.toString(section));
 
       switch (section)
       {
-        case 1:
+        case NAVIGATION_SECTION_NOTES:
         {
           createNotesListView(rootView);
         }
@@ -268,11 +254,17 @@ public class MainActivity extends ActionBarActivity
     private void createNotesListView(View rootView)
     {
       NotesDAO notesDAO = new NotesDAO(getActivity());
-      NotesAdapter adapter = new NotesAdapter(getActivity(), notesDAO.getAllNotes());
+      final NotesAdapter adapter = new NotesAdapter(getActivity(), notesDAO.getAllNotes());
       notesDAO.close();
 
-      ListView list = (ListView) rootView.findViewById(R.id.notes_list_view);
+      SwipeListView list = (SwipeListView) rootView.findViewById(R.id.notes_list_view);
       list.setAdapter(adapter);
+
+//      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+//        list.setMultiChoiceModeListener(new NotesListMultiChoiceModeListener(list));
+//      }
+
+//      list.setSwipeListViewListener(new NotesSwipeListViewListener(getActivity(), adapter));
     }
 
         @Override
@@ -282,5 +274,4 @@ public class MainActivity extends ActionBarActivity
                     getArguments().getInt(ARG_SECTION_NUMBER));
         }
     }
-
 }

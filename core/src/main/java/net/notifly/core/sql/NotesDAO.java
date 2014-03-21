@@ -20,6 +20,7 @@ public class NotesDAO
   public static final String CREATE_STATEMENT = " CREATE TABLE " + TABLE_NAME + "(" +
     COLUMNS.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
     COLUMNS.TITLE + " TEXT NOT NULL, " +
+    COLUMNS.DESCRIPTION + " TEXT, " +
     COLUMNS.TIME + " DATETIME " + ")";
 
   public static final String DROP_STATEMENT = "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -27,7 +28,7 @@ public class NotesDAO
   enum COLUMNS
   {
     /* todo: might need to change to _ID due to content provider, BaseColumns._ID?. */
-    ID, TITLE, TIME
+    ID, TITLE, DESCRIPTION, TIME
   }
 
   SQLiteOpenHelper sqlHelper;
@@ -48,6 +49,7 @@ public class NotesDAO
 
     ContentValues values = new ContentValues();
     values.put(COLUMNS.TITLE.name(), note.getTitle());
+    values.put(COLUMNS.DESCRIPTION.name(), note.getDescription());
     values.put(COLUMNS.TIME.name(), note.getTime().toString(NotiflySQLiteHelper.DATETIME_PATTERN));
 
     database.insert(TABLE_NAME, null, values);
@@ -58,7 +60,8 @@ public class NotesDAO
   {
     SQLiteDatabase database = sqlHelper.getWritableDatabase();
     //todo use id col
-    database.delete(TABLE_NAME, String.format("%s = ? ", COLUMNS.TITLE.name()), new String[]{note.getTitle()});
+    database.delete(TABLE_NAME, String.format("%s = ? ", COLUMNS.ID.name()),
+      new String[]{String.valueOf(note.getId())});
     database.close();
   }
 
@@ -68,16 +71,19 @@ public class NotesDAO
     List<Note> notes = new ArrayList<Note>();
     SQLiteDatabase database = sqlHelper.getWritableDatabase();
     Cursor cursor = query(database, QueryBuilder
-      .select(COLUMNS.ID.name(), COLUMNS.TITLE.name(), COLUMNS.TIME.name())
+      .select(COLUMNS.ID.name(), COLUMNS.TITLE.name(),
+        COLUMNS.DESCRIPTION.name(), COLUMNS.TIME.name())
       .from(TABLE_NAME));
 
     if (cursor.moveToFirst())
     {
       do
       {
-        Note note = new Note(
-          cursor.getString(COLUMNS.TITLE.ordinal()),
-          parseTime(cursor.getString(COLUMNS.TIME.ordinal())));
+        Note note = new Note();
+        note.setId(cursor.getInt(COLUMNS.ID.ordinal()));
+        note.setTitle(cursor.getString(COLUMNS.TITLE.ordinal()));
+        note.setTime(parseTime(cursor.getString(COLUMNS.TIME.ordinal())));
+        note.setDescription(cursor.getString(COLUMNS.DESCRIPTION.ordinal()));
         notes.add(note);
       } while (cursor.moveToNext());
     }

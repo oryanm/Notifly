@@ -1,23 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="fill_parent"
+             android:layout_height="fill_parent" >
 
-    <TextView
-        android:id="@+id/note_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/note_title_padding"
-        android:textSize="@dimen/note_title_text_size"
-        android:text="@string/note_title" />
+    <RelativeLayout
+        android:id="@+id/notes_list_back"
+        android:tag="back"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
-    <TextView
-        android:id="@+id/note_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/note_time_padding"
-        android:text="@string/note_time" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/swipe_button4"
+            android:onClick="delete"
+            android:text="delete"
+            android:layout_alignParentRight="true"/>
 
-</LinearLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/notes_list_front"
+        android:background="@color/white">
+
+        <TextView
+            android:id="@+id/note_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/note_title_padding"
+            android:textSize="@dimen/note_title_text_size"
+            android:text="@string/note_title" />
+
+        <TextView
+            android:id="@+id/note_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/note_time_padding"
+            android:text="@string/note_time" />
+
+    </LinearLayout>
+
+
+</FrameLayout>
