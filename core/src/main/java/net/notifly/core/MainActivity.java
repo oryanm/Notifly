@@ -3,15 +3,12 @@ package net.notifly.core;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,8 +28,6 @@ public class MainActivity extends ActionBarActivity
 {
   private static final int NEW_NOTE_CODE = 1;
 
-  private static final long LOCATION_REFRESH_TIME = 5;
-  private static final float LOCATION_REFRESH_DISTANCE = 5;
 
   /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -43,9 +38,6 @@ public class MainActivity extends ActionBarActivity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
-
-  private LocationManager locationManager;
-  private android.location.Location currentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +56,7 @@ public class MainActivity extends ActionBarActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-      setLocationTracker();
+      LocationUtils.getSingleton().setLocationTracker(this);
 
       sample();
     }
@@ -73,7 +65,9 @@ public class MainActivity extends ActionBarActivity
   {
     try
     {
-      String distanceAndDuration = new RetreiveResultTask().execute("Rishon-LeZion", "Tel-Aviv", "walking").get();
+      Location currentLocation = LocationUtils.getSingleton().getCurrentLocation();
+      String origin = currentLocation.getLatitude() + "," + currentLocation.getLongitude();
+      String distanceAndDuration = new RetreiveResultTask().execute(origin, "Tel-Aviv", "walking").get();
       Toast.makeText(this, distanceAndDuration, Toast.LENGTH_LONG).show();
     } catch (InterruptedException e)
     {
@@ -82,42 +76,6 @@ public class MainActivity extends ActionBarActivity
     {
       e.printStackTrace();
     }
-  }
-
-  private void setLocationTracker()
-  {
-    locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-    currentLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-
-    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME,
-      LOCATION_REFRESH_DISTANCE, new LocationListener()
-      {
-        @Override
-        public void onLocationChanged(Location location)
-        {
-          MainActivity.this.currentLocation = location;
-          Log.d("Location Update: ", location.toString());
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras)
-        {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider)
-        {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider)
-        {
-
-        }
-      }
-    );
   }
 
   @Override

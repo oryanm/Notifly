@@ -3,6 +3,11 @@ package net.notifly.core;
 import android.app.Activity;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,11 +31,23 @@ public class LocationUtils
   private final static double LOWER_LEFT_LONGITUDE = 33.21458;
   private final static double UPPER_RIGHT_LATITUDE = 33.14897;
   private final static double UPPER_RIGHT_LONGITUDE = 36.09300;
+  private static final long LOCATION_REFRESH_TIME = 5;
+  private static final float LOCATION_REFRESH_DISTANCE = 5;
+
+  private LocationManager locationManager;
+  private Location currentLocation;
+
+  private static LocationUtils singleton = new LocationUtils();
 
   static
   {
     // todo way is the default before we set a new default?
     Locale.setDefault(new Locale("he", "IL"));
+  }
+
+  public static LocationUtils getSingleton()
+  {
+    return singleton;
   }
 
   public static Address getAddress(Activity activity, double longitude, double latitude) throws IOException
@@ -84,5 +101,45 @@ public class LocationUtils
     JSONObject duration = (JSONObject) ((JSONObject)elements.get(0)).get("duration");
 
     return distance.getString("text") + " " + duration.getString("text");
+  }
+
+  public void setLocationTracker(Activity activity)
+  {
+    locationManager = (LocationManager) activity.getSystemService(Activity.LOCATION_SERVICE);
+    currentLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+
+    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME,
+      LOCATION_REFRESH_DISTANCE, new LocationListener()
+      {
+        @Override
+        public void onLocationChanged(android.location.Location location)
+        {
+         currentLocation = location;
+          Log.d("Location Update: ", location.toString());
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle)
+        {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String s)
+        {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String s)
+        {
+
+        }
+      });
+  }
+
+  public Location getCurrentLocation()
+  {
+    return currentLocation;
   }
 }

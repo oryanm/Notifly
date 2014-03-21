@@ -7,8 +7,8 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/core" />
+            <option value="E:\GitRepo\Notifly" />
+            <option value="E:\GitRepo\Notifly\core" />
           </set>
         </option>
       </GradleProjectSettings>
