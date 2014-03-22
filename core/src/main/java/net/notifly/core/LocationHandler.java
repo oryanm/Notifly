@@ -1,12 +1,11 @@
 package net.notifly.core;
 
 import android.app.Activity;
+import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Bundle;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -21,9 +20,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
-import java.util.Locale;
 
-public class LocationUtils
+public class LocationHandler
 {
   private final static String DISTANCE_MATRIX_URL = "http://maps.googleapis.com/maps/api/distancematrix/json?origins=:org&destinations=:dest&mode=:mode&language=en-US&sensor=false";
 
@@ -34,38 +32,28 @@ public class LocationUtils
   private static final long LOCATION_REFRESH_TIME = 5;
   private static final float LOCATION_REFRESH_DISTANCE = 5;
 
-  private LocationManager locationManager;
   private Location currentLocation;
+  private Geocoder geocoder;
 
-  private static LocationUtils singleton = new LocationUtils();
-
-  static
+  public LocationHandler(Context context)
   {
-    // todo way is the default before we set a new default?
-    Locale.setDefault(new Locale("he", "IL"));
+    setLocationTracker(context);
+    geocoder = new Geocoder(context);
   }
 
-  public static LocationUtils getSingleton()
+  public Address getAddress(double longitude, double latitude) throws IOException
   {
-    return singleton;
-  }
-
-  public static Address getAddress(Activity activity, double longitude, double latitude) throws IOException
-  {
-    Geocoder geocoder = new Geocoder(activity.getBaseContext());
-
     return geocoder.getFromLocation(latitude, longitude, 1).iterator().next();
   }
 
-  public static String getLocationByName(Activity activity, String name) throws IOException
+  public String getLocationByName(String name) throws IOException
   {
-    Geocoder geo = new Geocoder(activity.getBaseContext());
-    List<Address> addresses = geo.getFromLocationName(name, /* TODO why 5?*/ 5,
+    List<Address> addresses = geocoder.getFromLocationName(name, /* TODO why 5?*/ 5,
       LOWER_LEFT_LATITUDE, LOWER_LEFT_LONGITUDE, UPPER_RIGHT_LATITUDE, UPPER_RIGHT_LONGITUDE);
     return addresses.iterator().next().getFeatureName();
   }
 
-  public static String getDistanceMatrix(String orgAddress, String destAddress, String mode) throws IOException, JSONException
+  public static DistanceMatrix getDistanceMatrix(String orgAddress, String destAddress, String mode) throws IOException, JSONException
   {
     String urlString = DISTANCE_MATRIX_URL;
     urlString = urlString.replace(":org", orgAddress);
@@ -100,42 +88,26 @@ public class LocationUtils
     JSONObject distance = (JSONObject) ((JSONObject)elements.get(0)).get("distance");
     JSONObject duration = (JSONObject) ((JSONObject)elements.get(0)).get("duration");
 
-    return distance.getString("text") + " " + duration.getString("text");
+    return new DistanceMatrix(duration.getLong("value"), distance.getLong("value"),
+      duration.getString("text"), distance.getString("text"));
   }
 
-  public void setLocationTracker(Activity activity)
+  public void setLocationTracker(Context context)
   {
-    locationManager = (LocationManager) activity.getSystemService(Activity.LOCATION_SERVICE);
+    LocationManager locationManager = (LocationManager) context.getSystemService(Activity.LOCATION_SERVICE);
     currentLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
 
     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME,
-      LOCATION_REFRESH_DISTANCE, new LocationListener()
+      LOCATION_REFRESH_DISTANCE, new LocationAdapter()
       {
         @Override
         public void onLocationChanged(android.location.Location location)
         {
-         currentLocation = location;
+          currentLocation = location;
           Log.d("Location Update: ", location.toString());
         }
-
-        @Override
-        public void onStatusChanged(String s, int i, Bundle bundle)
-        {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String s)
-        {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String s)
-        {
-
-        }
-      });
+      }
+    );
   }
 
   public Location getCurrentLocation()

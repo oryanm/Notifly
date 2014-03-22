@@ -9,18 +9,18 @@ import java.io.IOException;
 /**
  * Created by Barak on 08/03/14.
  */
-class RetreiveResultTask extends AsyncTask<String, Void, String>
+class RetreiveResultTask extends AsyncTask<String, Void, DistanceMatrix>
 {
   private Exception exception;
 
   @Override
-  protected String doInBackground(String... paramses)
+  protected DistanceMatrix doInBackground(String... paramses)
   {
     try
     {
       try
       {
-        return LocationUtils.getDistanceMatrix(paramses[0], paramses[1], paramses[2]);
+        return LocationHandler.getDistanceMatrix(paramses[0], paramses[1], paramses[2]);
       }
       catch (IOException e)
       {
@@ -40,7 +40,7 @@ class RetreiveResultTask extends AsyncTask<String, Void, String>
   }
 
   @Override
-  protected void onPostExecute(String feed)
+  protected void onPostExecute(DistanceMatrix feed)
   {
     // TODO: check this.exception
     // TODO: do something with the feed

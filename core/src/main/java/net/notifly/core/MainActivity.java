@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,17 +59,22 @@ public class MainActivity extends ActionBarActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-      sample();
+      if (!BackgroundService.ALIVE)
+      {
+        Log.d("MainActivity", "started background service");
+        this.startService(new Intent(this, BackgroundService.class));
+      }
     }
 
   private void sample()
   {
     try
     {
-      Location currentLocation = LocationUtils.getSingleton().getCurrentLocation();
+      LocationHandler locationHandler = new LocationHandler(this);
+      Location currentLocation = locationHandler.getCurrentLocation();
       String origin = currentLocation.getLatitude() + "," + currentLocation.getLongitude();
-      String distanceAndDuration = new RetreiveResultTask().execute(origin, "Tel-Aviv", "walking").get();
-      Toast.makeText(this, distanceAndDuration, Toast.LENGTH_LONG).show();
+      DistanceMatrix distanceAndDuration = new RetreiveResultTask().execute(origin, "Tel-Aviv", "walking").get();
+      Toast.makeText(this, distanceAndDuration.toString(), Toast.LENGTH_LONG).show();
     } catch (InterruptedException e)
     {
       e.printStackTrace();
