@@ -37,10 +37,11 @@
                 android:value="AIzaSyBnXj7WSvHnFKJ90Uv8t9E4dIsowR6fX98" />
         </activity>
 
+        <!--windowSoftInputMode: shows the keyboard on start-->
         <activity
             android:name="net.notifly.core.NewNoteActivity"
-            android:label="@string/title_activity_new_note" >
-        </activity>
+            android:label="@string/title_activity_new_note"
+            android:windowSoftInputMode="stateVisible"/>
     </application>
 
 </manifest>

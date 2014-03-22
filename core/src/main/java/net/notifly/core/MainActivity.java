@@ -15,8 +15,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.fortysevendeg.swipelistview.SwipeListView;
 
 import net.danlew.android.joda.ResourceZoneInfoProvider;
 import net.notifly.core.sql.NotesDAO;
@@ -28,6 +29,7 @@ public class MainActivity extends ActionBarActivity
 {
   private static final int NEW_NOTE_CODE = 1;
 
+  public static final int NAVIGATION_SECTION_NOTES = 1;
 
   /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -55,8 +57,6 @@ public class MainActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
-
-      LocationUtils.getSingleton().setLocationTracker(this);
 
       sample();
     }
@@ -89,8 +89,8 @@ public class MainActivity extends ActionBarActivity
 
     public void onSectionAttached(int number) {
         switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
+            case NAVIGATION_SECTION_NOTES:
+                mTitle = getString(R.string.title_section_notes);
                 break;
             case 2:
                 mTitle = getString(R.string.title_section2);
@@ -143,6 +143,9 @@ public class MainActivity extends ActionBarActivity
 
   private void openNewNoteActivity()
   {
+    SwipeListView list = (SwipeListView) findViewById(R.id.notes_list_view);
+    list.closeOpenedItems();
+
     Intent intent = new Intent(this, NewNoteActivity.class);
     startActivityForResult(intent, NEW_NOTE_CODE);
   }
@@ -176,6 +179,7 @@ public class MainActivity extends ActionBarActivity
       adapter.add(note);
     }
 
+    adapter.notifyDataSetChanged();
     notesDAO.close();
   }
 
@@ -209,13 +213,11 @@ public class MainActivity extends ActionBarActivity
                              Bundle savedInstanceState)
     {
       View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-      TextView textView = (TextView) rootView.findViewById(R.id.section_label);
       int section = getArguments().getInt(ARG_SECTION_NUMBER);
-      textView.setText(Integer.toString(section));
 
       switch (section)
       {
-        case 1:
+        case NAVIGATION_SECTION_NOTES:
         {
           createNotesListView(rootView);
         }
@@ -226,10 +228,10 @@ public class MainActivity extends ActionBarActivity
     private void createNotesListView(View rootView)
     {
       NotesDAO notesDAO = new NotesDAO(getActivity());
-      NotesAdapter adapter = new NotesAdapter(getActivity(), notesDAO.getAllNotes());
+      final NotesAdapter adapter = new NotesAdapter(getActivity(), notesDAO.getAllNotes());
       notesDAO.close();
 
-      ListView list = (ListView) rootView.findViewById(R.id.notes_list_view);
+      SwipeListView list = (SwipeListView) rootView.findViewById(R.id.notes_list_view);
       list.setAdapter(adapter);
     }
 
@@ -240,5 +242,4 @@ public class MainActivity extends ActionBarActivity
                     getArguments().getInt(ARG_SECTION_NUMBER));
         }
     }
-
 }

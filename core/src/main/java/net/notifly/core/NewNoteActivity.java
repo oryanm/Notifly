@@ -50,6 +50,7 @@ public class NewNoteActivity extends ActionBarActivity
     if (!title.isEmpty())
     {
       Note note = new Note(title, LocalDateTime.now());
+      note.setDescription(((EditText) findViewById(R.id.descriptionEditText)).getText().toString());
       NotesDAO notes = new NotesDAO(this);
       notes.addNote(note);
       notes.close();

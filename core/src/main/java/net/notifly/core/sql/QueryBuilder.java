@@ -15,27 +15,31 @@ public class QueryBuilder
   String having;
   String orderBy;
 
-  public QueryBuilder(String table, String... columns)
+  public QueryBuilder(String... columns)
   {
-    this.table = table;
     this.columns = columns;
   }
 
-  public QueryBuilder(boolean distinct, String table, String[] columns)
+  public QueryBuilder(boolean distinct, String... columns)
   {
     this.distinct = distinct;
-    this.table = table;
     this.columns = columns;
   }
 
-  public static QueryBuilder select(String table, String... columns)
+  public static QueryBuilder select(String... columns)
   {
-    return new QueryBuilder(table, columns);
+    return new QueryBuilder(columns);
   }
 
-  public static QueryBuilder selectDistinct(String table, String... columns)
+  public static QueryBuilder selectDistinct(String... columns)
   {
-    return new QueryBuilder(true, table, columns);
+    return new QueryBuilder(true, columns);
+  }
+
+  public QueryBuilder from(String table)
+  {
+    this.table = table;
+    return this;
   }
 
   public QueryBuilder where(String selection, String... selectionArgs)

@@ -10,6 +10,7 @@ apply plugin: 'android'
 
 repositories {
     mavenCentral()
+    maven { url 'http://clinker.47deg.com/nexus/content/groups/public' }
 }
 
 android {
@@ -36,4 +37,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:19.0.1'
     compile 'com.android.support:gridlayout-v7:18.0.0'
     compile 'com.android.support:support-v4:19.0.1'
+    compile ('com.fortysevendeg.swipelistview:swipelistview:1.0-SNAPSHOT@aar') {
+        transitive = true
+    }
 }
