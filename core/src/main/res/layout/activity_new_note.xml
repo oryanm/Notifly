@@ -51,4 +51,13 @@
             android:layout_weight="1"/>
     </LinearLayout>
 
+    <AutoCompleteTextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/note_location"
+        android:id="@+id/locationTextView"
+        android:layout_below="@+id/linearLayout3"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
+
 </RelativeLayout>

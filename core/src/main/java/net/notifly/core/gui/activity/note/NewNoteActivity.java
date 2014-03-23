@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 
 import net.notifly.core.R;
@@ -20,6 +21,7 @@ public class NewNoteActivity extends ActionBarActivity
   {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_new_note);
+    setLocationEditText();
   }
 
   @Override
@@ -43,6 +45,12 @@ public class NewNoteActivity extends ActionBarActivity
       return true;
     }
     return super.onOptionsItemSelected(item);
+  }
+
+  private void setLocationEditText()
+  {
+    AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.locationTextView);
+    textView.setAdapter(new AddressAdapter(this, android.R.layout.simple_list_item_1));
   }
 
   private void save()

@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -49,13 +50,15 @@ public class LocationHandler
 
   public String getLocationByName(String name) throws IOException
   {
-    return getLocationsByName(name, /*TODO: why 5?*/ 5).iterator().next().getFeatureName();
+    return getAddresses(name, /*TODO: why 5?*/ 5).iterator().next().getFeatureName();
   }
 
-  public List<Address> getLocationsByName(String name, int maxResults) throws IOException
+  public List<Address> getAddresses(String name, int maxResults) throws IOException
   {
-    return geocoder.getFromLocationName(name, maxResults,
+    List<Address> addresses = geocoder.getFromLocationName(name, maxResults,
       LOWER_LEFT_LATITUDE, LOWER_LEFT_LONGITUDE, UPPER_RIGHT_LATITUDE, UPPER_RIGHT_LONGITUDE);
+    // in case google returns null
+    return addresses != null ? addresses : new ArrayList<Address>();
   }
 
   public static DistanceMatrix getDistanceMatrix(String orgAddress, String destAddress, String mode) throws IOException, JSONException

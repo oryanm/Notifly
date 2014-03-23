@@ -18,5 +18,6 @@
     <string name="action_save_note">Save</string>
     <string name="local_service_started">service started!</string>
     <string name="local_service_stopped">service stopped!</string>
+    <string name="note_location">Location</string>
 
 </resources>
