@@ -5,4 +5,11 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="AppTheme.ListItem">
+        <item name="android:background">@color/light_green</item>
+    </style>
+
+    <style name="Spinner" parent="android:Widget.Holo.Light.Spinner">
+        <item name="android:background">@android:drawable/edit_text</item>
+    </style>
 </resources>

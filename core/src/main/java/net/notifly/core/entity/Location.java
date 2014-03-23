@@ -1,4 +1,4 @@
-package net.notifly.core;
+package net.notifly.core.entity;
 
 public class Location
 {

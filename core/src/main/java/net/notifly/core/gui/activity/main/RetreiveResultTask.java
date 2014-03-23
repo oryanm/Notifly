@@ -1,6 +1,9 @@
-package net.notifly.core;
+package net.notifly.core.gui.activity.main;
 
 import android.os.AsyncTask;
+
+import net.notifly.core.DistanceMatrix;
+import net.notifly.core.LocationHandler;
 
 import org.json.JSONException;
 

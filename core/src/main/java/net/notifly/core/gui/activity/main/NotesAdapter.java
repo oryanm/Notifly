@@ -1,4 +1,4 @@
-package net.notifly.core;
+package net.notifly.core.gui.activity.main;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import com.fortysevendeg.swipelistview.SwipeListView;
 
+import net.notifly.core.R;
+import net.notifly.core.entity.Note;
 import net.notifly.core.sql.NotesDAO;
 
 import org.joda.time.format.DateTimeFormat;
@@ -49,8 +51,8 @@ public class NotesAdapter extends ArrayAdapter<Note> {
         }
       });
         // Populate the data into the template view using the data object
-        viewHolder.title.setText(note.title);
-        viewHolder.time.setText(note.time.toString(DateTimeFormat.fullDateTime()));
+        viewHolder.title.setText(note.getTitle());
+        viewHolder.time.setText(note.getTime().toString(DateTimeFormat.fullDateTime()));
         // Return the completed view to render on screen
         return convertView;
     }

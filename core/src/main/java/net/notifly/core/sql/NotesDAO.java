@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import net.notifly.core.Note;
+import net.notifly.core.entity.Note;
 
 import org.joda.time.LocalDateTime;
 

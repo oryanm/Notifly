@@ -1,4 +1,4 @@
-package net.notifly.core;
+package net.notifly.core.gui.activity.main;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -21,6 +21,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import net.notifly.core.R;
 
 ;
 
@@ -100,14 +102,15 @@ public class NavigationDrawerFragment extends Fragment {
             }
         });
         mDrawerListView.setAdapter(new ArrayAdapter<String>(
-                getActionBar().getThemedContext(),
-                android.R.layout.simple_list_item_1,
-                android.R.id.text1,
-                new String[]{
-                        getString(R.string.title_section_notes),
-                        getString(R.string.title_section2),
-                        getString(R.string.title_section3),
-                }));
+          getActionBar().getThemedContext(),
+          android.R.layout.simple_list_item_1,
+          android.R.id.text1,
+          new String[]{
+            getString(R.string.title_section_notes),
+            getString(R.string.title_section2),
+            getString(R.string.title_section3),
+          }
+        ));
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;
     }

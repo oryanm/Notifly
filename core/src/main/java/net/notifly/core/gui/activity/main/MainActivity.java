@@ -1,4 +1,4 @@
-package net.notifly.core;
+package net.notifly.core.gui.activity.main;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -21,6 +21,12 @@ import android.widget.Toast;
 import com.fortysevendeg.swipelistview.SwipeListView;
 
 import net.danlew.android.joda.ResourceZoneInfoProvider;
+import net.notifly.core.BackgroundService;
+import net.notifly.core.DistanceMatrix;
+import net.notifly.core.LocationHandler;
+import net.notifly.core.R;
+import net.notifly.core.entity.Note;
+import net.notifly.core.gui.activity.note.NewNoteActivity;
 import net.notifly.core.sql.NotesDAO;
 
 import java.util.concurrent.ExecutionException;

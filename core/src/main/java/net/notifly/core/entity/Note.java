@@ -1,4 +1,5 @@
-package net.notifly.core;
+package net.notifly.core.entity;
+
 
 import org.joda.time.LocalDateTime;
 

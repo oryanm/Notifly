@@ -13,6 +13,8 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import net.notifly.core.entity.Note;
+import net.notifly.core.gui.activity.main.MainActivity;
 import net.notifly.core.sql.NotesDAO;
 
 import java.text.SimpleDateFormat;

@@ -1,4 +1,4 @@
-package net.notifly.core;
+package net.notifly.core.gui.activity.note;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 
+import net.notifly.core.R;
+import net.notifly.core.entity.Note;
 import net.notifly.core.sql.NotesDAO;
 
 import org.joda.time.LocalDateTime;
