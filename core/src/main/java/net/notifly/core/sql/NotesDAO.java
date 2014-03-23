@@ -59,7 +59,6 @@ public class NotesDAO
   public void deleteNote(Note note)
   {
     SQLiteDatabase database = sqlHelper.getWritableDatabase();
-    //todo use id col
     database.delete(TABLE_NAME, String.format("%s = ? ", COLUMNS.ID.name()),
       new String[]{String.valueOf(note.getId())});
     database.close();
