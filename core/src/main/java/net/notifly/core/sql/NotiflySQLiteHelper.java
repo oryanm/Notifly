@@ -34,6 +34,7 @@ public class NotiflySQLiteHelper extends SQLiteOpenHelper
   public void onCreate(SQLiteDatabase db)
   {
     db.execSQL(NotesDAO.CREATE_STATEMENT);
+    db.execSQL(LocationDAO.CREATE_STATEMENT);
   }
 
   @Override
@@ -41,6 +42,7 @@ public class NotiflySQLiteHelper extends SQLiteOpenHelper
   {
     // put migration scripts here
     db.execSQL(NotesDAO.DROP_STATEMENT);
+    db.execSQL(LocationDAO.DROP_STATEMENT);
     onCreate(db);
   }
 }
