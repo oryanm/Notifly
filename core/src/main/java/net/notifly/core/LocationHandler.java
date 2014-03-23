@@ -20,6 +20,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+import java.util.Locale;
 
 public class LocationHandler
 {
@@ -38,7 +39,7 @@ public class LocationHandler
   public LocationHandler(Context context)
   {
     setLocationTracker(context);
-    geocoder = new Geocoder(context);
+    geocoder = new Geocoder(context, new Locale("he", "IL"));
   }
 
   public Address getAddress(double longitude, double latitude) throws IOException
@@ -48,9 +49,13 @@ public class LocationHandler
 
   public String getLocationByName(String name) throws IOException
   {
-    List<Address> addresses = geocoder.getFromLocationName(name, /* TODO why 5?*/ 5,
+    return getLocationsByName(name, /*TODO: why 5?*/ 5).iterator().next().getFeatureName();
+  }
+
+  public List<Address> getLocationsByName(String name, int maxResults) throws IOException
+  {
+    return geocoder.getFromLocationName(name, maxResults,
       LOWER_LEFT_LATITUDE, LOWER_LEFT_LONGITUDE, UPPER_RIGHT_LATITUDE, UPPER_RIGHT_LONGITUDE);
-    return addresses.iterator().next().getFeatureName();
   }
 
   public static DistanceMatrix getDistanceMatrix(String orgAddress, String destAddress, String mode) throws IOException, JSONException
