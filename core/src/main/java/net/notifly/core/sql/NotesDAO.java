@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 
 import net.notifly.core.entity.Note;
 
@@ -28,8 +27,6 @@ public class NotesDAO extends AbstractDAO
     /* todo: might need to change to _ID due to content provider, BaseColumns._ID?. */
     ID, TITLE, DESCRIPTION, TIME
   }
-
-  SQLiteOpenHelper sqlHelper;
 
   public NotesDAO(Context context)
   {

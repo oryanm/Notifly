@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 
 import net.notifly.core.entity.Location;
 
@@ -23,8 +22,6 @@ public class LocationDAO extends AbstractDAO
   {
     ID, LONGITUDE, LATITUDE
   }
-
-  SQLiteOpenHelper sqlHelper;
 
   public LocationDAO(Context context)
   {
