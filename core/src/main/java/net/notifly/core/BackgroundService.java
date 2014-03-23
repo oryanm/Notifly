@@ -13,12 +13,13 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import net.danlew.android.joda.ResourceZoneInfoProvider;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.main.MainActivity;
 import net.notifly.core.sql.NotesDAO;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import org.joda.time.LocalDateTime;
+
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -29,7 +30,7 @@ import java.util.TimerTask;
 public class BackgroundService extends Service
 {
   // constant
-  public static final long NOTIFY_INTERVAL = 1; // In minutes
+  public static final long NOTIFY_INTERVAL = 3333; // In minutes
 
   public static boolean ALIVE = false;
 
@@ -62,6 +63,9 @@ public class BackgroundService extends Service
   public void onCreate() {
     Log.d("BackgroundService", "Creating shit");
     ALIVE = true;
+
+    // init joda time
+    ResourceZoneInfoProvider.init(this);
 
     locationHandler = new LocationHandler(this);
     notesDAO = new NotesDAO(this);
@@ -105,8 +109,7 @@ public class BackgroundService extends Service
 //
 //          }
 
-
-
+          notesDAO.close();
           showNotification("You have an incoming task! " + getDateTime());
         }
 
@@ -115,9 +118,7 @@ public class BackgroundService extends Service
 
     private String getDateTime()
     {
-      // get date time in custom format
-      SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-      return sdf.format(new Date());
+      return LocalDateTime.now().toString("dd/MM/yyyy HH:mm:ss");
     }
   }
 
