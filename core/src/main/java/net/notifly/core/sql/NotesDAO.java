@@ -8,12 +8,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import net.notifly.core.entity.Note;
 
-import org.joda.time.LocalDateTime;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class NotesDAO
+public class NotesDAO extends AbstractDAO
 {
   public static final String TABLE_NAME = "note";
 
@@ -35,12 +33,7 @@ public class NotesDAO
 
   public NotesDAO(Context context)
   {
-    this.sqlHelper = new NotiflySQLiteHelper(context, null);
-  }
-
-  public void close()
-  {
-    this.sqlHelper.close();
+    super(context);
   }
 
   public void addNote(Note note)
@@ -66,9 +59,8 @@ public class NotesDAO
 
   public List<Note> getAllNotes()
   {
-    // TODO: move to JDK 1.7
     List<Note> notes = new ArrayList<Note>();
-    SQLiteDatabase database = sqlHelper.getWritableDatabase();
+    SQLiteDatabase database = sqlHelper.getReadableDatabase();
     Cursor cursor = query(database, QueryBuilder
       .select(COLUMNS.ID.name(), COLUMNS.TITLE.name(),
         COLUMNS.DESCRIPTION.name(), COLUMNS.TIME.name())
@@ -91,18 +83,5 @@ public class NotesDAO
     database.close();
 
     return notes;
-  }
-
-  private LocalDateTime parseTime(String time)
-  {
-    return LocalDateTime.parse(time, NotiflySQLiteHelper.DATETIME_FORMATTER);
-  }
-
-  public Cursor query(SQLiteDatabase database, QueryBuilder builder)
-  {
-    return database.query(
-      builder.distinct, builder.table, builder.columns,
-      builder.selection, builder.selectionArgs,
-      builder.groupBy, builder.having, builder.orderBy, null);
   }
 }
