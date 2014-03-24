@@ -1,14 +1,18 @@
 package net.notifly.core.gui.activity.note;
 
 import android.content.Intent;
+import android.location.Address;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 
 import net.notifly.core.R;
+import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
 import net.notifly.core.sql.NotesDAO;
 
@@ -16,6 +20,8 @@ import org.joda.time.LocalDateTime;
 
 public class NewNoteActivity extends ActionBarActivity
 {
+  Address address;
+
   @Override
   protected void onCreate(Bundle savedInstanceState)
   {
@@ -50,7 +56,16 @@ public class NewNoteActivity extends ActionBarActivity
   private void setLocationEditText()
   {
     AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.locationTextView);
-    textView.setAdapter(new AddressAdapter(this, android.R.layout.simple_list_item_1));
+    final AddressAdapter adapter = new AddressAdapter(this, android.R.layout.simple_list_item_1);
+    textView.setAdapter(adapter);
+    textView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+    {
+      @Override
+      public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+      {
+        address = adapter.getAddress(position);
+      }
+    });
   }
 
   private void save()
@@ -61,6 +76,8 @@ public class NewNoteActivity extends ActionBarActivity
     {
       Note note = new Note(title, LocalDateTime.now());
       note.setDescription(((EditText) findViewById(R.id.descriptionEditText)).getText().toString());
+      note.setLocation(Location.from(address));
+
       NotesDAO notes = new NotesDAO(this);
       notes.addNote(note);
       notes.close();

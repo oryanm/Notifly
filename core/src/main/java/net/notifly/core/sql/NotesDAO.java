@@ -3,7 +3,6 @@ package net.notifly.core.sql;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 import net.notifly.core.entity.Note;
 
@@ -18,14 +17,17 @@ public class NotesDAO extends AbstractDAO
     COLUMNS.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
     COLUMNS.TITLE + " TEXT NOT NULL, " +
     COLUMNS.DESCRIPTION + " TEXT, " +
-    COLUMNS.TIME + " DATETIME " + ")";
+    COLUMNS.TIME + " DATETIME, " +
+    COLUMNS.LOCATION + " INT, " +
+    " FOREIGN KEY( " + COLUMNS.LOCATION + " ) REFERENCES " +
+    LocationDAO.TABLE_NAME + "( " + LocationDAO.COLUMNS.ID + " ) " + ")";
 
   public static final String DROP_STATEMENT = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
   enum COLUMNS
   {
     /* todo: might need to change to _ID due to content provider, BaseColumns._ID?. */
-    ID, TITLE, DESCRIPTION, TIME
+    ID, TITLE, DESCRIPTION, LOCATION, TIME
   }
 
   public NotesDAO(Context context)
@@ -35,32 +37,40 @@ public class NotesDAO extends AbstractDAO
 
   public void addNote(Note note)
   {
-    SQLiteDatabase database = sqlHelper.getWritableDatabase();
+    database.beginTransaction();
 
-    ContentValues values = new ContentValues();
-    values.put(COLUMNS.TITLE.name(), note.getTitle());
-    values.put(COLUMNS.DESCRIPTION.name(), note.getDescription());
-    values.put(COLUMNS.TIME.name(), note.getTime().toString(NotiflySQLiteHelper.DATETIME_PATTERN));
+    try
+    {
+      // todo check for existing locations
+      long location = new LocationDAO(database).addLocation(note.getLocation());
 
-    database.insert(TABLE_NAME, null, values);
-    database.close();
+      ContentValues values = new ContentValues();
+      values.put(COLUMNS.TITLE.name(), note.getTitle());
+      values.put(COLUMNS.DESCRIPTION.name(), note.getDescription());
+      values.put(COLUMNS.LOCATION.name(), location);
+      values.put(COLUMNS.TIME.name(), note.getTime().toString(NotiflySQLiteHelper.DATETIME_PATTERN));
+
+      database.insert(TABLE_NAME, null, values);
+      database.setTransactionSuccessful();
+    }
+    finally
+    {
+      database.endTransaction();
+    }
   }
 
   public void deleteNote(Note note)
   {
-    SQLiteDatabase database = sqlHelper.getWritableDatabase();
     database.delete(TABLE_NAME, String.format("%s = ? ", COLUMNS.ID.name()),
       new String[]{String.valueOf(note.getId())});
-    database.close();
   }
 
   public List<Note> getAllNotes()
   {
     List<Note> notes = new ArrayList<Note>();
-    SQLiteDatabase database = sqlHelper.getReadableDatabase();
     Cursor cursor = query(database, QueryBuilder
       .select(COLUMNS.ID.name(), COLUMNS.TITLE.name(),
-        COLUMNS.DESCRIPTION.name(), COLUMNS.TIME.name())
+        COLUMNS.DESCRIPTION.name(), COLUMNS.LOCATION.name(), COLUMNS.TIME.name())
       .from(TABLE_NAME));
 
     if (cursor.moveToFirst())
@@ -72,12 +82,13 @@ public class NotesDAO extends AbstractDAO
         note.setTitle(cursor.getString(COLUMNS.TITLE.ordinal()));
         note.setTime(parseTime(cursor.getString(COLUMNS.TIME.ordinal())));
         note.setDescription(cursor.getString(COLUMNS.DESCRIPTION.ordinal()));
+        note.setLocation(new LocationDAO(database)
+          .getLocation(cursor.getInt(COLUMNS.LOCATION.ordinal())));
         notes.add(note);
       } while (cursor.moveToNext());
     }
 
     cursor.close();
-    database.close();
 
     return notes;
   }

@@ -28,41 +28,39 @@ public class LocationDAO extends AbstractDAO
     super(context);
   }
 
-  public void addLocation(Location location)
+  public LocationDAO(SQLiteDatabase database)
   {
-    SQLiteDatabase database = sqlHelper.getWritableDatabase();
+    super(database);
+  }
 
+  public long addLocation(Location location)
+  {
     ContentValues values = new ContentValues();
     values.put(COLUMNS.LONGITUDE.name(), location.getLongitude());
     values.put(COLUMNS.LATITUDE.name(), location.getLatitude());
 
-    database.insert(TABLE_NAME, null, values);
-    database.close();
+    return database.insert(TABLE_NAME, null, values);
   }
 
   public void deleteNote(Location note)
   {
-    SQLiteDatabase database = sqlHelper.getWritableDatabase();
     database.delete(TABLE_NAME, String.format("%s = ? ", COLUMNS.ID.name()),
       new String[]{String.valueOf(note.getId())});
-    database.close();
   }
 
   public Location getLocation(int id) {
-    SQLiteDatabase database = sqlHelper.getReadableDatabase();
     Cursor cursor = query(database, QueryBuilder
       .select(COLUMNS.ID.name(), COLUMNS.LONGITUDE.name(), COLUMNS.LATITUDE.name())
       .from(TABLE_NAME)
       .where(String.format("%s = ? ", COLUMNS.ID.name()), String.valueOf(id)));
     cursor.moveToFirst();
 
-    // todo: what happens when we close the db before getting crom cursor?
-    database.close();
-
-    return new Location(
+    Location location = new Location(
       cursor.getInt(COLUMNS.ID.ordinal()),
       cursor.getDouble(COLUMNS.LONGITUDE.ordinal()),
-      cursor.getDouble(COLUMNS.LATITUDE.ordinal())
-    );
+      cursor.getDouble(COLUMNS.LATITUDE.ordinal()));
+
+    cursor.close();
+    return location;
   }
 }

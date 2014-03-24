@@ -3,22 +3,26 @@ package net.notifly.core.sql;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 
 import org.joda.time.LocalDateTime;
 
 public class AbstractDAO
 {
-  SQLiteOpenHelper sqlHelper;
+  SQLiteDatabase database;
 
   public AbstractDAO(Context context)
   {
-    this.sqlHelper = new NotiflySQLiteHelper(context, null);
+    this.database = new NotiflySQLiteHelper(context, null).getWritableDatabase();
+  }
+
+  public AbstractDAO(SQLiteDatabase database)
+  {
+    this.database = database;
   }
 
   public void close()
   {
-    this.sqlHelper.close();
+    this.database.close();
   }
 
   public Cursor query(SQLiteDatabase database, QueryBuilder builder)
