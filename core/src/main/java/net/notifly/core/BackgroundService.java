@@ -35,7 +35,6 @@ public class BackgroundService extends Service
   public static boolean ALIVE = false;
 
   private NotificationManager notificationManager;
-  private NotesDAO notesDAO;
   private LocationHandler locationHandler;
 
   // run on another Thread to avoid crash
@@ -67,8 +66,7 @@ public class BackgroundService extends Service
     // init joda time
     ResourceZoneInfoProvider.init(this);
 
-    locationHandler = new LocationHandler(this);
-    notesDAO = new NotesDAO(this);
+    locationHandler = new LocationHandler(this, true);
     notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
   }
 
@@ -102,6 +100,7 @@ public class BackgroundService extends Service
         @Override
         public void run()
         {
+          NotesDAO notesDAO = new NotesDAO(BackgroundService.this);
           List<Note> notes = notesDAO.getAllNotes();
 
 //          for (Note note : notes)

@@ -37,9 +37,9 @@ public class LocationHandler
   private Location currentLocation;
   private Geocoder geocoder;
 
-  public LocationHandler(Context context)
+  public LocationHandler(Context context, boolean withTracker)
   {
-    setLocationTracker(context);
+    if (withTracker) setLocationTracker(context);
     geocoder = new Geocoder(context, new Locale("he", "IL"));
   }
 
