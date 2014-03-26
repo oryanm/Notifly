@@ -7,8 +7,8 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="E:\GitRepo\Notifly" />
-            <option value="E:\GitRepo\Notifly\core" />
+            <option value="D:\Oryan\Software\Programming\eclipseWorkspace\Notifly" />
+            <option value="D:\Oryan\Software\Programming\eclipseWorkspace\Notifly\core" />
           </set>
         </option>
       </GradleProjectSettings>

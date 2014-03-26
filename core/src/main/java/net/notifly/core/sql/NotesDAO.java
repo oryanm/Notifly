@@ -35,8 +35,9 @@ public class NotesDAO extends AbstractDAO
     super(context);
   }
 
-  public void addNote(Note note)
+  public long addNote(Note note)
   {
+    long id = -1;
     database.beginTransaction();
 
     try
@@ -50,13 +51,15 @@ public class NotesDAO extends AbstractDAO
       values.put(COLUMNS.LOCATION.name(), location);
       values.put(COLUMNS.TIME.name(), note.getTime().toString(NotiflySQLiteHelper.DATETIME_PATTERN));
 
-      database.insert(TABLE_NAME, null, values);
+      id = database.insert(TABLE_NAME, null, values);
       database.setTransactionSuccessful();
     }
     finally
     {
       database.endTransaction();
     }
+
+    return id;
   }
 
   public void deleteNote(Note note)

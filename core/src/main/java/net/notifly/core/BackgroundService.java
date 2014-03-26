@@ -66,7 +66,6 @@ public class BackgroundService extends Service
     // init joda time
     ResourceZoneInfoProvider.init(this);
 
-    locationHandler = new LocationHandler(this, true);
     notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
   }
 
@@ -77,10 +76,10 @@ public class BackgroundService extends Service
     // cancel if already existed
     if(timer != null) {
       timer.cancel();
-    } else {
-      // recreate new
-      timer = new Timer();
     }
+
+    // recreate new
+    timer = new Timer();
     // schedule task
     timer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL * 60 * 1000);
 

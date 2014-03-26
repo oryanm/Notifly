@@ -80,8 +80,7 @@ public class NewNoteActivity extends ActionBarActivity
       if (address != null) note.setLocation(Location.from(address));
 
       NotesDAO notes = new NotesDAO(this);
-      // todo: return id
-      notes.addNote(note);
+      note.setId((int)notes.addNote(note));
       notes.close();
 
       Intent intent = new Intent();
