@@ -58,16 +58,7 @@ public class NotesAdapter extends ArrayAdapter<Note> {
         // Populate the data into the template view using the data object
         viewHolder.title.setText(note.getTitle());
         viewHolder.time.setText(note.getTime().toString(DateTimeFormat.mediumDateTime()));
-//      Address address = null;
-//      try
-//      {
-//        address = locationHandler.getAddress(note.getLocation());
-//      } catch (IOException e)
-//      {
-//        e.printStackTrace();
-//      }
-//      viewHolder.location.setText(GeneralUtils.toString(address));
-      viewHolder.location.setText(String.valueOf(note.getId()));
+        viewHolder.location.setText(String.valueOf(note.getId()));
         // Return the completed view to render on screen
         return convertView;
     }
