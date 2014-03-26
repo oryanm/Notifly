@@ -1,4 +1,4 @@
-package net.notifly.core;
+package net.notifly.core.gui.activity.main.swipe;
 
 import android.content.Context;
 

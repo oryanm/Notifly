@@ -1,12 +1,8 @@
 package net.notifly.core;
 
-import android.app.Activity;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,12 +30,10 @@ public class LocationHandler
   private static final long LOCATION_REFRESH_TIME = 5;
   private static final float LOCATION_REFRESH_DISTANCE = 5;
 
-  private Location currentLocation;
   private Geocoder geocoder;
 
-  public LocationHandler(Context context, boolean withTracker)
+  public LocationHandler(Context context)
   {
-    if (withTracker) setLocationTracker(context);
     geocoder = new Geocoder(context, new Locale("he", "IL"));
   }
 
@@ -103,28 +97,5 @@ public class LocationHandler
 
     return new DistanceMatrix(duration.getLong("value"), distance.getLong("value"),
       duration.getString("text"), distance.getString("text"));
-  }
-
-  public void setLocationTracker(Context context)
-  {
-    LocationManager locationManager = (LocationManager) context.getSystemService(Activity.LOCATION_SERVICE);
-    currentLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-
-    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME,
-      LOCATION_REFRESH_DISTANCE, new LocationAdapter()
-      {
-        @Override
-        public void onLocationChanged(android.location.Location location)
-        {
-          currentLocation = location;
-          Log.d("Location Update: ", location.toString());
-        }
-      }
-    );
-  }
-
-  public Location getCurrentLocation()
-  {
-    return currentLocation;
   }
 }

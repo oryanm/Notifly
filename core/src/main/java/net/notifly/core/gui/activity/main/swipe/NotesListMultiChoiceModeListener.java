@@ -1,4 +1,4 @@
-package net.notifly.core;
+package net.notifly.core.gui.activity.main.swipe;
 
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import android.widget.AbsListView;
 
 import com.fortysevendeg.swipelistview.SwipeListView;
+
+import net.notifly.core.R;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class NotesListMultiChoiceModeListener implements AbsListView.MultiChoiceModeListener

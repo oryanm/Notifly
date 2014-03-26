@@ -1,0 +1,32 @@
+package net.notifly.core.gui.activity.main;
+
+import android.os.AsyncTask;
+
+import net.notifly.core.DistanceMatrix;
+import net.notifly.core.LocationHandler;
+
+public class RetreiveDistanceMatrixTask extends AsyncTask<String, Void, DistanceMatrix>
+{
+  private Exception exception;
+
+  @Override
+  protected DistanceMatrix doInBackground(String... params)
+  {
+    try
+    {
+      return LocationHandler.getDistanceMatrix(params[0], params[1], params[2]);
+    }
+    catch (Exception e)
+    {
+      this.exception = e;
+      return null;
+    }
+  }
+
+  @Override
+  protected void onPostExecute(DistanceMatrix feed)
+  {
+    // TODO: check this.exception
+    // TODO: do something with the feed
+  }
+}

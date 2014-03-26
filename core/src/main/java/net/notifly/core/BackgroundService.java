@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -35,12 +37,11 @@ public class BackgroundService extends Service
   public static boolean ALIVE = false;
 
   private NotificationManager notificationManager;
-  private LocationHandler locationHandler;
 
   // run on another Thread to avoid crash
   private Handler handler = new Handler();
   // timer handling
-  private Timer timer = null;
+  private Timer timer = new Timer();
 
   // Unique Identification Number for the Notification.
   // We use it on Notification start, and to cancel it.
@@ -73,13 +74,6 @@ public class BackgroundService extends Service
   public int onStartCommand(Intent intent, int flags, int startId) {
     Log.d("BackgroundService", "Received start id " + startId + ": " + intent);
 
-    // cancel if already existed
-    if(timer != null) {
-      timer.cancel();
-    }
-
-    // recreate new
-    timer = new Timer();
     // schedule task
     timer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL * 60 * 1000);
 
@@ -99,16 +93,20 @@ public class BackgroundService extends Service
         @Override
         public void run()
         {
+          LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+          Location currentLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
           NotesDAO notesDAO = new NotesDAO(BackgroundService.this);
           List<Note> notes = notesDAO.getAllNotes();
+          notesDAO.close();
 
 //          for (Note note : notes)
 //          {
-//
+//            String org = net.notifly.core.entity.Location.from(currentLocation).toString();
+//            String dest = note.getLocation().toString();
+//            new RetreiveDistanceMatrixTask().execute(org, dest, "driving");
+//            showNotification("You have an incoming task! " + getDateTime());
 //          }
 
-          notesDAO.close();
-          showNotification("You have an incoming task! " + getDateTime());
         }
 
       });

@@ -28,6 +28,11 @@ public class Location implements Parcelable
     return new Location(address.getLongitude(), address.getLatitude());
   }
 
+  public static Location from(android.location.Location location)
+  {
+    return new Location(location.getLongitude(), location.getLatitude());
+  }
+
   public int getId()
   {
     return id;
@@ -41,6 +46,12 @@ public class Location implements Parcelable
   public double getLatitude()
   {
     return latitude;
+  }
+
+  @Override
+  public String toString()
+  {
+    return getLatitude() + "," + getLongitude();
   }
 
   @Override

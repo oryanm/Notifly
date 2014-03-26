@@ -2,7 +2,6 @@ package net.notifly.core.gui.activity.main;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,20 +15,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.fortysevendeg.swipelistview.SwipeListView;
 
 import net.danlew.android.joda.ResourceZoneInfoProvider;
 import net.notifly.core.BackgroundService;
-import net.notifly.core.DistanceMatrix;
-import net.notifly.core.LocationHandler;
 import net.notifly.core.R;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.note.NewNoteActivity;
 import net.notifly.core.sql.NotesDAO;
-
-import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends ActionBarActivity
   implements NavigationDrawerFragment.NavigationDrawerCallbacks
@@ -72,24 +66,6 @@ public class MainActivity extends ActionBarActivity
         this.startService(new Intent(this, BackgroundService.class));
       }
     }
-
-  private void sample()
-  {
-    try
-    {
-      LocationHandler locationHandler = new LocationHandler(this, true);
-      Location currentLocation = locationHandler.getCurrentLocation();
-      String origin = currentLocation.getLatitude() + "," + currentLocation.getLongitude();
-      DistanceMatrix distanceAndDuration = new RetreiveResultTask().execute(origin, "Tel-Aviv", "walking").get();
-      Toast.makeText(this, distanceAndDuration.toString(), Toast.LENGTH_LONG).show();
-    } catch (InterruptedException e)
-    {
-      e.printStackTrace();
-    } catch (ExecutionException e)
-    {
-      e.printStackTrace();
-    }
-  }
 
   @Override
     public void onNavigationDrawerItemSelected(int position) {
