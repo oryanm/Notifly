@@ -1,10 +1,12 @@
 package net.notifly.core.entity;
 
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.joda.time.LocalDateTime;
 
-//TODO implement Parcelable
-public class Note
+public class Note implements Parcelable
 {
   int id;
   String title;
@@ -84,4 +86,43 @@ public class Note
   {
     this.location = location;
   }
+
+  @Override
+  public int describeContents()
+  {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int flags)
+  {
+    dest.writeInt(id);
+    dest.writeString(title);
+    dest.writeString(description);
+    dest.writeLong(time.toDate().getTime());
+    dest.writeParcelable(location, flags);
+  }
+
+  public static final Parcelable.Creator<Note> CREATOR = new Parcelable.Creator<Note>()
+  {
+    public Note createFromParcel(Parcel in)
+    {
+      return new Note(in);
+    }
+
+    public Note[] newArray(int size)
+    {
+      return new Note[size];
+    }
+  };
+
+  private Note(Parcel in)
+  {
+    this.id = in.readInt();
+    this.title = in.readString();
+    this.description = in.readString();
+    this.time = new LocalDateTime(in.readLong());
+    this.location = in.readParcelable(Location.class.getClassLoader());
+  }
+
 }

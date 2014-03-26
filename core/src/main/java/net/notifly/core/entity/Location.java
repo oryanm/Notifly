@@ -1,8 +1,10 @@
 package net.notifly.core.entity;
 
 import android.location.Address;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class Location
+public class Location implements Parcelable
 {
   private int id;
   private double longitude;
@@ -39,5 +41,39 @@ public class Location
   public double getLatitude()
   {
     return latitude;
+  }
+
+  @Override
+  public int describeContents()
+  {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int flags)
+  {
+    dest.writeInt(id);
+    dest.writeDouble(latitude);
+    dest.writeDouble(longitude);
+  }
+
+  public static final Parcelable.Creator<Location> CREATOR = new Parcelable.Creator<Location>()
+  {
+    public Location createFromParcel(Parcel in)
+    {
+      return new Location(in);
+    }
+
+    public Location[] newArray(int size)
+    {
+      return new Location[size];
+    }
+  };
+
+  private Location(Parcel in)
+  {
+    this.id = in.readInt();
+    this.latitude = in.readDouble();
+    this.longitude = in.readDouble();
   }
 }
