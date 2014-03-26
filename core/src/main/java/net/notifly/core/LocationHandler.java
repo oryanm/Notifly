@@ -43,7 +43,12 @@ public class LocationHandler
     geocoder = new Geocoder(context, new Locale("he", "IL"));
   }
 
-  public Address getAddress(double longitude, double latitude) throws IOException
+  public Address getAddress(net.notifly.core.entity.Location location) throws IOException
+  {
+    return getAddress(location.getLatitude(), location.getLongitude());
+  }
+
+  public Address getAddress(double latitude, double longitude) throws IOException
   {
     return geocoder.getFromLocation(latitude, longitude, 1).iterator().next();
   }
