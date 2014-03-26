@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="joda-convert-1.5">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/core/build/exploded-aar/net.danlew/android.joda/2.3/libs/joda-convert-1.5.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
