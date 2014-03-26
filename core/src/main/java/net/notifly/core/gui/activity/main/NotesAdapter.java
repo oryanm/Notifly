@@ -2,6 +2,9 @@ package net.notifly.core.gui.activity.main;
 
 import android.app.Activity;
 import android.content.Context;
+import android.location.Address;
+import android.util.Log;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,19 +16,25 @@ import com.fortysevendeg.swipelistview.SwipeListView;
 
 import net.notifly.core.LocationHandler;
 import net.notifly.core.R;
+import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
 import net.notifly.core.sql.NotesDAO;
+import net.notifly.core.util.GeneralUtils;
 
 import org.joda.time.format.DateTimeFormat;
 
+import java.io.IOException;
 import java.util.List;
 
 public class NotesAdapter extends ArrayAdapter<Note> {
-  private LocationHandler locationHandler;
+    private LocationHandler locationHandler;
 
-  public NotesAdapter(Context context, List<Note> notes) {
+    // todo: maybe cache at application level
+    LruCache<Location, Address> locationAddressLruCache = new LruCache<Location, Address>(50);
+
+    public NotesAdapter(Context context, List<Note> notes) {
         super(context, R.layout.note_item, notes);
-      locationHandler = new LocationHandler(context, false);
+        locationHandler = new LocationHandler(context);
     }
 
     @Override
@@ -47,33 +56,46 @@ public class NotesAdapter extends ArrayAdapter<Note> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        viewHolder.button1.setOnClickListener(new View.OnClickListener()
-      {
-        @Override
-        public void onClick(View v)
-        {
-          delete(note, position);
-        }
-      });
+        viewHolder.button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                delete(note, position);
+            }
+        });
         // Populate the data into the template view using the data object
         viewHolder.title.setText(note.getTitle());
         viewHolder.time.setText(note.getTime().toString(DateTimeFormat.mediumDateTime()));
-        viewHolder.location.setText(String.valueOf(note.getId()));
-        // Return the completed view to render on screen
+        Address address = getAddress(note);
+        viewHolder.location.setText(GeneralUtils.toString(address));
+
         return convertView;
     }
 
-  public void delete(Note note, int position)
-    {
-      NotesDAO notesDAO = new NotesDAO(getContext());
-      notesDAO.deleteNote(note);
-      notesDAO.close();
+    private Address getAddress(Note note) {
+        Address address = locationAddressLruCache.get(note.getLocation());
 
-      remove(note);
-      notifyDataSetChanged();
+        if (address == null) {
+            try {
+                address = locationHandler.getAddress(note.getLocation());
+                locationAddressLruCache.put(note.getLocation(), address);
+            } catch (IOException e) {
+                Log.e(NotesAdapter.class.getName(), "could not load address");
+            }
+        }
 
-      SwipeListView list = (SwipeListView) ((Activity)getContext()).findViewById(R.id.notes_list_view);
-      list.closeAnimate(position);
+        return address;
+    }
+
+    public void delete(Note note, int position) {
+        NotesDAO notesDAO = new NotesDAO(getContext());
+        notesDAO.deleteNote(note);
+        notesDAO.close();
+
+        remove(note);
+        notifyDataSetChanged();
+
+        SwipeListView list = (SwipeListView) ((Activity) getContext()).findViewById(R.id.notes_list_view);
+        list.closeAnimate(position);
     }
 
     // View lookup cache

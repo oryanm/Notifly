@@ -8,6 +8,7 @@ import android.widget.Filter;
 import android.widget.Filterable;
 
 import net.notifly.core.LocationHandler;
+import net.notifly.core.util.GeneralUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,20 +34,10 @@ public class AddressAdapter extends ArrayAdapter<String> implements Filterable
     return locations.size();
   }
 
-  @Override
-  public String getItem(int index)
-  {
-    Address address = locations.get(index);
-    //TODO: this string is hard
-    return String.format(
-      "%s, %s, %s",
-      // If there's a street address, add it
-      address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : "",
-      // Locality is usually a city
-      address.getLocality(),
-      // The country of the address
-      address.getCountryName());
-  }
+    @Override
+    public String getItem(int index) {
+        return GeneralUtils.toString(locations.get(index));
+    }
 
   public Address getAddress(int index)
   {
