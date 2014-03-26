@@ -76,7 +76,7 @@ public class MainActivity extends ActionBarActivity
   {
     try
     {
-      LocationHandler locationHandler = new LocationHandler(this);
+      LocationHandler locationHandler = new LocationHandler(this, true);
       Location currentLocation = locationHandler.getCurrentLocation();
       String origin = currentLocation.getLatitude() + "," + currentLocation.getLongitude();
       DistanceMatrix distanceAndDuration = new RetreiveResultTask().execute(origin, "Tel-Aviv", "walking").get();

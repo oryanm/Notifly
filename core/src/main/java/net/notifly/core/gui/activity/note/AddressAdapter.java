@@ -24,7 +24,7 @@ public class AddressAdapter extends ArrayAdapter<String> implements Filterable
   {
     super(context, textViewResourceId);
 
-    locationHandler = new LocationHandler(context);
+    locationHandler = new LocationHandler(context, false);
   }
 
   @Override
