@@ -14,6 +14,7 @@ import android.widget.EditText;
 import net.notifly.core.R;
 import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
+import net.notifly.core.gui.activity.main.MainActivity;
 import net.notifly.core.sql.NotesDAO;
 
 import org.joda.time.LocalDateTime;
@@ -76,13 +77,15 @@ public class NewNoteActivity extends ActionBarActivity
     {
       Note note = new Note(title, LocalDateTime.now());
       note.setDescription(((EditText) findViewById(R.id.descriptionEditText)).getText().toString());
-      note.setLocation(Location.from(address));
+      if (address != null) note.setLocation(Location.from(address));
 
       NotesDAO notes = new NotesDAO(this);
+      // todo: return id
       notes.addNote(note);
       notes.close();
 
       Intent intent = new Intent();
+      intent.putExtra(MainActivity.EXTRA_NOTE, note);
       setResult(RESULT_OK, intent);
       finish();
     }

@@ -37,6 +37,7 @@ public class MainActivity extends ActionBarActivity
   private static final int NEW_NOTE_CODE = 1;
 
   public static final int NAVIGATION_SECTION_NOTES = 1;
+  public static final String EXTRA_NOTE = "net.notifly.core.note";
 
   /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -172,27 +173,18 @@ public class MainActivity extends ActionBarActivity
       case NEW_NOTE_CODE:
         if (resultCode == RESULT_OK)
         {
-          reloadNotes();
+          afterNewNote(intent);
         }
     }
   }
 
-  private void reloadNotes()
+  private void afterNewNote(Intent intent)
   {
+    Note note = intent.getParcelableExtra(MainActivity.EXTRA_NOTE);
     ListView list = (ListView)findViewById(R.id.notes_list_view);
     NotesAdapter adapter = (NotesAdapter) list.getAdapter();
-
-    adapter.clear();
-
-    NotesDAO notesDAO = new NotesDAO(this);
-    // todo: maybe use addAll (requires minSDKLevel 11)
-    for (Note note : notesDAO.getAllNotes())
-    {
-      adapter.add(note);
-    }
-
+    adapter.insert(note, 0);
     adapter.notifyDataSetChanged();
-    notesDAO.close();
   }
 
   /**
