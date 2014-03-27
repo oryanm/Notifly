@@ -3,7 +3,7 @@ package net.notifly.core.gui.activity.main;
 import android.app.Activity;
 import android.content.Context;
 import android.location.Address;
-import android.util.Log;
+import android.os.AsyncTask;
 import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,25 +65,12 @@ public class NotesAdapter extends ArrayAdapter<Note> {
         // Populate the data into the template view using the data object
         viewHolder.title.setText(note.getTitle());
         viewHolder.time.setText(note.getTime().toString(DateTimeFormat.mediumDateTime()));
-        Address address = getAddress(note);
-        viewHolder.location.setText(GeneralUtils.toString(address));
+
+        Address address = locationAddressLruCache.get(note.getLocation());
+        if (address == null) new AddressLoader(viewHolder.location).execute(note);
+        viewHolder.location.setText(address != null ? GeneralUtils.toString(address) : "");
 
         return convertView;
-    }
-
-    private Address getAddress(Note note) {
-        Address address = locationAddressLruCache.get(note.getLocation());
-
-        if (address == null) {
-            try {
-                address = locationHandler.getAddress(note.getLocation());
-                locationAddressLruCache.put(note.getLocation(), address);
-            } catch (IOException e) {
-                Log.e(NotesAdapter.class.getName(), "could not load address");
-            }
-        }
-
-        return address;
     }
 
     public void delete(Note note, int position) {
@@ -104,5 +91,32 @@ public class NotesAdapter extends ArrayAdapter<Note> {
         TextView time;
         TextView location;
         Button button1;
+    }
+
+    private class AddressLoader extends AsyncTask<Note, Void, Address> {
+        TextView location;
+
+        private AddressLoader(TextView location) {
+            this.location = location;
+        }
+
+        @Override
+        protected Address doInBackground(Note... params) {
+
+            try {
+                Note note = params[0];
+                Address address = locationHandler.getAddress(note.getLocation());
+                locationAddressLruCache.put(note.getLocation(), address);
+                return address;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Address address) {
+            location.setText(GeneralUtils.toString(address));
+        }
     }
 }
