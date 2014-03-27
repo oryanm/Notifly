@@ -1,7 +1,6 @@
 package net.notifly.core.util;
 
 import android.location.Address;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,6 @@ public class GeneralUtils {
             builder.add(address.getAddressLine(i));
         }
 
-        Log.i(GeneralUtils.class.getName(), address.toString());
         return GeneralUtils.join(", ", builder.toArray(new String[builder.size()]));
     }
 }
