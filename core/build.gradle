@@ -32,8 +32,13 @@ android {
 }
 
 dependencies {
+    // Joda Time
     compile 'net.danlew:android.joda:2.3@aar'
+    // Google Maps
     compile 'com.google.android.gms:play-services:4.2.42'
+    // date pickers
+    compile 'com.doomonafireball.betterpickers:library:1.5.2'
+    // SwipeListView
     compile ('com.fortysevendeg.swipelistview:swipelistview:1.0-SNAPSHOT@aar') {
         transitive = true
     }
