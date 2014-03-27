@@ -28,5 +28,6 @@
     <string name="note_time">Time</string>
     <string name="note_location">Location</string>
     <string name="note_date">Date</string>
+    <string name="loading">Loading...</string>
 
 </resources>

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.location.Address;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +26,7 @@ import org.joda.time.format.DateTimeFormat;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 public class NotesAdapter extends ArrayAdapter<Note> {
     private LocationHandler locationHandler;
@@ -65,12 +67,22 @@ public class NotesAdapter extends ArrayAdapter<Note> {
         // Populate the data into the template view using the data object
         viewHolder.title.setText(note.getTitle());
         viewHolder.time.setText(note.getTime().toString(DateTimeFormat.mediumDateTime()));
-
-        Address address = locationAddressLruCache.get(note.getLocation());
-        if (address == null) new AddressLoader(viewHolder.location).execute(note);
-        viewHolder.location.setText(address != null ? GeneralUtils.toString(address) : "");
+        setAddress(note, viewHolder.location);
 
         return convertView;
+    }
+
+    private void setAddress(Note note, TextView location) {
+        Address address = locationAddressLruCache.get(note.getLocation());
+        String text = getContext().getString(R.string.loading);
+
+        if (address == null) {
+            new AddressLoader(location).execute(note);
+        } else {
+            text = GeneralUtils.toString(address);
+        }
+
+        location.setText(text);
     }
 
     public void delete(Note note, int position) {
@@ -102,15 +114,15 @@ public class NotesAdapter extends ArrayAdapter<Note> {
 
         @Override
         protected Address doInBackground(Note... params) {
-
+            Note note = params[0];
             try {
-                Note note = params[0];
                 Address address = locationHandler.getAddress(note.getLocation());
                 locationAddressLruCache.put(note.getLocation(), address);
                 return address;
             } catch (IOException e) {
-                e.printStackTrace();
-                return null;
+                Log.e(NotesAdapter.class.getName(), String.format(
+                        "could not load address for note: %d - %s", note.getId(), note.getTitle()));
+                return new Address(Locale.getDefault());
             }
         }
 
