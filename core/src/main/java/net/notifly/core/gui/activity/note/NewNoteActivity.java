@@ -4,12 +4,19 @@ import android.content.Intent;
 import android.location.Address;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.format.DateFormat;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.doomonafireball.betterpickers.calendardatepicker.CalendarDatePickerDialog;
+import com.doomonafireball.betterpickers.radialtimepicker.RadialPickerLayout;
+import com.doomonafireball.betterpickers.radialtimepicker.RadialTimePickerDialog;
 
 import net.notifly.core.R;
 import net.notifly.core.entity.Location;
@@ -17,21 +24,55 @@ import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.main.MainActivity;
 import net.notifly.core.sql.NotesDAO;
 
+import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
 
-public class NewNoteActivity extends ActionBarActivity
+public class NewNoteActivity extends ActionBarActivity implements
+        CalendarDatePickerDialog.OnDateSetListener,
+        RadialTimePickerDialog.OnTimeSetListener
 {
-  Address address;
+    Address address;
+    LocalDateTime dateTime = LocalDateTime.now();
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState)
-  {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_new_note);
-    setLocationEditText();
-  }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_new_note);
+        setLocationEditText();
+        setDatePicker();
+        setTimePicker();
+    }
 
-  @Override
+    private void setTimePicker() {
+        EditText time = (EditText) findViewById(R.id.timeEditText);
+        time.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LocalDateTime now = LocalDateTime.now();
+                RadialTimePickerDialog timePickerDialog = RadialTimePickerDialog.newInstance(
+                        NewNoteActivity.this, now.getHourOfDay(), now.getMinuteOfHour(),
+                        DateFormat.is24HourFormat(NewNoteActivity.this));
+                timePickerDialog.show(getSupportFragmentManager(), "timePickerDialogFragment");
+            }
+        });
+    }
+
+    private void setDatePicker() {
+        EditText date = (EditText) findViewById(R.id.dateEditText);
+        date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LocalDateTime now = LocalDateTime.now();
+                CalendarDatePickerDialog calendarDatePickerDialog = CalendarDatePickerDialog
+                        .newInstance(NewNoteActivity.this, now.getYear(), now.getMonthOfYear(), now.getDayOfMonth());
+                calendarDatePickerDialog.show(getSupportFragmentManager(), "fragment_date_picker_name");
+            }
+        });
+    }
+
+    @Override
   public boolean onCreateOptionsMenu(Menu menu)
   {
     // Inflate the menu; this adds items to the action bar if it is present.
@@ -75,7 +116,7 @@ public class NewNoteActivity extends ActionBarActivity
 
     if (!title.isEmpty())
     {
-      Note note = new Note(title, LocalDateTime.now());
+      Note note = new Note(title, dateTime);
       note.setDescription(((EditText) findViewById(R.id.descriptionEditText)).getText().toString());
       if (address != null) note.setLocation(Location.from(address));
 
@@ -87,6 +128,26 @@ public class NewNoteActivity extends ActionBarActivity
       intent.putExtra(MainActivity.EXTRA_NOTE, note);
       setResult(RESULT_OK, intent);
       finish();
+    }  else {
+        Toast toast = Toast.makeText(this, "Title is required", Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
   }
+
+    @Override
+    public void onDateSet(CalendarDatePickerDialog calendarDatePickerDialog, int year, int monthOfYear, int dayOfMonth) {
+        LocalDate localDate = new LocalDate(year, monthOfYear, dayOfMonth);
+        EditText date = (EditText) findViewById(R.id.dateEditText);
+        date.setText(localDate.toString(DateTimeFormat.mediumDate()));
+        dateTime = dateTime.withDate(year, monthOfYear, dayOfMonth);
+    }
+
+    @Override
+    public void onTimeSet(RadialPickerLayout radialPickerLayout, int hourOfDay, int minute) {
+        LocalTime localTime = new LocalTime(hourOfDay, minute);
+        EditText time = (EditText) findViewById(R.id.timeEditText);
+        time.setText(localTime.toString(DateTimeFormat.shortTime()));
+        dateTime = dateTime.withTime(hourOfDay, minute, 0, 0);
+    }
 }
