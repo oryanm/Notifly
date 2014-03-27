@@ -2,22 +2,31 @@
 <resources>
 
     <string name="app_name">Notifly</string>
+
+    <!--nav drawer-->
     <string name="title_section_notes">Notes</string>
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!--action bar-->
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
-    <string name="note_title">Title</string>
-    <string name="note_time">Time</string>
     <string name="action_add_note">New note</string>
-    <string name="title_activity_new_note">New note</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="note_description">Description</string>
     <string name="action_save_note">Save</string>
+
+    <!--Service-->
     <string name="local_service_started">service started!</string>
     <string name="local_service_stopped">service stopped!</string>
+
+    <!--note-->
+    <string name="title_activity_new_note">New note</string>
+    <string name="note_description">Description</string>
+    <string name="note_title">Title</string>
+    <string name="note_time">Time</string>
     <string name="note_location">Location</string>
+    <string name="note_date">Date</string>
 
 </resources>
