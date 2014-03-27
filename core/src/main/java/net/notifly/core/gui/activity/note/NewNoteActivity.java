@@ -33,6 +33,7 @@ public class NewNoteActivity extends ActionBarActivity implements
         CalendarDatePickerDialog.OnDateSetListener,
         RadialTimePickerDialog.OnTimeSetListener
 {
+    // todo: enable null
     Address address;
     LocalDateTime dateTime = LocalDateTime.now();
 
@@ -149,5 +150,11 @@ public class NewNoteActivity extends ActionBarActivity implements
         EditText time = (EditText) findViewById(R.id.timeEditText);
         time.setText(localTime.toString(DateTimeFormat.shortTime()));
         dateTime = dateTime.withTime(hourOfDay, minute, 0, 0);
+    }
+
+    public void clear(View view) {
+        ((EditText) findViewById(R.id.dateEditText)).setText("");
+        ((EditText) findViewById(R.id.timeEditText)).setText("");
+        dateTime = LocalDateTime.now();
     }
 }

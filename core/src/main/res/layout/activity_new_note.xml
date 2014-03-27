@@ -44,6 +44,17 @@
             android:layout_weight="0.5"
             android:focusable="false"
             android:longClickable="false"/>
+
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/clearButton"
+            android:layout_weight="0.1"
+            android:contentDescription="@string/clear"
+            android:src="@drawable/abc_ic_clear_holo_light"
+            android:background="@color/transparent"
+            android:onClick="clear"/>
+
     </LinearLayout>
 
     <AutoCompleteTextView
