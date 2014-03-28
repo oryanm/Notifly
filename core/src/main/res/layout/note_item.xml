@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="fill_parent"
-             android:layout_height="fill_parent" >
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
 
     <RelativeLayout
         android:id="@+id/notes_list_back"
         android:tag="back"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:padding="@dimen/list_item_padding">
 
-        <Button
+        <ImageButton
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/swipe_button4"
-            android:onClick="delete"
-            android:text="delete"
-            android:layout_alignParentRight="true"/>
+            android:layout_height="fill_parent"
+            android:id="@+id/deleteNoteButton"
+            android:contentDescription="@string/delete_note"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/ic_action_discard"
+            android:background="@color/transparent" />
 
     </RelativeLayout>
 
@@ -55,10 +57,7 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:id="@+id/note_location"
                 android:gravity="right"
-                android:text="@string/note_location"/>
+                android:text="@string/note_location" />
         </LinearLayout>
-
     </LinearLayout>
-
-
 </FrameLayout>

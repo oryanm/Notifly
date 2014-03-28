@@ -9,7 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.fortysevendeg.swipelistview.SwipeListView;
@@ -49,13 +49,13 @@ public class NotesAdapter extends ArrayAdapter<Note> {
             viewHolder.title = (TextView) convertView.findViewById(R.id.note_title);
             viewHolder.time = (TextView) convertView.findViewById(R.id.note_time);
             viewHolder.location = (TextView) convertView.findViewById(R.id.note_location);
-            viewHolder.button1 = (Button) convertView.findViewById(R.id.swipe_button4);
+            viewHolder.delete = (ImageButton) convertView.findViewById(R.id.deleteNoteButton);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        viewHolder.button1.setOnClickListener(new View.OnClickListener() {
+        viewHolder.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 delete(note, position);
@@ -64,28 +64,27 @@ public class NotesAdapter extends ArrayAdapter<Note> {
         // Populate the data into the template view using the data object
         viewHolder.title.setText(note.getTitle());
         viewHolder.time.setText(note.getTime() == null ?
-          "" : note.getTime().toString(DateTimeFormat.mediumDateTime()));
+          "" : note.getTime().toString(DateTimeFormat.shortDateTime()));
         setAddress(note, viewHolder.location);
 
         return convertView;
     }
 
     private void setAddress(Note note, TextView location) {
-      if (note.getLocation() == null)
-      {
-        location.setText("");
-        return;
-      }
-        Address address = locationAddressLruCache.get(note.getLocation());
-        String text = getContext().getString(R.string.loading);
+        if (note.getLocation() != null) {
+            Address address = locationAddressLruCache.get(note.getLocation());
+            String text = getContext().getString(R.string.loading);
 
-        if (address == null) {
-            new AddressLoader(location).execute(note);
+            if (address == null) {
+                new AddressLoader(location).execute(note);
+            } else {
+                text = GeneralUtils.toString(address);
+            }
+
+            location.setText(text);
         } else {
-            text = GeneralUtils.toString(address);
+            location.setText("");
         }
-
-        location.setText(text);
     }
 
     public void delete(Note note, int position) {
@@ -105,7 +104,7 @@ public class NotesAdapter extends ArrayAdapter<Note> {
         TextView title;
         TextView time;
         TextView location;
-        Button button1;
+        ImageButton delete;
     }
 
     private class AddressLoader extends AsyncTask<Note, Void, Address> {
