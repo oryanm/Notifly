@@ -142,6 +142,7 @@ public class NewNoteActivity extends ActionBarActivity implements
 
     public void selectLocation(View view) {
         Intent intent = new Intent(this, SelectLocationActivity.class);
+        if (address != null) intent.putExtra(EXTRA_LOCATION, address);
         startActivityForResult(intent, LOCATION_SELECT_CODE);
     }
 

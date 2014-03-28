@@ -32,9 +32,7 @@ public class SelectLocationActivity extends Activity {
     }
 
     private void setMap() {
-        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        Location currentLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-        LatLng cameraTarget = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        LatLng cameraTarget = getCameraTarget();
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         map = mapFragment.getMap();
@@ -49,6 +47,21 @@ public class SelectLocationActivity extends Activity {
                 selectedLocation.setPosition(latLng);
             }
         });
+    }
+
+    private LatLng getCameraTarget() {
+        Address address = getIntent().getParcelableExtra(NewNoteActivity.EXTRA_LOCATION);
+        LatLng cameraTarget;
+
+        if (address == null) {
+            LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+            Location currentLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+            cameraTarget = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        } else {
+            cameraTarget = new LatLng(address.getLatitude(), address.getLongitude());
+        }
+
+        return cameraTarget;
     }
 
     @Override
