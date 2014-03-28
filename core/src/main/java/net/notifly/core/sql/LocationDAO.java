@@ -55,10 +55,10 @@ public class LocationDAO extends AbstractDAO
       .where(String.format("%s = ? ", COLUMNS.ID.name()), String.valueOf(id)));
     cursor.moveToFirst();
 
-    Location location = new Location(
-      cursor.getInt(COLUMNS.ID.ordinal()),
-      cursor.getDouble(COLUMNS.LONGITUDE.ordinal()),
-      cursor.getDouble(COLUMNS.LATITUDE.ordinal()));
+      Location location = new Location(
+              cursor.getInt(COLUMNS.ID.ordinal()),
+              cursor.getDouble(COLUMNS.LATITUDE.ordinal()),
+              cursor.getDouble(COLUMNS.LONGITUDE.ordinal()));
 
     cursor.close();
     return location;

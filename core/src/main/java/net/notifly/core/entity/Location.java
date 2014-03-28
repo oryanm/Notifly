@@ -12,15 +12,14 @@ public class Location implements Parcelable
   private double longitude;
   private double latitude;
 
-  // todo: flip long and lat
-  public Location(int id, double longitude, double latitude)
+  public Location(int id, double latitude, double longitude)
   {
     this.id = id;
     this.longitude = longitude;
     this.latitude = latitude;
   }
 
-  public Location(double longitude, double latitude)
+  public Location(double latitude, double longitude)
   {
     this.longitude = longitude;
     this.latitude = latitude;
@@ -28,17 +27,17 @@ public class Location implements Parcelable
 
   public static Location from(Address address)
   {
-    return new Location(address.getLongitude(), address.getLatitude());
+    return new Location(address.getLatitude(), address.getLongitude());
   }
 
   public static Location from(LatLng latLng)
   {
-    return new Location(latLng.longitude, latLng.latitude);
+    return new Location(latLng.latitude, latLng.longitude);
   }
 
   public static Location from(android.location.Location location)
   {
-    return new Location(location.getLongitude(), location.getLatitude());
+    return new Location(location.getLatitude(), location.getLongitude());
   }
 
   public int getId()
