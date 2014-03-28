@@ -40,7 +40,7 @@ public class NewNoteActivity extends ActionBarActivity implements
 
     // todo: enable null
     Address address;
-    LocalDateTime dateTime = LocalDateTime.now();
+    LocalDateTime dateTime = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +123,7 @@ public class NewNoteActivity extends ActionBarActivity implements
         LocalDate localDate = new LocalDate(year, monthOfYear, dayOfMonth);
         EditText date = (EditText) findViewById(R.id.dateEditText);
         date.setText(localDate.toString(DateTimeFormat.mediumDate()));
-        dateTime = dateTime.withDate(year, monthOfYear, dayOfMonth);
+        dateTime = LocalDateTime.now().withDate(year, monthOfYear, dayOfMonth);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class NewNoteActivity extends ActionBarActivity implements
         LocalTime localTime = new LocalTime(hourOfDay, minute);
         EditText time = (EditText) findViewById(R.id.timeEditText);
         time.setText(localTime.toString(DateTimeFormat.shortTime()));
-        dateTime = dateTime.withTime(hourOfDay, minute, 0, 0);
+        dateTime = LocalDateTime.now().withTime(hourOfDay, minute, 0, 0);
     }
 
     public void clear(View view) {

@@ -99,7 +99,7 @@ public class Note implements Parcelable
     dest.writeInt(id);
     dest.writeString(title);
     dest.writeString(description);
-    dest.writeLong(time.toDate().getTime());
+    dest.writeLong(time == null ? 0 : time.toDate().getTime());
     dest.writeParcelable(location, flags);
   }
 
@@ -121,8 +121,27 @@ public class Note implements Parcelable
     this.id = in.readInt();
     this.title = in.readString();
     this.description = in.readString();
-    this.time = new LocalDateTime(in.readLong());
+    long timeLong = in.readLong();
+    this.time = timeLong == 0 ? null : new LocalDateTime(timeLong);
     this.location = in.readParcelable(Location.class.getClassLoader());
   }
 
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    Note note = (Note) o;
+
+    if (id != note.id) return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return id;
+  }
 }

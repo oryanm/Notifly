@@ -42,14 +42,18 @@ public class NotesDAO extends AbstractDAO
 
     try
     {
-      // todo check for existing locations
-      long location = new LocationDAO(database).addLocation(note.getLocation());
-
       ContentValues values = new ContentValues();
       values.put(COLUMNS.TITLE.name(), note.getTitle());
       values.put(COLUMNS.DESCRIPTION.name(), note.getDescription());
-      values.put(COLUMNS.LOCATION.name(), location);
-      values.put(COLUMNS.TIME.name(), note.getTime().toString(NotiflySQLiteHelper.DATETIME_PATTERN));
+      if (note.getLocation() != null)
+      {
+        // todo check for existing locations
+        values.put(COLUMNS.LOCATION.name(), new LocationDAO(database).addLocation(note.getLocation()));
+      }
+      if (note.getTime() != null)
+      {
+        values.put(COLUMNS.TIME.name(), note.getTime().toString(NotiflySQLiteHelper.DATETIME_PATTERN));
+      }
 
       id = database.insert(TABLE_NAME, null, values);
       database.setTransactionSuccessful();
@@ -83,10 +87,11 @@ public class NotesDAO extends AbstractDAO
         Note note = new Note();
         note.setId(cursor.getInt(COLUMNS.ID.ordinal()));
         note.setTitle(cursor.getString(COLUMNS.TITLE.ordinal()));
-        note.setTime(parseTime(cursor.getString(COLUMNS.TIME.ordinal())));
+        String time = cursor.getString(COLUMNS.TIME.ordinal());
+        if (time != null) note.setTime(parseTime(time));
         note.setDescription(cursor.getString(COLUMNS.DESCRIPTION.ordinal()));
-        note.setLocation(new LocationDAO(database)
-          .getLocation(cursor.getInt(COLUMNS.LOCATION.ordinal())));
+        int locId = cursor.getInt(COLUMNS.LOCATION.ordinal());
+        if (locId != 0) note.setLocation(new LocationDAO(database).getLocation(locId));
         notes.add(note);
       } while (cursor.moveToNext());
     }
