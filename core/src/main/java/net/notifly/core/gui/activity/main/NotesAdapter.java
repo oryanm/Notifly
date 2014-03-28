@@ -63,13 +63,19 @@ public class NotesAdapter extends ArrayAdapter<Note> {
         });
         // Populate the data into the template view using the data object
         viewHolder.title.setText(note.getTitle());
-        viewHolder.time.setText(note.getTime().toString(DateTimeFormat.mediumDateTime()));
+        viewHolder.time.setText(note.getTime() == null ?
+          "" : note.getTime().toString(DateTimeFormat.mediumDateTime()));
         setAddress(note, viewHolder.location);
 
         return convertView;
     }
 
     private void setAddress(Note note, TextView location) {
+      if (note.getLocation() == null)
+      {
+        location.setText("");
+        return;
+      }
         Address address = locationAddressLruCache.get(note.getLocation());
         String text = getContext().getString(R.string.loading);
 
