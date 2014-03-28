@@ -24,6 +24,7 @@ import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.main.MainActivity;
 import net.notifly.core.gui.activity.map.SelectLocationActivity;
 import net.notifly.core.sql.NotesDAO;
+import net.notifly.core.util.GeneralUtils;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -35,6 +36,7 @@ public class NewNoteActivity extends ActionBarActivity implements
         RadialTimePickerDialog.OnTimeSetListener
 {
     private static final int LOCATION_SELECT_CODE = 2;
+    public static final String EXTRA_LOCATION = "net.notifly.core.location";
 
     // todo: enable null
     Address address;
@@ -75,29 +77,6 @@ public class NewNoteActivity extends ActionBarActivity implements
             }
         });
     }
-
-    @Override
-  public boolean onCreateOptionsMenu(Menu menu)
-  {
-    // Inflate the menu; this adds items to the action bar if it is present.
-    getMenuInflater().inflate(R.menu.new_note, menu);
-    return true;
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item)
-  {
-    // Handle action bar item clicks here. The action bar will
-    // automatically handle clicks on the Home/Up button, so long
-    // as you specify a parent activity in AndroidManifest.xml.
-    int id = item.getItemId();
-    if (id == R.id.action_save_note)
-    {
-      save();
-      return true;
-    }
-    return super.onOptionsItemSelected(item);
-  }
 
   private void setLocationEditText()
   {
@@ -164,5 +143,43 @@ public class NewNoteActivity extends ActionBarActivity implements
     public void selectLocation(View view) {
         Intent intent = new Intent(this, SelectLocationActivity.class);
         startActivityForResult(intent, LOCATION_SELECT_CODE);
+    }
+
+    private void afterSelectLocation(Intent intent) {
+        address = intent.getParcelableExtra(EXTRA_LOCATION);
+        AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.locationTextView);
+        textView.setText(GeneralUtils.toString(address));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.new_note, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_save_note) {
+            save();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        switch (requestCode) {
+            case LOCATION_SELECT_CODE:
+                if (resultCode == RESULT_OK) {
+                    afterSelectLocation(intent);
+                }
+        }
     }
 }

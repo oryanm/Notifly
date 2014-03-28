@@ -1,9 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="net.notifly.core.gui.activity.map.SelectLocationActivity" >
-    
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_select"
+        android:icon="@drawable/abc_ic_cab_done_holo_dark"
+        android:title="@string/action_save"
+        android:showAsAction="always"
+        />
 </menu>

@@ -1,9 +1,12 @@
 package net.notifly.core.gui.activity.map;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.location.Address;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -14,10 +17,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import net.notifly.core.LocationHandler;
 import net.notifly.core.R;
+import net.notifly.core.gui.activity.note.NewNoteActivity;
+
+import java.io.IOException;
 
 public class SelectLocationActivity extends Activity {
     GoogleMap map;
+    Marker selectedLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,23 +43,15 @@ public class SelectLocationActivity extends Activity {
         map = mapFragment.getMap();
         map.setMyLocationEnabled(true);
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(cameraTarget, 10));
-        Marker marker = map.addMarker(new MarkerOptions()
+        selectedLocation = map.addMarker(new MarkerOptions()
                 .position(cameraTarget)
                 .draggable(true));
-        map.setOnMapClickListener(new MapListener(marker));
-    }
-
-    class MapListener implements GoogleMap.OnMapClickListener {
-        Marker marker;
-
-        MapListener(Marker marker) {
-            this.marker = marker;
-        }
-
-        @Override
-        public void onMapClick(LatLng latLng) {
-            marker.setPosition(latLng);
-        }
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                selectedLocation.setPosition(latLng);
+            }
+        });
     }
 
     @Override
@@ -63,9 +63,27 @@ public class SelectLocationActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_select) {
+            select();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void select() {
+        LatLng position = selectedLocation.getPosition();
+        Address address = null;
+
+        try {
+            address = new LocationHandler(this).getAddress(
+                    position.latitude, position.longitude);
+        } catch (IOException e) {
+            Log.e(SelectLocationActivity.class.getName(), "failed to load address");
+        }
+
+        Intent intent = new Intent();
+        intent.putExtra(NewNoteActivity.EXTRA_LOCATION, address);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 }
