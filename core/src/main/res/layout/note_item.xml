@@ -25,34 +25,37 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/notes_list_front"
+        android:padding="@dimen/list_item_padding"
         style="@style/AppTheme.ListItem">
 
         <TextView
             android:id="@+id/note_title"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/note_title_padding"
             android:textSize="@dimen/note_title_text_size"
             android:text="@string/note_title" />
 
         <LinearLayout
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/note_time"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:padding="@dimen/note_time_padding"
                 android:text="@string/note_time" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:id="@+id/note_location"
-                android:gravity="right"/>
+                android:gravity="right"
+                android:text="@string/note_location"/>
         </LinearLayout>
 
     </LinearLayout>
