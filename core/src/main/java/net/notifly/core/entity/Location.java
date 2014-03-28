@@ -4,12 +4,15 @@ import android.location.Address;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class Location implements Parcelable
 {
   private int id;
   private double longitude;
   private double latitude;
 
+  // todo: flip long and lat
   public Location(int id, double longitude, double latitude)
   {
     this.id = id;
@@ -26,6 +29,11 @@ public class Location implements Parcelable
   public static Location from(Address address)
   {
     return new Location(address.getLongitude(), address.getLatitude());
+  }
+
+  public static Location from(LatLng latLng)
+  {
+    return new Location(latLng.longitude, latLng.latitude);
   }
 
   public static Location from(android.location.Location location)
