@@ -6,6 +6,6 @@
     <item
         android:id="@+id/action_save_note"
         android:icon="@drawable/abc_ic_cab_done_holo_dark"
-        android:title="@string/action_save_note"
+        android:title="@string/action_save"
         app:showAsAction="always"/>
 </menu>
