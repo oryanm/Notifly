@@ -22,6 +22,7 @@ import net.notifly.core.R;
 import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.main.MainActivity;
+import net.notifly.core.gui.activity.map.SelectLocationActivity;
 import net.notifly.core.sql.NotesDAO;
 
 import org.joda.time.LocalDate;
@@ -33,6 +34,8 @@ public class NewNoteActivity extends ActionBarActivity implements
         CalendarDatePickerDialog.OnDateSetListener,
         RadialTimePickerDialog.OnTimeSetListener
 {
+    private static final int LOCATION_SELECT_CODE = 2;
+
     // todo: enable null
     Address address;
     LocalDateTime dateTime = LocalDateTime.now();
@@ -156,5 +159,10 @@ public class NewNoteActivity extends ActionBarActivity implements
         ((EditText) findViewById(R.id.dateEditText)).setText("");
         ((EditText) findViewById(R.id.timeEditText)).setText("");
         dateTime = LocalDateTime.now();
+    }
+
+    public void selectLocation(View view) {
+        Intent intent = new Intent(this, SelectLocationActivity.class);
+        startActivityForResult(intent, LOCATION_SELECT_CODE);
     }
 }

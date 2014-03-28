@@ -25,7 +25,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".gui.activity.main.MainActivity"
+            android:name="net.notifly.core.gui.activity.main.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop">
             <intent-filter>
@@ -33,25 +33,32 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <meta-data
-                android:name="com.google.android.gms.version"
-                android:value="@integer/google_play_services_version" />
-            <meta-data
-                android:name="com.google.android.maps.v2.API_KEY"
-                android:value="AIzaSyBnXj7WSvHnFKJ90Uv8t9E4dIsowR6fX98" />
         </activity>
-        <receiver android:name=".Autostart">
+
+        <receiver android:name="net.notifly.core.Autostart" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <service android:enabled="true" android:name=".BackgroundService" />
 
-        <!--windowSoftInputMode: shows the keyboard on start-->
+        <service
+            android:name="net.notifly.core.BackgroundService"
+            android:enabled="true" />
+
+        <!-- windowSoftInputMode: shows the keyboard on start -->
         <activity
-            android:name=".gui.activity.note.NewNoteActivity"
+            android:name="net.notifly.core.gui.activity.note.NewNoteActivity"
             android:label="@string/title_activity_new_note"
-            android:windowSoftInputMode="stateVisible"/>
-    </application>
+            android:windowSoftInputMode="stateVisible" />
+        <activity
+            android:name=".gui.activity.map.SelectLocationActivity"
+            android:label="@string/title_activity_select_location" />
 
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyBnXj7WSvHnFKJ90Uv8t9E4dIsowR6fX98" />
+    </application>
 </manifest>

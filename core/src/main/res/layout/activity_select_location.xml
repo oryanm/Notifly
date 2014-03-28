@@ -1,0 +1,14 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="net.notifly.core.gui.activity.map.SelectLocationActivity"
+    android:id="@+id/select_location">
+
+    <fragment
+        android:id="@+id/map"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:name="com.google.android.gms.maps.MapFragment"/>
+
+</RelativeLayout>
