@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.location.Address;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,9 +23,7 @@ import net.notifly.core.util.GeneralUtils;
 
 import org.joda.time.format.DateTimeFormat;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 public class NotesAdapter extends ArrayAdapter<Note> {
     private LocationHandler locationHandler;
@@ -115,15 +112,9 @@ public class NotesAdapter extends ArrayAdapter<Note> {
         @Override
         protected Address doInBackground(Note... params) {
             Note note = params[0];
-            try {
-                Address address = locationHandler.getAddress(note.getLocation());
-                locationAddressLruCache.put(note.getLocation(), address);
-                return address;
-            } catch (IOException e) {
-                Log.e(NotesAdapter.class.getName(), String.format(
-                        "could not load address for note: %d - %s", note.getId(), note.getTitle()));
-                return new Address(Locale.getDefault());
-            }
+            Address address = locationHandler.getAddress(note.getLocation());
+            locationAddressLruCache.put(note.getLocation(), address);
+            return address;
         }
 
         @Override

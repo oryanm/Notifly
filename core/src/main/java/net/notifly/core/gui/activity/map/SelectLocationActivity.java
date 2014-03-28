@@ -6,7 +6,6 @@ import android.location.Address;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -20,8 +19,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import net.notifly.core.LocationHandler;
 import net.notifly.core.R;
 import net.notifly.core.gui.activity.note.NewNoteActivity;
-
-import java.io.IOException;
 
 public class SelectLocationActivity extends Activity {
     GoogleMap map;
@@ -72,14 +69,7 @@ public class SelectLocationActivity extends Activity {
 
     private void select() {
         LatLng position = selectedLocation.getPosition();
-        Address address = null;
-
-        try {
-            address = new LocationHandler(this).getAddress(
-                    position.latitude, position.longitude);
-        } catch (IOException e) {
-            Log.e(SelectLocationActivity.class.getName(), "failed to load address");
-        }
+        Address address = new LocationHandler(this).getAddress(position.latitude, position.longitude);
 
         Intent intent = new Intent();
         intent.putExtra(NewNoteActivity.EXTRA_LOCATION, address);

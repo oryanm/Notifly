@@ -3,6 +3,7 @@ package net.notifly.core;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,22 +31,41 @@ public class LocationHandler
   private static final long LOCATION_REFRESH_TIME = 5;
   private static final float LOCATION_REFRESH_DISTANCE = 5;
 
-  private Geocoder geocoder;
+    public static final Address ERROR_ADDRESS = new Address(Locale.getDefault()) {{
+        setAddressLine(0, "error");
+        setFeatureName("error");
+    }};
+
+    private Geocoder geocoder;
 
   public LocationHandler(Context context)
   {
     geocoder = new Geocoder(context, new Locale("he", "IL"));
   }
 
-  public Address getAddress(net.notifly.core.entity.Location location) throws IOException
+  public Address getAddress(net.notifly.core.entity.Location location)
   {
     return getAddress(location.getLatitude(), location.getLongitude());
   }
 
-  public Address getAddress(double latitude, double longitude) throws IOException
-  {
-    return geocoder.getFromLocation(latitude, longitude, 1).iterator().next();
-  }
+    public Address getAddress(double latitude, double longitude) {
+        List<Address> addresses;
+
+        try {
+            addresses = geocoder.getFromLocation(latitude, longitude, 1);
+        } catch (IOException e) {
+            Log.e(LocationHandler.class.getName(), "Failed to load address from google", e);
+            return ERROR_ADDRESS;
+        }
+
+        if (addresses == null || addresses.isEmpty()) {
+            Log.w(LocationHandler.class.getName(), String.format(
+                    "Could not find address at (%f, %f)", latitude, longitude));
+            return ERROR_ADDRESS;
+        }
+
+        return addresses.iterator().next();
+    }
 
   public String getLocationByName(String name) throws IOException
   {
