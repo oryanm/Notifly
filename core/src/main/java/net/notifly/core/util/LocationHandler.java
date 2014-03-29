@@ -30,8 +30,6 @@ public class LocationHandler
   private final static double LOWER_LEFT_LONGITUDE = 33.21458;
   private final static double UPPER_RIGHT_LATITUDE = 33.14897;
   private final static double UPPER_RIGHT_LONGITUDE = 36.09300;
-  private static final long LOCATION_REFRESH_TIME = 5;
-  private static final float LOCATION_REFRESH_DISTANCE = 5;
 
     /**
      * use this const to signify en error with address loading. <br/>
