@@ -2,11 +2,12 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+        <!--background for all activities-->
+        <item name="android:windowBackground">@drawable/pattern</item>
     </style>
 
     <style name="AppTheme.ListItem">
-        <item name="android:background">@color/gray_e</item>
+        <item name="android:background">@drawable/pattern</item>
     </style>
 
     <style name="Spinner" parent="android:Widget.Holo.Light.Spinner">
