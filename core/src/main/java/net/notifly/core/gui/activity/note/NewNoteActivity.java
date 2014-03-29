@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.location.Address;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
 import android.text.format.DateFormat;
 import android.view.Gravity;
 import android.view.Menu;
@@ -26,6 +27,7 @@ import net.notifly.core.gui.activity.map.SelectLocationActivity;
 import net.notifly.core.sql.NotesDAO;
 import net.notifly.core.util.GeneralUtils;
 import net.notifly.core.util.LocationHandler;
+import net.notifly.core.util.adapters.TextWatcherAdapter;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -78,20 +80,26 @@ public class NewNoteActivity extends ActionBarActivity implements
         });
     }
 
-  private void setLocationEditText()
-  {
-    AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.locationTextView);
-    final AddressAdapter adapter = new AddressAdapter(this, android.R.layout.simple_list_item_1);
-    textView.setAdapter(adapter);
-    textView.setOnItemClickListener(new AdapterView.OnItemClickListener()
-    {
-      @Override
-      public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-      {
-        address = adapter.getAddress(position);
-      }
-    });
-  }
+    private void setLocationEditText() {
+        AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.locationTextView);
+        final AddressAdapter adapter = new AddressAdapter(this, android.R.layout.simple_list_item_1);
+        textView.setAdapter(adapter);
+        textView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                address = adapter.getAddress(position);
+            }
+        });
+        // todo: find a better way?
+        textView.addTextChangedListener(new TextWatcherAdapter() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!GeneralUtils.toString(address).equals(s.toString())) {
+                    address = LocationHandler.ERROR_ADDRESS;
+                }
+            }
+        });
+    }
 
   private void save()
   {

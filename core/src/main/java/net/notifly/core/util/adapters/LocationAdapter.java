@@ -1,4 +1,4 @@
-package net.notifly.core;
+package net.notifly.core.util.adapters;
 
 import android.location.Location;
 import android.location.LocationListener;
