@@ -24,14 +24,15 @@ import java.util.Locale;
 
 public class LocationHandler
 {
-  private final static String DISTANCE_MATRIX_URL = "http://maps.googleapis.com/maps/api/distancematrix/json?origins=:org&destinations=:dest&mode=:mode&language=en-US&sensor=false";
+  private final static String DISTANCE_MATRIX_URL = "http://maps.googleapis.com/maps/api/distancematrix/json?origins=:org&destinations=:dest&mode=:mode&language=en-US&sensor=true";
+
+  // TODO: incorporate this into the app in case the geocoder service fails to retrieve the addresses
+  // https://maps.googleapis.com/maps/api/geocode/json?address=Rishon&sensor=true&bounds=29.39406,-33.21458|33.14897,36.09300
 
   private final static double LOWER_LEFT_LATITUDE = 29.39406;
   private final static double LOWER_LEFT_LONGITUDE = 33.21458;
   private final static double UPPER_RIGHT_LATITUDE = 33.14897;
   private final static double UPPER_RIGHT_LONGITUDE = 36.09300;
-  private static final long LOCATION_REFRESH_TIME = 5;
-  private static final float LOCATION_REFRESH_DISTANCE = 5;
 
     /**
      * use this const to signify en error with address loading. <br/>
