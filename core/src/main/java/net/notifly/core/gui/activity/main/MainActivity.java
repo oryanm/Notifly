@@ -19,10 +19,10 @@ import android.widget.ListView;
 import com.fortysevendeg.swipelistview.SwipeListView;
 
 import net.danlew.android.joda.ResourceZoneInfoProvider;
-import net.notifly.core.BackgroundService;
 import net.notifly.core.R;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.note.NewNoteActivity;
+import net.notifly.core.service.BackgroundService;
 import net.notifly.core.sql.NotesDAO;
 
 public class MainActivity extends ActionBarActivity

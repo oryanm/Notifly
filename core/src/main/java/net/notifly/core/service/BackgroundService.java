@@ -1,4 +1,4 @@
-package net.notifly.core;
+package net.notifly.core.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -17,6 +17,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import net.danlew.android.joda.ResourceZoneInfoProvider;
+import net.notifly.core.R;
+import net.notifly.core.entity.DistanceMatrix;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.main.MainActivity;
 import net.notifly.core.gui.activity.main.RetreiveDistanceMatrixTask;

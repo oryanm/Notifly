@@ -14,12 +14,12 @@ import android.widget.TextView;
 
 import com.fortysevendeg.swipelistview.SwipeListView;
 
-import net.notifly.core.LocationHandler;
 import net.notifly.core.R;
 import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
 import net.notifly.core.sql.NotesDAO;
 import net.notifly.core.util.GeneralUtils;
+import net.notifly.core.util.LocationHandler;
 
 import org.joda.time.format.DateTimeFormat;
 

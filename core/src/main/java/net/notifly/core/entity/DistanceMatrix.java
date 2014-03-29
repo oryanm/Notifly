@@ -1,4 +1,4 @@
-package net.notifly.core;
+package net.notifly.core.entity;
 
 /**
  * Created by Barak on 22/03/2014.

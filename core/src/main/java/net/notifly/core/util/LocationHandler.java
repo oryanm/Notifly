@@ -1,9 +1,11 @@
-package net.notifly.core;
+package net.notifly.core.util;
 
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.util.Log;
+
+import net.notifly.core.entity.DistanceMatrix;
 
 import org.json.JSONArray;
 import org.json.JSONException;

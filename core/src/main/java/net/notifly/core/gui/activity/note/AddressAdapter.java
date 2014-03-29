@@ -7,8 +7,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 
-import net.notifly.core.LocationHandler;
 import net.notifly.core.util.GeneralUtils;
+import net.notifly.core.util.LocationHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;

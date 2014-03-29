@@ -16,9 +16,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import net.notifly.core.LocationHandler;
 import net.notifly.core.R;
 import net.notifly.core.gui.activity.note.NewNoteActivity;
+import net.notifly.core.util.LocationHandler;
 
 public class SelectLocationActivity extends Activity {
     GoogleMap map;

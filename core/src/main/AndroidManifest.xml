@@ -35,14 +35,14 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="net.notifly.core.Autostart" >
+        <receiver android:name=".service.AutoStart" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
         <service
-            android:name="net.notifly.core.BackgroundService"
+            android:name=".service.BackgroundService"
             android:enabled="true" />
 
         <!-- windowSoftInputMode: shows the keyboard on start -->

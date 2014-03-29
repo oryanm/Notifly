@@ -2,8 +2,8 @@ package net.notifly.core.gui.activity.main;
 
 import android.os.AsyncTask;
 
-import net.notifly.core.DistanceMatrix;
-import net.notifly.core.LocationHandler;
+import net.notifly.core.entity.DistanceMatrix;
+import net.notifly.core.util.LocationHandler;
 
 public class RetreiveDistanceMatrixTask extends AsyncTask<String, Void, DistanceMatrix>
 {
