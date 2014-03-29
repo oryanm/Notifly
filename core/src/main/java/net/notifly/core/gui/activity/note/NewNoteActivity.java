@@ -137,7 +137,7 @@ public class NewNoteActivity extends ActionBarActivity implements
     public void clear(View view) {
         ((EditText) findViewById(R.id.dateEditText)).setText("");
         ((EditText) findViewById(R.id.timeEditText)).setText("");
-        dateTime = LocalDateTime.now();
+        dateTime = null;
     }
 
     public void selectLocation(View view) {
