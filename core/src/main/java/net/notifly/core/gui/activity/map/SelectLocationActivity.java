@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -18,6 +19,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import net.notifly.core.R;
 import net.notifly.core.gui.activity.note.NewNoteActivity;
+import net.notifly.core.util.GoogleMapsZoom;
 import net.notifly.core.util.LocationHandler;
 
 public class SelectLocationActivity extends Activity {
@@ -32,14 +34,14 @@ public class SelectLocationActivity extends Activity {
     }
 
     private void setMap() {
-        LatLng cameraTarget = getCameraTarget();
+        CameraUpdate cameraTarget = getCameraTarget();
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         map = mapFragment.getMap();
         map.setMyLocationEnabled(true);
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(cameraTarget, 10));
+        map.moveCamera(cameraTarget);
         selectedLocation = map.addMarker(new MarkerOptions()
-                .position(cameraTarget)
+                .position(map.getCameraPosition().target)
                 .draggable(true));
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -49,19 +51,21 @@ public class SelectLocationActivity extends Activity {
         });
     }
 
-    private LatLng getCameraTarget() {
+    private CameraUpdate getCameraTarget() {
         Address address = getIntent().getParcelableExtra(NewNoteActivity.EXTRA_LOCATION);
         LatLng cameraTarget;
+        float zoom = GoogleMapsZoom.CITY_LEVEL;
 
         if (address == null) {
             LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
             Location currentLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
             cameraTarget = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+            zoom = GoogleMapsZoom.NEIGHBORHOOD_LEVEL;
         } else {
             cameraTarget = new LatLng(address.getLatitude(), address.getLongitude());
         }
 
-        return cameraTarget;
+        return CameraUpdateFactory.newLatLngZoom(cameraTarget, zoom);
     }
 
     @Override
