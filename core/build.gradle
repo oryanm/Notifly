@@ -4,9 +4,12 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:0.9.+'
+        // compile time only annotation processor and code generator for android studio
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.2'
     }
 }
 apply plugin: 'android'
+apply plugin: 'android-apt'
 
 repositories {
     mavenCentral()
@@ -29,17 +32,49 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+
+    // tells android annotations where the source is
+    sourceSets {
+        main {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+            java.srcDirs = ['src/main/java', 'GENERATED_FOLDER']
+            resources.srcDirs = ['src/main/resources']
+            res.srcDirs = ['src/main/res']
+            assets.srcDirs = ['src/main/assets']
+        }
+    }
 }
+
+def daggerVersion = '1.2.1';
+def AAnnotationsVersion = '3.0.1'
 
 dependencies {
     // Joda Time
     compile 'net.danlew:android.joda:2.3@aar'
     // Google Maps
-    compile 'com.google.android.gms:play-services:4.2.42'
+    compile 'com.google.android.gms:play-services:4.3.23'
+    // guava
+    compile group: 'com.google.guava', name: 'guava', version: '12.0'
     // date pickers
     compile 'com.doomonafireball.betterpickers:library:1.5.2'
     // SwipeListView
     compile ('com.fortysevendeg.swipelistview:swipelistview:1.0-SNAPSHOT@aar') {
         transitive = true
+    }
+
+    // Dagger
+    apt "com.squareup.dagger:dagger-compiler:${daggerVersion}"
+    compile "com.squareup.dagger:dagger:${daggerVersion}"
+
+    // Android annotations
+    apt "org.androidannotations:androidannotations:$AAnnotationsVersion"
+    compile "org.androidannotations:androidannotations-api:$AAnnotationsVersion"
+}
+
+apt {
+    // android-apt arguments for android annotations
+    arguments {
+        androidManifestFile variant.processResources.manifestFile
+        resourcePackageName 'net.notifly.core'
     }
 }

@@ -20,7 +20,7 @@ import net.danlew.android.joda.ResourceZoneInfoProvider;
 import net.notifly.core.R;
 import net.notifly.core.entity.DistanceMatrix;
 import net.notifly.core.entity.Note;
-import net.notifly.core.gui.activity.main.MainActivity;
+import net.notifly.core.gui.activity.main.MainActivity_;
 import net.notifly.core.gui.activity.main.RetreiveDistanceMatrixTask;
 import net.notifly.core.sql.NotesDAO;
 
@@ -317,7 +317,7 @@ public class BackgroundService extends Service
   private void showNotification(String text, String message) {
     // The PendingIntent to launch our activity if the user selects this notification
     PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-      new Intent(this, MainActivity.class), 0);
+      new Intent(this, MainActivity_.class), 0);
 
     // Set the icon, scrolling text and timestamp
     Notification notification;
