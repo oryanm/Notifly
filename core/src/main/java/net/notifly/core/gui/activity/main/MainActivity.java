@@ -1,19 +1,14 @@
 package net.notifly.core.gui.activity.main;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.fortysevendeg.swipelistview.SwipeListView;
@@ -23,7 +18,6 @@ import net.notifly.core.R;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.note.NewNoteActivity;
 import net.notifly.core.service.BackgroundService;
-import net.notifly.core.sql.NotesDAO;
 
 public class MainActivity extends ActionBarActivity
   implements NavigationDrawerFragment.NavigationDrawerCallbacks
@@ -162,64 +156,4 @@ public class MainActivity extends ActionBarActivity
     adapter.insert(note, 0);
     adapter.notifyDataSetChanged();
   }
-
-  /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
-    {
-      View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-      int section = getArguments().getInt(ARG_SECTION_NUMBER);
-
-      switch (section)
-      {
-        case NAVIGATION_SECTION_NOTES:
-        {
-          createNotesListView(rootView);
-        }
-      }
-      return rootView;
-    }
-
-    private void createNotesListView(View rootView)
-    {
-      NotesDAO notesDAO = new NotesDAO(getActivity());
-      final NotesAdapter adapter = new NotesAdapter(getActivity(), notesDAO.getAllNotes());
-      notesDAO.close();
-
-      SwipeListView list = (SwipeListView) rootView.findViewById(R.id.notes_list_view);
-      list.setAdapter(adapter);
-    }
-
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((MainActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
-        }
-    }
 }
