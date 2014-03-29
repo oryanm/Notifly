@@ -33,10 +33,27 @@ public class LocationHandler
   private static final long LOCATION_REFRESH_TIME = 5;
   private static final float LOCATION_REFRESH_DISTANCE = 5;
 
-    public static final Address ERROR_ADDRESS = new Address(Locale.getDefault()) {{
-        setAddressLine(0, "error");
-        setFeatureName("error");
-    }};
+    /**
+     * use this const to signify en error with address loading. <br/>
+     * IMPORTANT: because we use {@link android.os.Parcelable} to pass objects around
+     * and because {@link android.location.Address} doesn't implements {@code Object.equals()},
+     * we have to override if ourselves. this also means that: {@code address.equals(ERROR_ADDRESS)} is
+     * always false so we have to always use: {@code ERROR_ADDRESS.equals(address)} <br/>
+     * Use {@code LocationHandler.isValid(Address)} to be sure you're dealing we the good stuff.
+     */
+    public static final Address ERROR_ADDRESS = new Address(Locale.getDefault()) {
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof Address && ((Address) o).getLatitude() == getLatitude();
+        }
+
+        {
+            setLongitude(-1);
+            setLatitude(-1);
+            setAddressLine(0, "Something went wrong");
+            setFeatureName("Something went wrong");
+        }
+    };
 
     private Geocoder geocoder;
 
@@ -67,6 +84,10 @@ public class LocationHandler
         }
 
         return addresses.iterator().next();
+    }
+
+    public static boolean isValid(Address address) {
+        return !ERROR_ADDRESS.equals(address);
     }
 
   public String getLocationByName(String name) throws IOException

@@ -25,6 +25,7 @@ import net.notifly.core.gui.activity.main.MainActivity;
 import net.notifly.core.gui.activity.map.SelectLocationActivity;
 import net.notifly.core.sql.NotesDAO;
 import net.notifly.core.util.GeneralUtils;
+import net.notifly.core.util.LocationHandler;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -38,8 +39,7 @@ public class NewNoteActivity extends ActionBarActivity implements
     private static final int LOCATION_SELECT_CODE = 2;
     public static final String EXTRA_LOCATION = "net.notifly.core.location";
 
-    // todo: enable null
-    Address address;
+    Address address = LocationHandler.ERROR_ADDRESS;
     LocalDateTime dateTime = null;
 
     @Override
@@ -101,7 +101,7 @@ public class NewNoteActivity extends ActionBarActivity implements
     {
       Note note = new Note(title, dateTime);
       note.setDescription(((EditText) findViewById(R.id.descriptionEditText)).getText().toString());
-      if (address != null) note.setLocation(Location.from(address));
+      if (LocationHandler.isValid(address)) note.setLocation(Location.from(address));
 
       NotesDAO notes = new NotesDAO(this);
       note.setId((int)notes.addNote(note));
@@ -142,7 +142,7 @@ public class NewNoteActivity extends ActionBarActivity implements
 
     public void selectLocation(View view) {
         Intent intent = new Intent(this, SelectLocationActivity.class);
-        if (address != null) intent.putExtra(EXTRA_LOCATION, address);
+        if (LocationHandler.isValid(address)) intent.putExtra(EXTRA_LOCATION, address);
         startActivityForResult(intent, LOCATION_SELECT_CODE);
     }
 
