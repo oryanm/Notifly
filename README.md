@@ -1,5 +1,18 @@
 Notifly
 =======
+Location centered reminders
+
+Road map
+========
+
+* test background service 
+* create settings activity
+* create favorite locations fragment
+* setup server backend (google app engine)
+* add user stats reporting mechanism
+* implement machine lerning mechanism
+* improve ui features
+* connect to social networks
 
 Links
 =====
