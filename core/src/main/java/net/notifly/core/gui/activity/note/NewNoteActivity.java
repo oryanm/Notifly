@@ -19,7 +19,7 @@ import com.doomonafireball.betterpickers.radialtimepicker.RadialTimePickerDialog
 import net.notifly.core.R;
 import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
-import net.notifly.core.gui.activity.main.MainActivity;
+import net.notifly.core.gui.activity.main.NotesMainFragment;
 import net.notifly.core.gui.activity.map.SelectLocationActivity_;
 import net.notifly.core.sql.NotesDAO;
 import net.notifly.core.util.GeneralUtils;
@@ -108,7 +108,7 @@ public class NewNoteActivity extends ActionBarActivity implements
             notes.close();
 
             Intent intent = new Intent();
-            intent.putExtra(MainActivity.EXTRA_NOTE, note);
+            intent.putExtra(NotesMainFragment.EXTRA_NOTE, note);
             setResult(RESULT_OK, intent);
             finish();
         } else {
