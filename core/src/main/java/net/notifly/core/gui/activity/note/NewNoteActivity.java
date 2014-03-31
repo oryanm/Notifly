@@ -68,7 +68,7 @@ public class NewNoteActivity extends ActionBarActivity implements
     void setDatePicker() {
         LocalDateTime now = LocalDateTime.now();
         CalendarDatePickerDialog calendarDatePickerDialog = CalendarDatePickerDialog
-                .newInstance(NewNoteActivity.this, now.getYear(), now.getMonthOfYear(), now.getDayOfMonth());
+                .newInstance(NewNoteActivity.this, now.getYear(), now.getMonthOfYear() - 1, now.getDayOfMonth());
         calendarDatePickerDialog.show(getSupportFragmentManager(), "fragment_date_picker_name");
     }
 
