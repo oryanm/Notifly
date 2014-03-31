@@ -8,9 +8,11 @@ Road map
 * test background service 
 * create settings activity
 * create favorite locations fragment
+* add color for activity
 * setup server backend (google app engine)
 * add user stats reporting mechanism
 * implement machine lerning mechanism
+* add tags for activity
 * improve ui features
 * connect to social networks
 
