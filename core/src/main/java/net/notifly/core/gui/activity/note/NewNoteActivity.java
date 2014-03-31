@@ -52,7 +52,7 @@ public class NewNoteActivity extends ActionBarActivity implements
 
     @ViewById(R.id.timeEditText)
     EditText time;
-    @ViewById(R.id.timeEditText)
+    @ViewById(R.id.dateEditText)
     EditText date;
 
     @Click(R.id.timeEditText)
@@ -120,23 +120,23 @@ public class NewNoteActivity extends ActionBarActivity implements
 
     @Override
     public void onDateSet(CalendarDatePickerDialog calendarDatePickerDialog, int year, int monthOfYear, int dayOfMonth) {
-        LocalDate localDate = new LocalDate(year, monthOfYear, dayOfMonth);
-        EditText date = (EditText) findViewById(R.id.dateEditText);
+        LocalDate localDate = new LocalDate(year, monthOfYear + 1, dayOfMonth);
         date.setText(localDate.toString(DateTimeFormat.mediumDate()));
-        dateTime = LocalDateTime.now().withDate(year, monthOfYear, dayOfMonth);
+        if (dateTime == null) dateTime = LocalDateTime.now();
+        dateTime = dateTime.withDate(year, monthOfYear + 1, dayOfMonth);
     }
 
     @Override
     public void onTimeSet(RadialPickerLayout radialPickerLayout, int hourOfDay, int minute) {
         LocalTime localTime = new LocalTime(hourOfDay, minute);
-        EditText time = (EditText) findViewById(R.id.timeEditText);
         time.setText(localTime.toString(DateTimeFormat.shortTime()));
-        dateTime = LocalDateTime.now().withTime(hourOfDay, minute, 0, 0);
+        if (dateTime == null) dateTime = LocalDateTime.now();
+        dateTime = dateTime.withTime(hourOfDay, minute, 0, 0);
     }
 
     public void clear(View view) {
-        ((EditText) findViewById(R.id.dateEditText)).setText("");
-        ((EditText) findViewById(R.id.timeEditText)).setText("");
+        date.setText("");
+        time.setText("");
         dateTime = null;
     }
 
