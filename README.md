@@ -12,6 +12,7 @@ Road map
 * setup server backend (google app engine)
 * add user stats reporting mechanism
 * implement machine lerning mechanism
+* create widget for the lock screen
 * add tags for activity
 * improve ui features
 * connect to social networks
