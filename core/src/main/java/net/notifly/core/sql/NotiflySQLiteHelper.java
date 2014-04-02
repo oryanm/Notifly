@@ -17,7 +17,7 @@ public class NotiflySQLiteHelper extends SQLiteOpenHelper
    * Changing this const will trigger the {@code onUpgrade} method
    * the next time a database instance will be created
    */
-  public static final int DATABASE_VERSION = 6;
+  public static final int DATABASE_VERSION = 9;
 
   /**
    * Default pattern used by SQLite for datetime columns

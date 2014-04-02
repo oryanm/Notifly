@@ -34,4 +34,6 @@
     <string name="select_location">Select Location</string>
     <string name="delete_note">Discard note</string>
 
+    <string name="save_location">Save favorite location</string>
+
 </resources>

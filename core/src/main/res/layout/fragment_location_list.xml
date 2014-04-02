@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="net.notifly.core.gui.activity.main.LocationFragment"
+    android:tag="favorite_locations">
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@android:id/empty"
+        android:gravity="center"
+        android:contentDescription=""
+        android:visibility="invisible"
+        android:src="@drawable/abc_ic_menu_share_holo_light"/>
+
+
+</FrameLayout>

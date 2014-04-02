@@ -26,7 +26,7 @@
         <EditText
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:layout_weight="3.5"
             android:inputType="date"
             android:id="@+id/dateEditText"
             android:hint="@string/note_date"
@@ -39,7 +39,7 @@
             android:inputType="time"
             android:id="@+id/timeEditText"
             android:hint="@string/note_time"
-            android:layout_weight="3"
+            android:layout_weight="3.5"
             android:focusable="false"
             android:longClickable="false" />
 
@@ -72,12 +72,23 @@
         <ImageButton
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:id="@+id/imageButton"
+            android:id="@+id/saveLocationButton"
+            android:layout_weight="1"
+            android:contentDescription="@string/save_location"
+            android:src="@drawable/ic_action_favorite"
+            android:background="@color/transparent"
+            android:onClick="saveLocation" />
+
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/selectButton"
             android:layout_weight="1"
             android:contentDescription="@string/select_location"
             android:src="@drawable/ic_action_place"
             android:background="@color/transparent"
             android:onClick="selectLocation" />
+
     </LinearLayout>
 
     <EditText

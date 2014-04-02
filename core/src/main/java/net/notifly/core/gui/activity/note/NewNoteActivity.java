@@ -21,6 +21,7 @@ import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.main.NotesMainFragment;
 import net.notifly.core.gui.activity.map.SelectLocationActivity_;
+import net.notifly.core.sql.LocationDAO;
 import net.notifly.core.sql.NotesDAO;
 import net.notifly.core.util.GeneralUtils;
 import net.notifly.core.util.LocationHandler;
@@ -54,6 +55,8 @@ public class NewNoteActivity extends ActionBarActivity implements
     EditText time;
     @ViewById(R.id.dateEditText)
     EditText date;
+    @ViewById(R.id.titleEditText)
+    EditText title;
 
     @Click(R.id.timeEditText)
     void setTimePicker() {
@@ -96,10 +99,10 @@ public class NewNoteActivity extends ActionBarActivity implements
 
     @OptionsItem(R.id.action_save_note)
     void save() {
-        String title = ((EditText) findViewById(R.id.titleEditText)).getText().toString();
+        String titleString = title.getText().toString();
 
-        if (!title.isEmpty()) {
-            Note note = new Note(title, dateTime);
+        if (!titleString.isEmpty()) {
+            Note note = new Note(titleString, dateTime);
             note.setDescription(((EditText) findViewById(R.id.descriptionEditText)).getText().toString());
             if (LocationHandler.isValid(address)) note.setLocation(Location.from(address));
 
@@ -140,6 +143,7 @@ public class NewNoteActivity extends ActionBarActivity implements
         dateTime = null;
     }
 
+    @Click
     public void selectLocation(View view) {
         Intent intent = new Intent(this, SelectLocationActivity_.class);
         if (LocationHandler.isValid(address)) intent.putExtra(EXTRA_LOCATION, address);
@@ -152,6 +156,21 @@ public class NewNoteActivity extends ActionBarActivity implements
             address = intent.getParcelableExtra(EXTRA_LOCATION);
             AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.locationTextView);
             textView.setText(GeneralUtils.toString(address));
+        }
+    }
+
+    public void saveLocation(View view) {
+        if (LocationHandler.isValid(address)) {
+            Location location = Location.from(address);
+
+            LocationDAO locationDAO = new LocationDAO(this);
+            // todo: add or update + the title should be what?
+            locationDAO.addLocation(location.asFavorite(GeneralUtils.toString(address)));
+            locationDAO.close();
+        } else {
+            Toast toast = Toast.makeText(this, "Select location to love", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
         }
     }
 }

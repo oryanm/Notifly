@@ -1,6 +1,7 @@
 package net.notifly.core.util;
 
 import android.location.Address;
+import android.os.Parcel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,5 +31,13 @@ public class GeneralUtils {
         }
 
         return GeneralUtils.join(", ", builder.toArray(new String[builder.size()]));
+    }
+
+    public static void writeBoolean(Parcel parcel, boolean b) {
+        parcel.writeByte((byte) (b ? 1 : 0));
+    }
+
+    public static boolean readBoolean(Parcel parcel) {
+        return parcel.readByte() != 0;
     }
 }

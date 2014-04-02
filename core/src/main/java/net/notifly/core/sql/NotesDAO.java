@@ -47,8 +47,8 @@ public class NotesDAO extends AbstractDAO
       values.put(COLUMNS.DESCRIPTION.name(), note.getDescription());
       if (note.getLocation() != null)
       {
-        // todo check for existing locations
-        values.put(COLUMNS.LOCATION.name(), new LocationDAO(database).addLocation(note.getLocation()));
+        values.put(COLUMNS.LOCATION.name(), new LocationDAO(database)
+                .addLocationIfNotExists(note.getLocation()));
       }
       if (note.getTime() != null)
       {

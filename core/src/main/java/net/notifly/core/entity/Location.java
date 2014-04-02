@@ -6,92 +6,109 @@ import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
 
-public class Location implements Parcelable
-{
-  private int id;
-  private double longitude;
-  private double latitude;
+import net.notifly.core.util.GeneralUtils;
 
-  public Location(int id, double latitude, double longitude)
-  {
-    this.id = id;
-    this.longitude = longitude;
-    this.latitude = latitude;
-  }
+public class Location implements Parcelable {
+    private int id;
+    private double longitude;
+    private double latitude;
+    boolean isFavorite = false;
+    String title = "";
 
-  public Location(double latitude, double longitude)
-  {
-    this.longitude = longitude;
-    this.latitude = latitude;
-  }
+    // transient member
+    // todo consider using Address
+    public String address = "";
 
-  public static Location from(Address address)
-  {
-    return new Location(address.getLatitude(), address.getLongitude());
-  }
-
-  public static Location from(LatLng latLng)
-  {
-    return new Location(latLng.latitude, latLng.longitude);
-  }
-
-  public static Location from(android.location.Location location)
-  {
-    return new Location(location.getLatitude(), location.getLongitude());
-  }
-
-  public int getId()
-  {
-    return id;
-  }
-
-  public double getLongitude()
-  {
-    return longitude;
-  }
-
-  public double getLatitude()
-  {
-    return latitude;
-  }
-
-  @Override
-  public String toString()
-  {
-    return getLatitude() + "," + getLongitude();
-  }
-
-  @Override
-  public int describeContents()
-  {
-    return 0;
-  }
-
-  @Override
-  public void writeToParcel(Parcel dest, int flags)
-  {
-    dest.writeInt(id);
-    dest.writeDouble(latitude);
-    dest.writeDouble(longitude);
-  }
-
-  public static final Parcelable.Creator<Location> CREATOR = new Parcelable.Creator<Location>()
-  {
-    public Location createFromParcel(Parcel in)
-    {
-      return new Location(in);
+    public Location(int id, double latitude, double longitude) {
+        this.id = id;
+        this.longitude = longitude;
+        this.latitude = latitude;
     }
 
-    public Location[] newArray(int size)
-    {
-      return new Location[size];
+    public Location(double latitude, double longitude) {
+        this.longitude = longitude;
+        this.latitude = latitude;
     }
-  };
 
-  private Location(Parcel in)
-  {
-    this.id = in.readInt();
-    this.latitude = in.readDouble();
-    this.longitude = in.readDouble();
-  }
+    public Location asFavorite(String title) {
+        Location location = new Location(this.id, this.latitude, this.longitude);
+        location.isFavorite = true;
+        location.title = title;
+        return location;
+    }
+
+    public static Location from(Address address) {
+        return new Location(address.getLatitude(), address.getLongitude());
+    }
+
+    public static Location from(LatLng latLng) {
+        return new Location(latLng.latitude, latLng.longitude);
+    }
+
+    public static Location from(android.location.Location location) {
+        return new Location(location.getLatitude(), location.getLongitude());
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    @Override
+    public String toString() {
+        return !address.isEmpty() ? address :
+                !title.isEmpty() ? title :
+                        getLatitude() + "," + getLongitude();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeDouble(latitude);
+        dest.writeDouble(longitude);
+        GeneralUtils.writeBoolean(dest, isFavorite);
+        dest.writeString(title);
+    }
+
+    public static final Parcelable.Creator<Location> CREATOR = new Parcelable.Creator<Location>() {
+        public Location createFromParcel(Parcel in) {
+            return new Location(in);
+        }
+
+        public Location[] newArray(int size) {
+            return new Location[size];
+        }
+    };
+
+    private Location(Parcel in) {
+        this.id = in.readInt();
+        this.latitude = in.readDouble();
+        this.longitude = in.readDouble();
+        this.isFavorite = GeneralUtils.readBoolean(in);
+        this.title = in.readString();
+    }
 }

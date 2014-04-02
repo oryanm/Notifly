@@ -87,14 +87,33 @@ public class LocationHandler
         return addresses.iterator().next();
     }
 
+    public Address forceGetAddress(net.notifly.core.entity.Location location) {
+        return forceGetAddress(location.getLatitude(), location.getLongitude());
+    }
+
+    public Address forceGetAddress(double latitude, double longitude) {
+        List<Address> addresses;
+
+        try {
+            addresses = geocoder.getFromLocation(latitude, longitude, 1);
+        } catch (IOException e) {
+            Log.e(LocationHandler.class.getName(), "Failed to load address from google", e);
+            // todo: maybe sleep for a while
+            return forceGetAddress(latitude, longitude);
+        }
+
+        if (addresses == null || addresses.isEmpty()) {
+            Log.w(LocationHandler.class.getName(), String.format(
+                    "Could not find address at (%f, %f)", latitude, longitude));
+            return ERROR_ADDRESS;
+        }
+
+        return addresses.iterator().next();
+    }
+
     public static boolean isValid(Address address) {
         return !ERROR_ADDRESS.equals(address);
     }
-
-  public String getLocationByName(String name) throws IOException
-  {
-    return getAddresses(name, /*TODO: why 5?*/ 5).iterator().next().getFeatureName();
-  }
 
   public List<Address> getAddresses(String name, int maxResults) throws IOException
   {
