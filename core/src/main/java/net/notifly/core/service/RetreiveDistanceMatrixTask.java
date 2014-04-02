@@ -1,4 +1,4 @@
-package net.notifly.core.gui.activity.main;
+package net.notifly.core.service;
 
 import android.os.AsyncTask;
 

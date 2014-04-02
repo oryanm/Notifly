@@ -21,7 +21,6 @@ import net.notifly.core.R;
 import net.notifly.core.entity.DistanceMatrix;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.main.MainActivity_;
-import net.notifly.core.gui.activity.main.RetreiveDistanceMatrixTask;
 import net.notifly.core.sql.NotesDAO;
 
 import org.joda.time.LocalDateTime;
