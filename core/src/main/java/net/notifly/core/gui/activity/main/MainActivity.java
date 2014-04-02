@@ -20,8 +20,7 @@ import java.util.List;
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends ActionBarActivity implements
-        NavigationDrawerFragment.NavigationDrawerCallbacks,
-        LocationFragment.OnFragmentInteractionListener {
+        NavigationDrawerFragment.NavigationDrawerCallbacks {
     public static final int NAVIGATION_SECTION_NOTES = 0;
 
     @FragmentById(R.id.navigation_drawer)
