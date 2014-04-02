@@ -5,7 +5,7 @@
 
     <!-- nav drawer -->
     <string name="title_section_notes">Notes</string>
-    <string name="title_section2">Section 2</string>
+    <string name="title_section_fav_locations">My Locations</string>
     <string name="title_section3">Section 3</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

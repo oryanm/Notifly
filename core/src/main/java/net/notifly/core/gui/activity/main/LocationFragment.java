@@ -1,6 +1,8 @@
 package net.notifly.core.gui.activity.main;
 
 import android.app.Fragment;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -17,12 +19,14 @@ import net.notifly.core.util.LocationHandler;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
 
 @EFragment(R.layout.fragment_location)
+@OptionsMenu(R.menu.fav_locations)
 public class LocationFragment extends Fragment implements AbsListView.OnItemClickListener {
 
     @ViewById(android.R.id.list)
@@ -76,6 +80,11 @@ public class LocationFragment extends Fragment implements AbsListView.OnItemClic
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        getActivity().getActionBar().setTitle(getString(R.string.title_section_fav_locations));
+    }
+
+    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     }
 
@@ -90,9 +99,5 @@ public class LocationFragment extends Fragment implements AbsListView.OnItemClic
         if (emptyView instanceof ImageView) {
             emptyView.setVisibility(View.VISIBLE);
         }
-    }
-
-    public interface OnFragmentInteractionListener {
-//        public void onFragmentInteraction(String id);
     }
 }

@@ -108,7 +108,7 @@ public class NavigationDrawerFragment extends Fragment {
           android.R.id.text1,
           new String[]{
             getString(R.string.title_section_notes),
-            getString(R.string.title_section2),
+            getString(R.string.title_section_fav_locations),
             getString(R.string.title_section3),
           }
         ));
