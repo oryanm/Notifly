@@ -5,6 +5,9 @@ Location centered reminders
 Road map
 ========
 
+* extend Application to 
+  * save notes and locations as global vars
+  * preload addresses
 * test background service 
 * create settings activity
 * create favorite locations fragment
