@@ -57,6 +57,8 @@ public class NewNoteActivity extends ActionBarActivity implements
     EditText date;
     @ViewById(R.id.titleEditText)
     EditText title;
+    @ViewById(R.id.locationTextView)
+    AutoCompleteTextView locationTextView;
 
     @Click(R.id.timeEditText)
     void setTimePicker() {
@@ -77,17 +79,16 @@ public class NewNoteActivity extends ActionBarActivity implements
 
     @AfterViews
     void setLocationEditText() {
-        AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.locationTextView);
         final AddressAdapter adapter = new AddressAdapter(this, android.R.layout.simple_list_item_1);
-        textView.setAdapter(adapter);
-        textView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        locationTextView.setAdapter(adapter);
+        locationTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 address = adapter.getAddress(position);
             }
         });
         // todo: find a better way?
-        textView.addTextChangedListener(new TextWatcherAdapter() {
+        locationTextView.addTextChangedListener(new TextWatcherAdapter() {
             @Override
             public void afterTextChanged(Editable s) {
                 if (!GeneralUtils.toString(address).equals(s.toString())) {
@@ -115,9 +116,7 @@ public class NewNoteActivity extends ActionBarActivity implements
             setResult(RESULT_OK, intent);
             finish();
         } else {
-            Toast toast = Toast.makeText(this, "Title is required", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER, 0, 0);
-            toast.show();
+            toast("Title is required");
         }
     }
 
@@ -154,8 +153,7 @@ public class NewNoteActivity extends ActionBarActivity implements
     void afterSelectLocation(int resultCode, Intent intent) {
         if (resultCode == RESULT_OK) {
             address = intent.getParcelableExtra(EXTRA_LOCATION);
-            AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.locationTextView);
-            textView.setText(GeneralUtils.toString(address));
+            locationTextView.setText(GeneralUtils.toString(address));
         }
     }
 
@@ -167,10 +165,15 @@ public class NewNoteActivity extends ActionBarActivity implements
             // todo: add or update + the title should be what?
             locationDAO.addLocation(location.asFavorite(GeneralUtils.toString(address)));
             locationDAO.close();
+            toast("Location saved to My Locations");
         } else {
-            Toast toast = Toast.makeText(this, "Select location to love", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER, 0, 0);
-            toast.show();
+            toast("Select location to love");
         }
+    }
+
+    private void toast(CharSequence text) {
+        Toast toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 }
