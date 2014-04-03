@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
@@ -22,9 +23,15 @@ import net.notifly.core.entity.DistanceMatrix;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.main.MainActivity_;
 import net.notifly.core.sql.NotesDAO;
+import net.notifly.core.util.SerializableSparseArray;
 
 import org.joda.time.LocalDateTime;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +55,8 @@ public class BackgroundService extends Service
   public static final int LOCATION_ONLY_REMINDER_INTERVAL = 5; // In minutes
   public static final int[] TIME_LOCATION_REMINDER_TIMINGS = new int[]{0, 5, 13, TIME_LOCATION_SAFETY_FACTOR};
 
+  private static final String REMINDER_FILE_NAME = "reminder";
+
   public static boolean ALIVE = false;
 
   private NotificationManager notificationManager;
@@ -63,6 +72,7 @@ public class BackgroundService extends Service
 
   private Map<Note, DistanceMatrix> etaMap = new HashMap<Note, DistanceMatrix>();
   private Map<Note, Integer> reminderMap = new HashMap<Note, Integer>();
+  private SerializableSparseArray<LocalDateTime> reminderDateMap = new SerializableSparseArray<LocalDateTime>();
 
   /**
    * Class for clients to access.  Because we know this service always
@@ -85,6 +95,51 @@ public class BackgroundService extends Service
     ResourceZoneInfoProvider.init(this);
 
     notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+
+    readReminderMapFromFile();
+  }
+
+  private void readReminderMapFromFile()
+  {
+    try
+    {
+      File file = getFileStreamPath(REMINDER_FILE_NAME);
+      if (file.exists())
+      {
+        FileInputStream fileInputStream = openFileInput(REMINDER_FILE_NAME);
+        ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+        reminderDateMap = (SerializableSparseArray<LocalDateTime>) objectInputStream.readObject();
+        objectInputStream.close();
+        fileInputStream.close();
+      }
+      else
+      {
+        file.createNewFile();
+      }
+
+    } catch (java.io.IOException e)
+    {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e)
+    {
+      e.printStackTrace();
+    }
+  }
+
+  private void writeReminderMapToFile()
+  {
+    try
+    {
+      FileOutputStream fileOutputStream = openFileOutput(REMINDER_FILE_NAME, Context.MODE_PRIVATE);
+      ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+      objectOutputStream.writeObject(reminderDateMap);
+      objectOutputStream.close();
+      fileOutputStream.close();
+
+    } catch (java.io.IOException e)
+    {
+      e.printStackTrace();
+    }
   }
 
   @Override
@@ -145,9 +200,23 @@ public class BackgroundService extends Service
             }
             else // neither time nor location
             {
-              remindNote(notesToNotify, note, GENERAL_REMINDER_INTERVAL);
+              // If the note has been enlisted to the reminder file
+              if (reminderDateMap.get(note.getId()) != null)
+              {
+                if (now.isAfter(reminderDateMap.get(note.getId())))
+                {
+                  notesToNotify.add(note);
+                  reminderDateMap.put(note.getId(), now.plusMinutes(GENERAL_REMINDER_INTERVAL));
+                }
+              }
+              else
+              {
+                reminderDateMap.put(note.getId(), now.plusMinutes(GENERAL_REMINDER_INTERVAL));
+              }
             }
           }
+
+          writeReminderMapToFile();
 
           if (notesToNotify.size() > 0)
             showNotification(getShortContent(notesToNotify), getExtendedContent(notesToNotify));
