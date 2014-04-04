@@ -12,12 +12,12 @@ Road map
 * create settings activity
 * create favorite locations fragment
 * enable note editing
-* add color for activity
+* add color for notes
 * setup server backend (google app engine)
 * add user stats reporting mechanism
 * implement machine lerning mechanism
 * create widget for the lock screen
-* add tags for activity
+* add tags for notes
 * improve ui features
 * connect to social networks
 
