@@ -111,4 +111,28 @@ public class Location implements Parcelable {
         this.isFavorite = GeneralUtils.readBoolean(in);
         this.title = in.readString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Location location = (Location) o;
+
+        if (Double.compare(location.latitude, latitude) != 0) return false;
+        if (Double.compare(location.longitude, longitude) != 0) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(longitude);
+        result = (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(latitude);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 }
