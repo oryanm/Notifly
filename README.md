@@ -12,6 +12,7 @@ Road map
 * create settings activity
 * create favorite locations fragment
 * enable note editing
+* add option to sort notes 
 * add color for notes
 * setup server backend (google app engine)
 * add user stats reporting mechanism
