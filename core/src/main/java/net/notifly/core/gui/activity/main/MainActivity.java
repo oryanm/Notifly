@@ -28,9 +28,6 @@ public class MainActivity extends ActionBarActivity implements
 
     @AfterViews
     void setUp() {
-        // init joda time
-        ResourceZoneInfoProvider.init(this);
-
         if (!BackgroundService.ALIVE) {
             Log.d("MainActivity", "started background service");
             this.startService(new Intent(this, BackgroundService.class));

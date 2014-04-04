@@ -20,7 +20,7 @@ import java.util.List;
 
 @EFragment(R.layout.fragment_location)
 @OptionsMenu(R.menu.fav_locations)
-public class LocationFragment extends Fragment {
+public class LocationFragment extends Fragment implements AddressLoader.Callbacks {
 
     @ViewById(android.R.id.list)
     AbsListView locationsListView;
@@ -39,26 +39,23 @@ public class LocationFragment extends Fragment {
     void loadLocations() {
         locationHandler = new LocationHandler(getActivity());
 
-        ArrayAdapter<Location> adapter = new ArrayAdapter<Location>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1);
-
         if (locations == null) {
             LocationDAO locationDAO = new LocationDAO(getActivity());
             locations = locationDAO.getFavoriteLocations();
             locationDAO.close();
-
-            loadAddresses(adapter);
+            loadAddresses();
         }
 
-        adapter.addAll(locations);
+        ArrayAdapter<Location> adapter = new ArrayAdapter<Location>(getActivity(),
+                android.R.layout.simple_list_item_1, android.R.id.text1, locations);
         locationsListView.setAdapter(adapter);
     }
 
-    private void loadAddresses(ArrayAdapter<Location> adapter) {
+    private void loadAddresses() {
         for (Location location : locations) {
             if (location.address.isEmpty() ||
                     LocationHandler.ERROR_ADDRESS.getFeatureName().equals(location.address)) {
-                new AddressLoader(getActivity(), adapter, location).execute();
+                new AddressLoader(getActivity(), location).setListener(this).execute();
             }
         }
     }
@@ -66,5 +63,10 @@ public class LocationFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         getActivity().getActionBar().setTitle(getString(R.string.title_section_fav_locations));
+    }
+
+    @Override
+    public void notifyPostExecute() {
+        ((ArrayAdapter)locationsListView.getAdapter()).notifyDataSetChanged();
     }
 }
