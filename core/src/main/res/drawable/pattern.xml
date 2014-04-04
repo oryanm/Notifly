@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-    android:src="@drawable/pixel_weave"
+    android:src="@drawable/gpixel_weave"
     android:tileMode="repeat"/>
