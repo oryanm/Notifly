@@ -36,7 +36,7 @@ public class NotesMainFragment extends Fragment implements AddressLoader.Callbac
     SwipeListView swipeListView;
     @Bean
     NotesAdapter adapter;
-
+    @Bean
     LocationHandler locationHandler;
 
     public static NotesMainFragment newInstance() {
@@ -47,8 +47,6 @@ public class NotesMainFragment extends Fragment implements AddressLoader.Callbac
 
     @AfterViews
     void createNotesListView() {
-        locationHandler = new LocationHandler(getActivity());
-
         adapter.addAll(notifly.getNotes());
         swipeListView.setAdapter(adapter);
     }

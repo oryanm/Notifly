@@ -7,6 +7,7 @@ import android.util.Log;
 
 import net.notifly.core.entity.DistanceMatrix;
 
+import org.androidannotations.annotations.EBean;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+@EBean
 public class LocationHandler
 {
   private final static String DISTANCE_MATRIX_URL = "http://maps.googleapis.com/maps/api/distancematrix/json?origins=:org&destinations=:dest&mode=:mode&language=en-US&sensor=true";
@@ -93,6 +95,7 @@ public class LocationHandler
         return forceGetAddress(location.getLatitude(), location.getLongitude());
     }
 
+    @Deprecated
     public Address forceGetAddress(double latitude, double longitude) {
         List<Address> addresses;
 

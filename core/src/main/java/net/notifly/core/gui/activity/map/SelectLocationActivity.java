@@ -20,6 +20,7 @@ import net.notifly.core.util.GoogleMapsZoom;
 import net.notifly.core.util.LocationHandler;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.FragmentById;
 import org.androidannotations.annotations.OptionsItem;
@@ -36,6 +37,8 @@ public class SelectLocationActivity extends Activity {
     MapFragment mapFragment;
     @SystemService
     LocationManager locationManager;
+    @Bean
+    LocationHandler LocationHandler;
 
     @AfterViews
     void setMap() {
@@ -73,7 +76,7 @@ public class SelectLocationActivity extends Activity {
     @OptionsItem(R.id.action_select)
     void select() {
         LatLng position = selectedLocation.getPosition();
-        Address address = new LocationHandler(this).getAddress(position.latitude, position.longitude);
+        Address address = LocationHandler.getAddress(position.latitude, position.longitude);
 
         Intent intent = new Intent();
         intent.putExtra(NewNoteActivity.EXTRA_LOCATION, address);

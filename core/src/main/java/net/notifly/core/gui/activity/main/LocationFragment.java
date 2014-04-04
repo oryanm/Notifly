@@ -12,6 +12,7 @@ import net.notifly.core.sql.LocationDAO;
 import net.notifly.core.util.LocationHandler;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
@@ -24,7 +25,7 @@ public class LocationFragment extends Fragment implements AddressLoader.Callback
 
     @ViewById(android.R.id.list)
     AbsListView locationsListView;
-
+    @Bean
     LocationHandler locationHandler;
 
     List<Location> locations;
@@ -37,8 +38,6 @@ public class LocationFragment extends Fragment implements AddressLoader.Callback
 
     @AfterViews
     void loadLocations() {
-        locationHandler = new LocationHandler(getActivity());
-
         if (locations == null) {
             LocationDAO locationDAO = new LocationDAO(getActivity());
             locations = locationDAO.getFavoriteLocations();
