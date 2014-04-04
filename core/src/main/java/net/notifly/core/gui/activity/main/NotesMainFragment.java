@@ -14,6 +14,7 @@ import net.notifly.core.gui.activity.note.NewNoteActivity_;
 import net.notifly.core.sql.NotesDAO;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
@@ -25,6 +26,9 @@ public class NotesMainFragment extends Fragment {
     public static final int NEW_NOTE_CODE = 1;
     public static final String EXTRA_NOTE = "net.notifly.core.note";
 
+    @Bean
+    NotesAdapter adapter;
+
     public static NotesMainFragment newInstance() {
         NotesMainFragment fragment = new NotesMainFragment_();
         fragment.setHasOptionsMenu(true);
@@ -34,7 +38,7 @@ public class NotesMainFragment extends Fragment {
     @AfterViews
     void createNotesListView() {
         NotesDAO notesDAO = new NotesDAO(getActivity());
-        final NotesAdapter adapter = new NotesAdapter(getActivity(), notesDAO.getAllNotes());
+        adapter.addAll(notesDAO.getAllNotes());
         notesDAO.close();
 
         SwipeListView list = (SwipeListView) getActivity().findViewById(R.id.notes_list_view);

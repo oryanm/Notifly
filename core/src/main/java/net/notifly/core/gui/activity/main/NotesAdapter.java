@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.fortysevendeg.swipelistview.SwipeListView;
 
+import net.notifly.core.Notifly;
 import net.notifly.core.R;
 import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
@@ -21,18 +22,21 @@ import net.notifly.core.sql.NotesDAO;
 import net.notifly.core.util.GeneralUtils;
 import net.notifly.core.util.LocationHandler;
 
+import org.androidannotations.annotations.App;
+import org.androidannotations.annotations.EBean;
 import org.joda.time.format.DateTimeFormat;
 
 import java.util.List;
 
+@EBean
 public class NotesAdapter extends ArrayAdapter<Note> {
+    @App
+    Notifly notifly;
+
     private LocationHandler locationHandler;
 
-    // todo: maybe cache at application level
-    LruCache<Location, Address> locationAddressLruCache = new LruCache<Location, Address>(50);
-
-    public NotesAdapter(Context context, List<Note> notes) {
-        super(context, R.layout.note_item, notes);
+    public NotesAdapter(Context context) {
+        super(context, R.layout.note_item);
         locationHandler = new LocationHandler(context);
     }
 
@@ -72,7 +76,7 @@ public class NotesAdapter extends ArrayAdapter<Note> {
 
     private void setAddress(Note note, TextView location) {
         if (note.getLocation() != null) {
-            Address address = locationAddressLruCache.get(note.getLocation());
+            Address address = notifly.get(note.getLocation());
             String text = getContext().getString(R.string.loading);
 
             if (address == null) {
@@ -118,7 +122,7 @@ public class NotesAdapter extends ArrayAdapter<Note> {
         protected Address doInBackground(Note... params) {
             Note note = params[0];
             Address address = locationHandler.getAddress(note.getLocation());
-            locationAddressLruCache.put(note.getLocation(), address);
+            notifly.put(note.getLocation(), address);
             return address;
         }
 

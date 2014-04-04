@@ -69,6 +69,8 @@ public class LocationHandler
   }
 
     public Address getAddress(double latitude, double longitude) {
+        Log.d(LocationHandler.class.getName(), String.format(
+                "Looking for address at (%f, %f)", latitude, longitude));
         List<Address> addresses;
 
         try {
@@ -115,13 +117,20 @@ public class LocationHandler
         return !ERROR_ADDRESS.equals(address);
     }
 
-  public List<Address> getAddresses(String name, int maxResults) throws IOException
-  {
-    List<Address> addresses = geocoder.getFromLocationName(name, maxResults,
-      LOWER_LEFT_LATITUDE, LOWER_LEFT_LONGITUDE, UPPER_RIGHT_LATITUDE, UPPER_RIGHT_LONGITUDE);
-    // in case google returns null
-    return addresses != null ? addresses : new ArrayList<Address>();
-  }
+    public List<Address> getAddresses(String name, int maxResults) {
+        List<Address> addresses = null;
+
+        try {
+            addresses = geocoder.getFromLocationName(name, maxResults,
+                    LOWER_LEFT_LATITUDE, LOWER_LEFT_LONGITUDE, UPPER_RIGHT_LATITUDE, UPPER_RIGHT_LONGITUDE);
+        } catch (IOException e) {
+            Log.e(LocationHandler.class.getName(),
+                    String.format("Failed to load addresses from: %s", name), e);
+        }
+
+        // in case google returns null or exception happened
+        return addresses != null ? addresses : new ArrayList<Address>();
+    }
 
   public static DistanceMatrix getDistanceMatrix(String orgAddress, String destAddress, String mode) throws IOException, JSONException
   {
