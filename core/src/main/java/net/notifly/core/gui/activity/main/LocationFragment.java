@@ -3,31 +3,24 @@ package net.notifly.core.gui.activity.main;
 import android.app.Fragment;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.View;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
 
 import net.notifly.core.R;
 import net.notifly.core.entity.Location;
 import net.notifly.core.sql.LocationDAO;
-import net.notifly.core.util.GeneralUtils;
 import net.notifly.core.util.LocationHandler;
 
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
 
 @EFragment(R.layout.fragment_location)
 @OptionsMenu(R.menu.fav_locations)
-public class LocationFragment extends Fragment implements AbsListView.OnItemClickListener {
+public class LocationFragment extends Fragment {
 
     @ViewById(android.R.id.list)
     AbsListView locationsListView;
@@ -43,61 +36,35 @@ public class LocationFragment extends Fragment implements AbsListView.OnItemClic
     }
 
     @AfterViews
-    void onCreate() {
+    void loadLocations() {
         locationHandler = new LocationHandler(getActivity());
+
+        ArrayAdapter<Location> adapter = new ArrayAdapter<Location>(getActivity(),
+                android.R.layout.simple_list_item_1, android.R.id.text1);
 
         if (locations == null) {
             LocationDAO locationDAO = new LocationDAO(getActivity());
             locations = locationDAO.getFavoriteLocations();
             locationDAO.close();
 
-            for (Location location : locations) {
-                if (location.address.isEmpty() ||
-                        LocationHandler.ERROR_ADDRESS.getFeatureName().equals(location.address)) {
-                    getAddress(location);
-                }
-            }
+            loadAddresses(adapter);
         }
 
-        if (locations.isEmpty()) setEmptyText();
-
-        ListAdapter adapter = new ArrayAdapter<Location>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, locations);
+        adapter.addAll(locations);
         locationsListView.setAdapter(adapter);
-        // Set OnItemClickListener so we can be notified on item clicks
-        locationsListView.setOnItemClickListener(this);
     }
 
-    @Background
-    void getAddress(Location location) {
-        location.setAddress(GeneralUtils.toString(locationHandler.forceGetAddress(location)));
-        update();
-    }
-
-    @UiThread
-    void update(){
-        ((ArrayAdapter) locationsListView.getAdapter()).notifyDataSetChanged();
+    private void loadAddresses(ArrayAdapter<Location> adapter) {
+        for (Location location : locations) {
+            if (location.address.isEmpty() ||
+                    LocationHandler.ERROR_ADDRESS.getFeatureName().equals(location.address)) {
+                new AddressLoader(getActivity(), adapter, location).execute();
+            }
+        }
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         getActivity().getActionBar().setTitle(getString(R.string.title_section_fav_locations));
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    }
-
-    /**
-     * The default content for this Fragment has a TextView that is shown when
-     * the list is empty. If you would like to change the text, call this method
-     * to supply the text it should use.
-     */
-    public void setEmptyText() {
-        View emptyView = locationsListView.getEmptyView();
-
-        if (emptyView instanceof ImageView) {
-            emptyView.setVisibility(View.VISIBLE);
-        }
     }
 }

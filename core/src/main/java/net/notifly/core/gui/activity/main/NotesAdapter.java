@@ -30,14 +30,8 @@ import java.util.List;
 
 @EBean
 public class NotesAdapter extends ArrayAdapter<Note> {
-    @App
-    Notifly notifly;
-
-    private LocationHandler locationHandler;
-
     public NotesAdapter(Context context) {
         super(context, R.layout.note_item);
-        locationHandler = new LocationHandler(context);
     }
 
     @Override
@@ -68,27 +62,10 @@ public class NotesAdapter extends ArrayAdapter<Note> {
         // Populate the data into the template view using the data object
         viewHolder.title.setText(note.getTitle());
         viewHolder.time.setText(note.getTime() == null ?
-          "" : note.getTime().toString(DateTimeFormat.shortDateTime()));
-        setAddress(note, viewHolder.location);
+                "" : note.getTime().toString(DateTimeFormat.shortDateTime()));
+        viewHolder.location.setText(note.getLocation() == null ? "" : note.getLocation().address);
 
         return convertView;
-    }
-
-    private void setAddress(Note note, TextView location) {
-        if (note.getLocation() != null) {
-            Address address = notifly.get(note.getLocation());
-            String text = getContext().getString(R.string.loading);
-
-            if (address == null) {
-                new AddressLoader(location).execute(note);
-            } else {
-                text = GeneralUtils.toString(address);
-            }
-
-            location.setText(text);
-        } else {
-            location.setText("");
-        }
     }
 
     public void delete(Note note, int position) {
@@ -103,32 +80,10 @@ public class NotesAdapter extends ArrayAdapter<Note> {
         list.closeAnimate(position);
     }
 
-    // View lookup cache
     private static class ViewHolder {
         TextView title;
         TextView time;
         TextView location;
         ImageButton delete;
-    }
-
-    private class AddressLoader extends AsyncTask<Note, Void, Address> {
-        TextView location;
-
-        private AddressLoader(TextView location) {
-            this.location = location;
-        }
-
-        @Override
-        protected Address doInBackground(Note... params) {
-            Note note = params[0];
-            Address address = locationHandler.getAddress(note.getLocation());
-            notifly.put(note.getLocation(), address);
-            return address;
-        }
-
-        @Override
-        protected void onPostExecute(Address address) {
-            location.setText(GeneralUtils.toString(address));
-        }
     }
 }

@@ -69,10 +69,6 @@ public class Location implements Parcelable {
         return title;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     @Override
     public String toString() {
         return !address.isEmpty() ? address :
