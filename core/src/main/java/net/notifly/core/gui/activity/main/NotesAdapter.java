@@ -1,10 +1,6 @@
 package net.notifly.core.gui.activity.main;
 
-import android.app.Activity;
 import android.content.Context;
-import android.location.Address;
-import android.os.AsyncTask;
-import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,24 +8,18 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.fortysevendeg.swipelistview.SwipeListView;
-
-import net.notifly.core.Notifly;
 import net.notifly.core.R;
-import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
-import net.notifly.core.sql.NotesDAO;
-import net.notifly.core.util.GeneralUtils;
-import net.notifly.core.util.LocationHandler;
 
-import org.androidannotations.annotations.App;
 import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.FragmentByTag;
 import org.joda.time.format.DateTimeFormat;
-
-import java.util.List;
 
 @EBean
 public class NotesAdapter extends ArrayAdapter<Note> {
+    @FragmentByTag("notes")
+    NotesMainFragment fragment;
+
     public NotesAdapter(Context context) {
         super(context, R.layout.note_item);
     }
@@ -69,15 +59,9 @@ public class NotesAdapter extends ArrayAdapter<Note> {
     }
 
     public void delete(Note note, int position) {
-        NotesDAO notesDAO = new NotesDAO(getContext());
-        notesDAO.deleteNote(note);
-        notesDAO.close();
-
         remove(note);
         notifyDataSetChanged();
-
-        SwipeListView list = (SwipeListView) ((Activity) getContext()).findViewById(R.id.notes_list_view);
-        list.closeAnimate(position);
+        fragment.deleteNote(note, position);
     }
 
     private static class ViewHolder {

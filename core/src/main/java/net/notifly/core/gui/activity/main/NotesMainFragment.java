@@ -1,5 +1,6 @@
 package net.notifly.core.gui.activity.main;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.view.Menu;
@@ -11,6 +12,7 @@ import net.notifly.core.Notifly;
 import net.notifly.core.R;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.note.NewNoteActivity_;
+import net.notifly.core.sql.NotesDAO;
 import net.notifly.core.util.LocationHandler;
 
 import org.androidannotations.annotations.AfterViews;
@@ -66,6 +68,14 @@ public class NotesMainFragment extends Fragment implements AddressLoader.Callbac
             adapter.notifyDataSetChanged();
             notifly.addNote(note, this);
         }
+    }
+
+    void deleteNote(Note note, int position) {
+        NotesDAO notesDAO = new NotesDAO(getActivity());
+        notesDAO.deleteNote(note);
+        notesDAO.close();
+        notifly.getNotes().remove(note);
+        swipeListView.closeAnimate(position);
     }
 
     @Override

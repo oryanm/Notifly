@@ -63,6 +63,8 @@ public class Notifly extends Application {
 
     public void addNote(Note note, @Nullable AddressLoader.Callbacks callback) {
         notes.add(note);
-        new AddressLoader(this, note.getLocation()).setListener(callback).execute();
+        if (note.hasLocation()) {
+            new AddressLoader(this, note.getLocation()).setListener(callback).execute();
+        }
     }
 }
