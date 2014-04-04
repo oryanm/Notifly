@@ -87,6 +87,10 @@ public class Note implements Parcelable
     this.location = location;
   }
 
+    public boolean hasLocation() {
+        return this.location != null;
+    }
+
   @Override
   public int describeContents()
   {
