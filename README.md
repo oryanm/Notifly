@@ -10,13 +10,13 @@ Road map
   * preload addresses
 * test background service 
 * create settings activity
-* <s>create favorite locations fragment</s>
+* ~~create favorite locations fragment~~
   * add ability to edit/delete
   * add button to create note with a selected location preloaded
 * enable note editing
 * add option to sort/order notes and locations
 * add color for notes
-* <s>setup server backend (google app engine)</s>
+* ~~setup server backend (google app engine)~~
 * add user stats reporting mechanism
 * implement machine lerning mechanism
 * create widget for the lock screen
