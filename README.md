@@ -39,3 +39,13 @@ Links
 
 [subtlepatterns](http://subtlepatterns.com)
 
+Google app engine:
+------------------
+[Backend API Tutorial](https://developers.google.com/appengine/docs/java/endpoints/getstarted/backend/)
+
+[Gradle App Engine plugin](https://github.com/GoogleCloudPlatform/gradle-appengine-plugin)
+
+[Cloud console](https://cloud.google.com/console)
+
+
+

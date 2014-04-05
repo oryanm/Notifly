@@ -12,13 +12,15 @@ apply plugin: 'android'
 apply plugin: 'android-apt'
 
 repositories {
-    mavenCentral()
+    maven { url 'http://google-api-client-libraries.appspot.com/mavenrepo' }
     maven { url 'http://clinker.47deg.com/nexus/content/groups/public' }
+    mavenCentral()
+    mavenLocal()
 }
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.2"
+    buildToolsVersion "19.0.3"
 
     defaultConfig {
         minSdkVersion 15
@@ -54,11 +56,11 @@ dependencies {
     // Google Maps
     compile 'com.google.android.gms:play-services:4.3.23'
     // guava
-    compile group: 'com.google.guava', name: 'guava', version: '12.0'
+    compile group: 'com.google.guava', name: 'guava', version: '14.0.+'
     // date pickers
     compile 'com.doomonafireball.betterpickers:library:1.5.2'
     // SwipeListView
-    compile ('com.fortysevendeg.swipelistview:swipelistview:1.0-SNAPSHOT@aar') {
+    compile('com.fortysevendeg.swipelistview:swipelistview:1.0-SNAPSHOT@aar') {
         transitive = true
     }
 
@@ -69,6 +71,32 @@ dependencies {
     // Android annotations
     apt "org.androidannotations:androidannotations:$AAnnotationsVersion"
     compile "org.androidannotations:androidannotations-api:$AAnnotationsVersion"
+
+    // App engine - Google API client library.
+    compile(group: 'com.google.api-client', name: 'google-api-client', version: '1.17.0-rc') {
+        // Exclude artifacts that the Android SDK/Runtime provides.
+        exclude(group: 'xpp3', module: 'xpp3')
+        exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
+        exclude(group: 'junit', module: 'junit')
+        exclude(group: 'com.google.android', module: 'android')
+    }
+
+    // App engine - Android extensions for the Google API client library.
+    compile(group: 'com.google.api-client', name: 'google-api-client-android', version: '1.17.0-rc') {
+        // Exclude play services, since we're not using this yet.
+        exclude(group: 'com.google.android.google-play-services', module: 'google-play-services')
+    }
+
+    // App engine - Android extensions for Google HTTP Client.
+    compile('com.google.http-client:google-http-client-android:1.17.0-rc') {
+        exclude(group: 'com.google.android', module: 'android')
+        exclude (group: 'org.apache.httpcomponents', module: 'httpclient')
+    }
+
+    // Notifly's server module
+    compile('net.notifly.server:messaging:v1-1.18.0-rc-SNAPSHOT') {
+        exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
+    }
 }
 
 apt {
