@@ -33,7 +33,7 @@ public class NotesAdapter extends ArrayAdapter<Note> {
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
             viewHolder = new ViewHolder();
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.note_item, null);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.note_item, parent, false);
             viewHolder.title = (TextView) convertView.findViewById(R.id.note_title);
             viewHolder.time = (TextView) convertView.findViewById(R.id.note_time);
             viewHolder.location = (TextView) convertView.findViewById(R.id.note_location);
