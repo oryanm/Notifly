@@ -98,7 +98,6 @@ public class BackgroundService extends Service {
 
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        Log.d(TAG, "read map from file");
         readReminderMapFromFile();
         Log.d(TAG, "Finished creating service");
     }
@@ -107,6 +106,7 @@ public class BackgroundService extends Service {
         try {
             File file = getFileStreamPath(REMINDER_FILE_NAME);
             if (file.exists()) {
+                Log.d(TAG, "read map from file");
                 FileInputStream fileInputStream = openFileInput(REMINDER_FILE_NAME);
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
                 Object readObject = objectInputStream.readObject();
@@ -127,9 +127,11 @@ public class BackgroundService extends Service {
 
     private void writeReminderMapToFile() {
         try {
+            Log.d(TAG, "write map to file");
             FileOutputStream fileOutputStream = openFileOutput(REMINDER_FILE_NAME, Context.MODE_PRIVATE);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
             objectOutputStream.writeObject(reminderDateTimeMap);
+            Log.d(TAG, "reminder map size is " + reminderDateTimeMap.size());
             objectOutputStream.close();
             fileOutputStream.close();
 
