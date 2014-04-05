@@ -50,7 +50,7 @@ public class BackgroundService extends Service {
     public static final int NOTIFY_INTERVAL = 1; // In minutes
     public static final int TIME_LOCATION_SAFETY_FACTOR = 15; // In minutes
     public static final int TIME_ONLY_SAFETY_FACTOR = 15; // In minutes
-    public static final int TIME_ONLY_REMINDER_INTERVAL = 2; // In minutes
+    public static final int TIME_ONLY_REMINDER_INTERVAL = 5; // In minutes
     public static final int GENERAL_REMINDER_INTERVAL = 30; // In minutes
     public static final int LOCATION_ONLY_DISTANCE_FACTOR = 300; // In meters
     public static final int LOCATION_ONLY_REMINDER_INTERVAL = 5; // In minutes
@@ -109,7 +109,8 @@ public class BackgroundService extends Service {
             if (file.exists()) {
                 FileInputStream fileInputStream = openFileInput(REMINDER_FILE_NAME);
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                reminderDateTimeMap = (SerializableSparseArray<LocalDateTime>) objectInputStream.readObject();
+                Object readObject = objectInputStream.readObject();
+                if (readObject != null) reminderDateTimeMap = (SerializableSparseArray<LocalDateTime>) readObject;
                 Log.d(TAG, "reminder map size is " + reminderDateTimeMap.size());
                 objectInputStream.close();
                 fileInputStream.close();
