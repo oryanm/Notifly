@@ -39,8 +39,6 @@ dependencies {
 appengine {
     appcfg {
         // need to add email and pass attributes here before using appengineUpdate to deploy
-        email = "oryan.mat@gmail.com"
-        password = "omgidontknow"
     }
     downloadSdk = true
     httpPort = 8080
