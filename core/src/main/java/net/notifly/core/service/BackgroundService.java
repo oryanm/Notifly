@@ -303,12 +303,18 @@ public class BackgroundService extends Service {
                             // Do not notify me about note past time
                             if (now.isAfter(currentNote.getTime())) return;
 
-                            // Check if we'll not make it on time (note's time minus ETA is in warning range)
                             LocalDateTime departTime = currentNote.getTime().minusSeconds((int) distanceMatrix.getDuration());
+                            if (now.isAfter(departTime))
+                            {
+                                // TODO: decide what to do when we are past depart time
+                                return;
+                            }
+
+                            // Check if we'll not make it on time (note's time minus ETA is in warning range)
                             LocalDateTime noteSafetyTime = departTime.minusMinutes(TIME_LOCATION_SAFETY_FACTOR);
                             if (now.isAfter(noteSafetyTime)) {
                                 // Calculate interval
-                                int interval = Minutes.minutesBetween(departTime, departTime).getMinutes()/2;
+                                int interval = Minutes.minutesBetween(now, departTime).getMinutes()/2;
                                 if (!remindByInterval(now, notesToNotify, currentNote, interval))
                                 {
                                     notesToNotify.add(currentNote);
