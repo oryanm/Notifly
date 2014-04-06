@@ -25,7 +25,10 @@ import net.notifly.core.gui.activity.main.MainActivity_;
 import net.notifly.core.sql.NotesDAO;
 import net.notifly.core.util.SerializableSparseArray;
 
+import org.androidannotations.annotations.EService;
+import org.androidannotations.annotations.SystemService;
 import org.joda.time.LocalDateTime;
+import org.joda.time.Minutes;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,22 +48,26 @@ import java.util.concurrent.ExecutionException;
 /**
  * Created by Barak on 21/03/2014.
  */
+@EService
 public class BackgroundService extends Service {
     // Constants
     public static final int NOTIFY_INTERVAL = 1; // In minutes
-    public static final int TIME_LOCATION_SAFETY_FACTOR = 15; // In minutes
+    public static final int TIME_LOCATION_SAFETY_FACTOR = 10; // In minutes
     public static final int TIME_ONLY_SAFETY_FACTOR = 15; // In minutes
     public static final int TIME_ONLY_REMINDER_INTERVAL = 5; // In minutes
     public static final int GENERAL_REMINDER_INTERVAL = 30; // In minutes
     public static final int LOCATION_ONLY_DISTANCE_FACTOR = 300; // In meters
     public static final int LOCATION_ONLY_REMINDER_INTERVAL = 5; // In minutes
-    public static final int[] TIME_LOCATION_REMINDER_TIMINGS = new int[]{0, 5, 13, TIME_LOCATION_SAFETY_FACTOR};
     private static final String REMINDER_FILE_NAME = "reminder";
     private static final String TAG = "BackgroundService";
 
     public static boolean ALIVE = false;
 
-    private NotificationManager notificationManager;
+    @SystemService
+    NotificationManager notificationManager;
+
+    @SystemService
+    LocationManager locationManager;
 
     // run on another Thread to avoid crash
     private Handler handler = new Handler();
@@ -72,10 +79,10 @@ public class BackgroundService extends Service {
     private int NOTIFICATION = R.string.local_service_started;
 
     private Map<Note, DistanceMatrix> etaMap = new HashMap<Note, DistanceMatrix>();
-    private Map<Note, Integer> reminderMap = new HashMap<Note, Integer>();
     private SerializableSparseArray<LocalDateTime> reminderDateTimeMap = new SerializableSparseArray<LocalDateTime>();
 
     private boolean isServiceWithIntent = true;
+    private boolean isMapChanged = false;
 
     /**
      * Class for clients to access.  Because we know this service always
@@ -95,8 +102,6 @@ public class BackgroundService extends Service {
 
         // init joda time
         ResourceZoneInfoProvider.init(this);
-
-        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         readReminderMapFromFile();
         Log.d(TAG, "Finished creating service");
@@ -127,13 +132,16 @@ public class BackgroundService extends Service {
 
     private void writeReminderMapToFile() {
         try {
-            Log.d(TAG, "write map to file");
-            FileOutputStream fileOutputStream = openFileOutput(REMINDER_FILE_NAME, Context.MODE_PRIVATE);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-            objectOutputStream.writeObject(reminderDateTimeMap);
-            Log.d(TAG, "reminder map size is " + reminderDateTimeMap.size());
-            objectOutputStream.close();
-            fileOutputStream.close();
+            if (isMapChanged) {
+                Log.d(TAG, "write map to file");
+                FileOutputStream fileOutputStream = openFileOutput(REMINDER_FILE_NAME, Context.MODE_PRIVATE);
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+                objectOutputStream.writeObject(reminderDateTimeMap);
+                Log.d(TAG, "reminder map size is " + reminderDateTimeMap.size());
+                objectOutputStream.close();
+                fileOutputStream.close();
+                isMapChanged = false;
+            }
 
         } catch (java.io.IOException e) {
             Log.e(TAG, e.getMessage(), e);
@@ -162,7 +170,6 @@ public class BackgroundService extends Service {
 
                 @Override
                 public void run() {
-                    LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
                     Location currentLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
                     LocalDateTime now = LocalDateTime.now();
                     NotesDAO notesDAO = new NotesDAO(BackgroundService.this);
@@ -186,10 +193,7 @@ public class BackgroundService extends Service {
                         }
                         // time based only
                         else if (timeBasedNote) {
-                            // Do not notify me about note past time
-                            if (!now.isAfter(note.getTime())) {
-                                remindTimedNote(now, notesToNotify, note);
-                            }
+                            remindTimedNote(now, notesToNotify, note);
                         }
                         // location based only
                         else if (locationBasedNote) {
@@ -216,18 +220,25 @@ public class BackgroundService extends Service {
                         // If the list of notes doesn't contain the note id which is located in the map then remove it
                         if (!noteIds.contains(reminderDateTimeMap.keyAt(i))) {
                             reminderDateTimeMap.remove(reminderDateTimeMap.keyAt(i));
+                            isMapChanged = true;
                         }
                     }
                 }
 
                 private void remindTimedNote(LocalDateTime now, List<Note> notesToNotify, Note currentNote) {
+                    // Do not notify me about note past time
+                    if (now.isAfter(currentNote.getTime())) return;
+
+                    // If an entry was set, do remind me by the predetermined interval
                     if (!remindByInterval(now, notesToNotify, currentNote, TIME_ONLY_REMINDER_INTERVAL)) {
+                        // Else calculate the safety time
                         LocalDateTime noteSafetyTime = currentNote.getTime().minusMinutes(TIME_ONLY_SAFETY_FACTOR);
-                        // the note time minus the safety factor is still after now
+                        // we are not in the warning range
                         if (noteSafetyTime.isAfter(now)) {
                             Log.d(TAG, "noteSafetyTime is after now - next notification will be at " +
                                     scheduleReminder(currentNote, noteSafetyTime));
                         } else {
+                            // We're in the warning range
                             if (!isServiceWithIntent) notesToNotify.add(currentNote);
                             Log.d(TAG, "noteSafetyTime isn't after now - next notification will be at "
                                     + scheduleReminder(currentNote, now.plusMinutes(TIME_ONLY_REMINDER_INTERVAL)));
@@ -242,6 +253,7 @@ public class BackgroundService extends Service {
                     }
                 }
 
+                // Returns a boolean value which indicates if an entry for the note exists
                 private boolean remindByInterval(LocalDateTime now, List<Note> notesToNotify, Note currentNote,
                                                  int interval) {
                     // If the current note has been enlisted to the reminder file
@@ -258,65 +270,59 @@ public class BackgroundService extends Service {
                 }
 
                 private LocalDateTime scheduleReminder(Note currentNote, LocalDateTime atTime) {
+                    isMapChanged = true;
                     atTime = atTime.withSecondOfMinute(0).withMillisOfSecond(0);
                     reminderDateTimeMap.put(currentNote.getId(), atTime);
                     return atTime;
                 }
 
-                private void increaseRemindCounter(Note note) {
-                    reminderMap.put(note, reminderMap.get(note) + 1);
-                }
-
-                private void handleLocationBasedNote(LocalDateTime now, Location currentLocation, Note note,
+                private void handleLocationBasedNote(LocalDateTime now, Location currentLocation, Note currentNote,
                                                      List<Note> notesToNotify, boolean isLocationOnly) {
                     String org = net.notifly.core.entity.Location.from(currentLocation).toString();
-                    String dest = note.getLocation().toString();
+                    String dest = currentNote.getLocation().toString();
                     try {
-                        // TODO: Get the mode of transportation from note
+                        // TODO: Get the mode of transportation from currentNote
                         DistanceMatrix distanceMatrix = new RetreiveDistanceMatrixTask().execute(org, dest,
                                 "driving").get();
 
-                        // TODO: check what can we do when Google fails to give distance matrix
+                        // TODO: check what can we do when Google fails to return distance matrix
                         if (distanceMatrix == null) return;
 
                         if (isLocationOnly) {
                             if (distanceMatrix.getDistance() < LOCATION_ONLY_DISTANCE_FACTOR) {
-                                createEntryIfNeeded(note);
-
-                                if (reminderMap.get(note) % LOCATION_ONLY_REMINDER_INTERVAL == 0) {
-                                    notesToNotify.add(note);
-                                    etaMap.put(note, distanceMatrix);
+                                if (!remindByInterval(now, notesToNotify, currentNote,
+                                        LOCATION_ONLY_REMINDER_INTERVAL)){
+                                    notesToNotify.add(currentNote);
+                                    Log.d(TAG, "next notification will be at " +
+                                            scheduleReminder(currentNote, now.plusMinutes(LOCATION_ONLY_REMINDER_INTERVAL)));
                                 }
-
-                                increaseRemindCounter(note);
+                                etaMap.put(currentNote, distanceMatrix);
                             }
-                        } else // time and location based note
+                        } else // time and location based currentNote
                         {
-                            // Check if we'll not make it on time
-                            if (now.plusSeconds((int) distanceMatrix.getDuration()).
-                                    plusMinutes(TIME_LOCATION_SAFETY_FACTOR).isAfter(note.getTime())) {
-                                createEntryIfNeeded(note);
+                            // Do not notify me about note past time
+                            if (now.isAfter(currentNote.getTime())) return;
 
-                                for (int timing : TIME_LOCATION_REMINDER_TIMINGS) {
-                                    if (reminderMap.get(note) == timing) {
-                                        notesToNotify.add(note);
-                                        etaMap.put(note, distanceMatrix);
-                                    }
+                            // Check if we'll not make it on time (note's time minus ETA is in warning range)
+                            LocalDateTime departTime = currentNote.getTime().minusSeconds((int) distanceMatrix.getDuration());
+                            LocalDateTime noteSafetyTime = departTime.minusMinutes(TIME_LOCATION_SAFETY_FACTOR);
+                            if (now.isAfter(noteSafetyTime)) {
+                                // Calculate interval
+                                int interval = Minutes.minutesBetween(departTime, departTime).getMinutes()/2;
+                                if (!remindByInterval(now, notesToNotify, currentNote, interval))
+                                {
+                                    notesToNotify.add(currentNote);
+                                    Log.d(TAG, "next notification will be at " +
+                                            scheduleReminder(currentNote, now.plusMinutes(interval)));
                                 }
 
-                                increaseRemindCounter(note);
+                                etaMap.put(currentNote, distanceMatrix);
                             }
                         }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (ExecutionException e) {
                         e.printStackTrace();
-                    }
-                }
-
-                private void createEntryIfNeeded(Note note) {
-                    if (!reminderMap.containsKey(note)) {
-                        reminderMap.put(note, 0);
                     }
                 }
 

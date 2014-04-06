@@ -43,7 +43,7 @@
         </receiver>
 
         <service
-            android:name=".service.BackgroundService"
+            android:name=".service.BackgroundService_"
             android:enabled="true" />
 
         <!-- windowSoftInputMode: shows the keyboard on start -->

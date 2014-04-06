@@ -1,22 +1,16 @@
 package net.notifly.core.gui.activity.main;
 
 import android.app.Fragment;
-import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 
-import net.danlew.android.joda.ResourceZoneInfoProvider;
 import net.notifly.core.R;
-import net.notifly.core.entity.Note;
 import net.notifly.core.service.BackgroundService;
-import net.notifly.core.sql.NotesDAO;
+import net.notifly.core.service.BackgroundService_;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.FragmentById;
-import org.androidannotations.annotations.NonConfigurationInstance;
-
-import java.util.List;
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends ActionBarActivity implements
@@ -30,7 +24,7 @@ public class MainActivity extends ActionBarActivity implements
     void setUp() {
         if (!BackgroundService.ALIVE) {
             Log.d("MainActivity", "started background service");
-            this.startService(new Intent(this, BackgroundService.class));
+            BackgroundService_.intent(getApplication()).start();
         }
     }
 
