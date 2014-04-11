@@ -22,6 +22,7 @@ import net.notifly.core.util.LocationHandler;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.FragmentById;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
@@ -39,6 +40,8 @@ public class SelectLocationActivity extends Activity {
     LocationManager locationManager;
     @Bean
     LocationHandler LocationHandler;
+    @Extra(NewNoteActivity.EXTRA_LOCATION)
+    Address address;
 
     @AfterViews
     void setMap() {
@@ -58,7 +61,6 @@ public class SelectLocationActivity extends Activity {
     }
 
     private CameraUpdate getCameraTarget() {
-        Address address = getIntent().getParcelableExtra(NewNoteActivity.EXTRA_LOCATION);
         LatLng cameraTarget;
         float zoom = GoogleMapsZoom.CITY_LEVEL;
 
