@@ -9,6 +9,8 @@ import net.notifly.core.entity.Note;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.notifly.core.sql.NotiflySQLiteHelper.DATETIME_PATTERN;
+
 public class NotesDAO extends AbstractDAO
 {
   public static final String TABLE_NAME = "note";
@@ -35,42 +37,67 @@ public class NotesDAO extends AbstractDAO
     super(context);
   }
 
-  public long addNote(Note note)
-  {
-    long id = -1;
-    database.beginTransaction();
-
-    try
-    {
-      ContentValues values = new ContentValues();
-      values.put(COLUMNS.TITLE.name(), note.getTitle());
-      values.put(COLUMNS.DESCRIPTION.name(), note.getDescription());
-      if (note.getLocation() != null)
-      {
-        values.put(COLUMNS.LOCATION.name(), new LocationDAO(database)
-                .addLocationIfNotExists(note.getLocation()));
-      }
-      if (note.getTime() != null)
-      {
-        values.put(COLUMNS.TIME.name(), note.getTime().toString(NotiflySQLiteHelper.DATETIME_PATTERN));
-      }
-
-      id = database.insert(TABLE_NAME, null, values);
-      database.setTransactionSuccessful();
-    }
-    finally
-    {
-      database.endTransaction();
+    public long addOrUpdateNote(Note note) {
+        if (note.getId() != -1) {
+            return updateNote(note);
+        } else {
+            return addNote(note);
+        }
     }
 
-    return id;
-  }
+    public long addNote(Note note) {
+        long id = -1;
+        database.beginTransaction();
 
-  public void deleteNote(Note note)
-  {
-    database.delete(TABLE_NAME, String.format("%s = ? ", COLUMNS.ID.name()),
-      new String[]{String.valueOf(note.getId())});
-  }
+        try {
+            ContentValues values = new ContentValues();
+            values.put(COLUMNS.TITLE.name(), note.getTitle());
+            values.put(COLUMNS.DESCRIPTION.name(), note.getDescription());
+            if (note.getLocation() != null) {
+                values.put(COLUMNS.LOCATION.name(), new LocationDAO(database)
+                        .addLocationIfNotExists(note.getLocation()));
+            }
+            if (note.getTime() != null) {
+                values.put(COLUMNS.TIME.name(), note.getTime().toString(DATETIME_PATTERN));
+            }
+
+            id = database.insert(TABLE_NAME, null, values);
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+
+        return id;
+    }
+
+    public long updateNote(Note note) {
+        database.beginTransaction();
+
+        try {
+            ContentValues values = new ContentValues();
+            values.put(COLUMNS.TITLE.name(), note.getTitle());
+            values.put(COLUMNS.DESCRIPTION.name(), note.getDescription());
+            values.put(COLUMNS.LOCATION.name(), note.getLocation() != null ?
+                    new LocationDAO(database).addLocationIfNotExists(note.getLocation()) : null);
+            values.put(COLUMNS.TIME.name(), note.getTime() != null ?
+                    note.getTime().toString(DATETIME_PATTERN) : null);
+
+            database.update(TABLE_NAME, values,
+                    String.format("%s = ? ", COLUMNS.ID.name()),
+                    new String[]{String.valueOf(note.getId())});
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+
+        return note.getId();
+    }
+
+
+    public void deleteNote(Note note) {
+        database.delete(TABLE_NAME, String.format("%s = ? ", COLUMNS.ID.name()),
+                new String[]{String.valueOf(note.getId())});
+    }
 
   public List<Note> getAllNotes()
   {

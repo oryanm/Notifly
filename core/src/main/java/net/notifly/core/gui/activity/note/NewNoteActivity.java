@@ -27,12 +27,17 @@ import net.notifly.core.util.GeneralUtils;
 import net.notifly.core.util.LocationHandler;
 import net.notifly.core.util.adapters.TextWatcherAdapter;
 
+import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -49,32 +54,46 @@ public class NewNoteActivity extends ActionBarActivity implements
     public static final String EXTRA_LOCATION = "net.notifly.core.location";
 
     Address address = LocationHandler.ERROR_ADDRESS;
-    LocalDateTime dateTime = null;
 
+    @Extra(NotesMainFragment.EXTRA_NOTE)
+    Note note = new Note();
+    @Bean
+    LocationHandler locationHandler;
     @ViewById(R.id.timeEditText)
     EditText time;
     @ViewById(R.id.dateEditText)
     EditText date;
     @ViewById(R.id.titleEditText)
     EditText title;
+    @ViewById(R.id.descriptionEditText)
+    EditText description;
     @ViewById(R.id.locationTextView)
     AutoCompleteTextView locationTextView;
 
-    @Click(R.id.timeEditText)
-    void setTimePicker() {
-        LocalDateTime now = LocalDateTime.now();
-        RadialTimePickerDialog timePickerDialog = RadialTimePickerDialog.newInstance(
-                NewNoteActivity.this, now.getHourOfDay(), now.getMinuteOfHour(),
-                DateFormat.is24HourFormat(NewNoteActivity.this));
-        timePickerDialog.show(getSupportFragmentManager(), "timePickerDialogFragment");
+    @AfterViews
+    void loadNote() {
+        title.setText(note.getTitle());
+        description.setText(note.getDescription());
+
+        if (note.getTime() != null) {
+            date.setText(note.getTime().toString(DateTimeFormat.mediumDate()));
+            time.setText(note.getTime().toString(DateTimeFormat.shortTime()));
+        }
+
+        if (note.hasLocation()) {
+            loadAddress();
+        }
     }
 
-    @Click(R.id.dateEditText)
-    void setDatePicker() {
-        LocalDateTime now = LocalDateTime.now();
-        CalendarDatePickerDialog calendarDatePickerDialog = CalendarDatePickerDialog
-                .newInstance(NewNoteActivity.this, now.getYear(), now.getMonthOfYear() - 1, now.getDayOfMonth());
-        calendarDatePickerDialog.show(getSupportFragmentManager(), "fragment_date_picker_name");
+    @Background
+    void loadAddress() {
+        setAddress(locationHandler.getAddress(note.getLocation()));
+    }
+
+    @UiThread
+    void setAddress(Address address) {
+        this.address = address;
+        locationTextView.setText(GeneralUtils.toString(this.address));
     }
 
     @AfterViews
@@ -98,17 +117,56 @@ public class NewNoteActivity extends ActionBarActivity implements
         });
     }
 
+    @Click(R.id.timeEditText)
+    void setTimePicker() {
+        LocalDateTime now = LocalDateTime.now();
+        RadialTimePickerDialog timePickerDialog = RadialTimePickerDialog.newInstance(
+                NewNoteActivity.this, now.getHourOfDay(), now.getMinuteOfHour(),
+                DateFormat.is24HourFormat(NewNoteActivity.this));
+        timePickerDialog.show(getSupportFragmentManager(), "timePickerDialogFragment");
+    }
+
+    @Click(R.id.dateEditText)
+    void setDatePicker() {
+        LocalDateTime now = LocalDateTime.now();
+        CalendarDatePickerDialog calendarDatePickerDialog = CalendarDatePickerDialog
+                .newInstance(NewNoteActivity.this, now.getYear(), now.getMonthOfYear() - 1, now.getDayOfMonth());
+        calendarDatePickerDialog.show(getSupportFragmentManager(), "fragment_date_picker_name");
+    }
+
+    @Override
+    public void onDateSet(CalendarDatePickerDialog calendarDatePickerDialog, int year, int monthOfYear, int dayOfMonth) {
+        LocalDate localDate = new LocalDate(year, monthOfYear + 1, dayOfMonth);
+        date.setText(localDate.toString(DateTimeFormat.mediumDate()));
+        if (note.getTime() == null) note.setTime(LocalDateTime.now());
+        note.setTime(note.getTime().withDate(year, monthOfYear + 1, dayOfMonth));
+    }
+
+    @Override
+    public void onTimeSet(RadialPickerLayout radialPickerLayout, int hourOfDay, int minute) {
+        LocalTime localTime = new LocalTime(hourOfDay, minute);
+        time.setText(localTime.toString(DateTimeFormat.shortTime()));
+        if (note.getTime() == null) note.setTime(LocalDateTime.now());
+        note.setTime(note.getTime().withTime(hourOfDay, minute, 0, 0));
+    }
+
+    public void clear(View view) {
+        date.setText("");
+        time.setText("");
+        note.setTime(null);
+    }
+
     @OptionsItem(R.id.action_save_note)
     void save() {
         String titleString = title.getText().toString();
 
         if (!titleString.isEmpty()) {
-            Note note = new Note(titleString, dateTime);
-            note.setDescription(((EditText) findViewById(R.id.descriptionEditText)).getText().toString());
+            note.setTitle(titleString);
+            note.setDescription(description.getText().toString());
             if (LocationHandler.isValid(address)) note.setLocation(Location.from(address));
 
             NotesDAO notes = new NotesDAO(this);
-            note.setId((int) notes.addNote(note));
+            note.setId((int) notes.addOrUpdateNote(note));
             notes.close();
 
             Intent intent = new Intent();
@@ -118,28 +176,6 @@ public class NewNoteActivity extends ActionBarActivity implements
         } else {
             toast("Title is required");
         }
-    }
-
-    @Override
-    public void onDateSet(CalendarDatePickerDialog calendarDatePickerDialog, int year, int monthOfYear, int dayOfMonth) {
-        LocalDate localDate = new LocalDate(year, monthOfYear + 1, dayOfMonth);
-        date.setText(localDate.toString(DateTimeFormat.mediumDate()));
-        if (dateTime == null) dateTime = LocalDateTime.now();
-        dateTime = dateTime.withDate(year, monthOfYear + 1, dayOfMonth);
-    }
-
-    @Override
-    public void onTimeSet(RadialPickerLayout radialPickerLayout, int hourOfDay, int minute) {
-        LocalTime localTime = new LocalTime(hourOfDay, minute);
-        time.setText(localTime.toString(DateTimeFormat.shortTime()));
-        if (dateTime == null) dateTime = LocalDateTime.now();
-        dateTime = dateTime.withTime(hourOfDay, minute, 0, 0);
-    }
-
-    public void clear(View view) {
-        date.setText("");
-        time.setText("");
-        dateTime = null;
     }
 
     @Click
@@ -152,8 +188,7 @@ public class NewNoteActivity extends ActionBarActivity implements
     @OnActivityResult(LOCATION_SELECT_CODE)
     void afterSelectLocation(int resultCode, Intent intent) {
         if (resultCode == RESULT_OK) {
-            address = intent.getParcelableExtra(EXTRA_LOCATION);
-            locationTextView.setText(GeneralUtils.toString(address));
+            setAddress(intent.<Address>getParcelableExtra(EXTRA_LOCATION));
         }
     }
 

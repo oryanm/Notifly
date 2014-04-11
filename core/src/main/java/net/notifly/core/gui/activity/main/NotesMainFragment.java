@@ -5,12 +5,16 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.View;
+import android.widget.AdapterView;
 
+import com.fortysevendeg.swipelistview.BaseSwipeListViewListener;
 import com.fortysevendeg.swipelistview.SwipeListView;
 
 import net.notifly.core.Notifly;
 import net.notifly.core.R;
 import net.notifly.core.entity.Note;
+import net.notifly.core.gui.activity.main.swipe.NotesSwipeListViewListener;
 import net.notifly.core.gui.activity.note.NewNoteActivity_;
 import net.notifly.core.sql.NotesDAO;
 import net.notifly.core.util.LocationHandler;
@@ -19,6 +23,7 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.App;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
@@ -49,6 +54,19 @@ public class NotesMainFragment extends Fragment implements AddressLoader.Callbac
     void createNotesListView() {
         adapter.addAll(notifly.getNotes());
         swipeListView.setAdapter(adapter);
+        swipeListView.setSwipeListViewListener(new BaseSwipeListViewListener() {
+            @Override
+            public void onClickFrontView(int position) {
+                editNote(adapter.getItem(position));
+            }
+        });
+    }
+
+    void editNote(Note note) {
+        swipeListView.closeOpenedItems();
+        Intent intent = new Intent(getActivity(), NewNoteActivity_.class);
+        intent.putExtra(EXTRA_NOTE, note);
+        startActivityForResult(intent, NEW_NOTE_CODE);
     }
 
     @OptionsItem(R.id.action_add_note)
@@ -62,8 +80,17 @@ public class NotesMainFragment extends Fragment implements AddressLoader.Callbac
     void afterNewNote(int resultCode, Intent intent) {
         if (resultCode == MainActivity.RESULT_OK) {
             Note note = intent.getParcelableExtra(EXTRA_NOTE);
-            adapter.insert(note, 0);
+            int position = adapter.getPosition(note);
+
+            if (position >= 0) {
+                adapter.remove(note);
+            } else {
+                position = 0;
+            }
+
+            adapter.insert(note, position);
             adapter.notifyDataSetChanged();
+            notifly.getNotes().remove(note);
             notifly.addNote(note, this);
         }
     }

@@ -8,7 +8,7 @@ import org.joda.time.LocalDateTime;
 
 public class Note implements Parcelable
 {
-  int id;
+  int id = -1;
   String title;
   String description;
   LocalDateTime time;
