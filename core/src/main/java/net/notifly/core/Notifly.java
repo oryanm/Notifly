@@ -16,6 +16,8 @@ import org.androidannotations.annotations.EApplication;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -53,7 +55,7 @@ public class Notifly extends Application {
     }
 
     public Address put(Location location, Address address) {
-        location.address = GeneralUtils.toString(address);
+        location.address = address;
         return locationAddressCache.put(location, address);
     }
 

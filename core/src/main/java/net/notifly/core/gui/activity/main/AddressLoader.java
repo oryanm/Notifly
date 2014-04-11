@@ -23,7 +23,13 @@ public class AddressLoader extends AsyncTask<Void, Void, Address> {
 
     @Override
     protected Address doInBackground(Void... params) {
-        return locationHandler.getAddress(location);
+        Address address = notifly.get(location);
+
+        if (address == null) {
+            return locationHandler.getAddress(location);
+        }
+
+        return address;
     }
 
     @Override

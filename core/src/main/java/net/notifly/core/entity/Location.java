@@ -7,6 +7,7 @@ import android.os.Parcelable;
 import com.google.android.gms.maps.model.LatLng;
 
 import net.notifly.core.util.GeneralUtils;
+import net.notifly.core.util.LocationHandler;
 
 public class Location implements Parcelable {
     private int id;
@@ -16,8 +17,7 @@ public class Location implements Parcelable {
     String title = "";
 
     // transient member
-    // todo consider using Address
-    public String address = "";
+    public Address address = LocationHandler.ERROR_ADDRESS;
 
     public Location(int id, double latitude, double longitude) {
         this.id = id;
@@ -71,7 +71,7 @@ public class Location implements Parcelable {
 
     @Override
     public String toString() {
-        return !address.isEmpty() ? address :
+        return LocationHandler.isValid(address) ? GeneralUtils.toString(address) :
                 !title.isEmpty() ? title :
                         getLatitude() + "," + getLongitude();
     }

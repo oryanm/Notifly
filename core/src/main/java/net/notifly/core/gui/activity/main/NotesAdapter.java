@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import net.notifly.core.R;
 import net.notifly.core.entity.Note;
+import net.notifly.core.util.GeneralUtils;
 
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.FragmentByTag;
@@ -53,7 +54,7 @@ public class NotesAdapter extends ArrayAdapter<Note> {
         viewHolder.title.setText(note.getTitle());
         viewHolder.time.setText(note.getTime() == null ?
                 "" : note.getTime().toString(DateTimeFormat.shortDateTime()));
-        viewHolder.location.setText(note.getLocation() == null ? "" : note.getLocation().address);
+        viewHolder.location.setText(note.hasLocation() ? GeneralUtils.toString(note.getLocation().address) : "");
 
         return convertView;
     }

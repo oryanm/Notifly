@@ -16,6 +16,7 @@ import com.doomonafireball.betterpickers.calendardatepicker.CalendarDatePickerDi
 import com.doomonafireball.betterpickers.radialtimepicker.RadialPickerLayout;
 import com.doomonafireball.betterpickers.radialtimepicker.RadialTimePickerDialog;
 
+import net.notifly.core.Notifly;
 import net.notifly.core.R;
 import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
@@ -29,6 +30,7 @@ import net.notifly.core.util.adapters.TextWatcherAdapter;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.App;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
@@ -55,6 +57,8 @@ public class NewNoteActivity extends ActionBarActivity implements
 
     Address address = LocationHandler.ERROR_ADDRESS;
 
+    @App
+    Notifly notifly;
     @Extra(NotesMainFragment.EXTRA_NOTE)
     Note note = new Note();
     @Bean
@@ -81,16 +85,10 @@ public class NewNoteActivity extends ActionBarActivity implements
         }
 
         if (note.hasLocation()) {
-            loadAddress();
+            setAddress(notifly.get(note.getLocation()));
         }
     }
 
-    @Background
-    void loadAddress() {
-        setAddress(locationHandler.getAddress(note.getLocation()));
-    }
-
-    @UiThread
     void setAddress(Address address) {
         this.address = address;
         locationTextView.setText(GeneralUtils.toString(this.address));
