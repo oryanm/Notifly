@@ -13,7 +13,7 @@ Road map
 * ~~create favorite locations fragment~~
   * add ability to edit/delete
   * add button to create note with a selected location preloaded
-* enable note editing
+* ~~enable note editing~~
 * add option to sort/order notes and locations
 * add color for notes
 * ~~setup server backend (google app engine)~~
