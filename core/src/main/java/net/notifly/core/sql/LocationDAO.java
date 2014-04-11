@@ -10,6 +10,8 @@ import net.notifly.core.entity.Location;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.notifly.core.sql.NotiflySQLiteHelper.TRUE;
+
 public class LocationDAO extends AbstractDAO
 {
   public static final String TABLE_NAME = "location";
@@ -71,7 +73,7 @@ public class LocationDAO extends AbstractDAO
                     cursor.getDouble(COLUMNS.LATITUDE.ordinal()),
                     cursor.getDouble(COLUMNS.LONGITUDE.ordinal()));
 
-            if (cursor.getInt(COLUMNS.IS_FAVORITE.ordinal()) == 1) {
+            if (cursor.getInt(COLUMNS.IS_FAVORITE.ordinal()) == TRUE) {
                 location = location.asFavorite(cursor.getString(COLUMNS.TITLE.ordinal()));
             }
         }
@@ -86,7 +88,7 @@ public class LocationDAO extends AbstractDAO
                 .select(COLUMNS.ID.name(), COLUMNS.LATITUDE.name(), COLUMNS.LONGITUDE.name(),
                         COLUMNS.IS_FAVORITE.name(), COLUMNS.TITLE.name())
                 .from(TABLE_NAME)
-                .where(String.format("%s = ? ", COLUMNS.IS_FAVORITE.name()), String.valueOf(1)));
+                .where(String.format("%s = ? ", COLUMNS.IS_FAVORITE.name()), String.valueOf(TRUE)));
 
         if (cursor.moveToFirst()) {
             do {
