@@ -54,6 +54,9 @@
         <activity
             android:name=".gui.activity.map.SelectLocationActivity_"
             android:label="@string/title_activity_select_location" />
+        <activity
+            android:name=".gui.activity.main.SettingsActivity"
+            android:label="@string/title_activity_settings" />
 
         <meta-data
             android:name="com.google.android.gms.version"
