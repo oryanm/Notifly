@@ -11,6 +11,8 @@ Road map
 * test background service 
 * create settings activity
 * ~~create favorite locations fragment~~
+  * show title and address 
+  * add order
   * add ability to edit/delete
   * add button to create note with a selected location preloaded
 * ~~enable note editing~~
