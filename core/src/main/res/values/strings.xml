@@ -3,6 +3,9 @@
 
     <string name="app_name">Notifly</string>
 
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+
     <!-- nav drawer -->
     <string name="title_section_notes">Notes</string>
     <string name="title_section_fav_locations">My Locations</string>
@@ -35,5 +38,6 @@
     <string name="delete_note">Discard note</string>
 
     <string name="save_location">Save favorite location</string>
+    <string name="location_title">Title</string>
 
 </resources>

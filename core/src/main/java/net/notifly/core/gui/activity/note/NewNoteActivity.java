@@ -20,6 +20,7 @@ import net.notifly.core.Notifly;
 import net.notifly.core.R;
 import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
+import net.notifly.core.gui.activity.main.FavoriteLocationDialogFragment;
 import net.notifly.core.gui.activity.main.NotesMainFragment;
 import net.notifly.core.gui.activity.map.SelectLocationActivity_;
 import net.notifly.core.sql.LocationDAO;
@@ -28,10 +29,8 @@ import net.notifly.core.util.GeneralUtils;
 import net.notifly.core.util.LocationHandler;
 import net.notifly.core.util.adapters.TextWatcherAdapter;
 
-import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.App;
-import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
@@ -39,7 +38,6 @@ import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -50,7 +48,8 @@ import org.joda.time.format.DateTimeFormat;
 @OptionsMenu(R.menu.new_note)
 public class NewNoteActivity extends ActionBarActivity implements
         CalendarDatePickerDialog.OnDateSetListener,
-        RadialTimePickerDialog.OnTimeSetListener
+        RadialTimePickerDialog.OnTimeSetListener,
+        FavoriteLocationDialogFragment.FavoriteLocationDialogListener
 {
     private static final int LOCATION_SELECT_CODE = 2;
     public static final String EXTRA_LOCATION = "net.notifly.core.location";
@@ -192,16 +191,19 @@ public class NewNoteActivity extends ActionBarActivity implements
 
     public void saveLocation(View view) {
         if (LocationHandler.isValid(address)) {
-            Location location = Location.from(address);
-
-            LocationDAO locationDAO = new LocationDAO(this);
-            // todo: add or update + the title should be what?
-            locationDAO.addLocation(location.asFavorite(GeneralUtils.toString(address)));
-            locationDAO.close();
-            toast("Location saved to My Locations");
+            new FavoriteLocationDialogFragment()
+                    .show(getFragmentManager(), "FavoriteLocationDialogFragment");
         } else {
             toast("Select location to love");
         }
+    }
+
+    @Override
+    public void onTitleSelected(String title) {
+        LocationDAO locationDAO = new LocationDAO(this);
+        locationDAO.addLocation(Location.from(address).asFavorite(title));
+        locationDAO.close();
+        toast("Location saved to My Locations");
     }
 
     private void toast(CharSequence text) {
