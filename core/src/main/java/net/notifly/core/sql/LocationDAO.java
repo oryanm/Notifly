@@ -105,4 +105,13 @@ public class LocationDAO extends AbstractDAO
 
         return locations;
     }
+
+    public void updateAsNotFavorite(Location location) {
+        ContentValues values = new ContentValues();
+        values.put(COLUMNS.IS_FAVORITE.name(), false);
+
+        database.update(TABLE_NAME, values,
+                String.format("%s = ? ", COLUMNS.ID.name()),
+                new String[]{String.valueOf(location.getId())});
+    }
 }
