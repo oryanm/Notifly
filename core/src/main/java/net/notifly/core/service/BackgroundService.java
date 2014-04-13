@@ -9,10 +9,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -51,13 +51,7 @@ import java.util.concurrent.ExecutionException;
 @EService
 public class BackgroundService extends Service {
     // Constants
-    public static final int NOTIFY_INTERVAL = 1; // In minutes
-    public static final int TIME_LOCATION_SAFETY_FACTOR = 10; // In minutes
-    public static final int TIME_ONLY_SAFETY_FACTOR = 15; // In minutes
-    public static final int TIME_ONLY_REMINDER_INTERVAL = 5; // In minutes
-    public static final int GENERAL_REMINDER_INTERVAL = 30; // In minutes
-    public static final int LOCATION_ONLY_DISTANCE_FACTOR = 300; // In meters
-    public static final int LOCATION_ONLY_REMINDER_INTERVAL = 5; // In minutes
+    public static final int TIMER_INTERVAL = 30; // In seconds
     private static final String REMINDER_FILE_NAME = "reminder";
     private static final String TAG = "BackgroundService";
 
@@ -84,17 +78,6 @@ public class BackgroundService extends Service {
     private boolean isServiceWithIntent = true;
     private boolean isMapChanged = false;
 
-    /**
-     * Class for clients to access.  Because we know this service always
-     * runs in the same process as its clients, we don't need to deal with
-     * IPC.
-     */
-    public class LocalBinder extends Binder {
-        BackgroundService getService() {
-            return BackgroundService.this;
-        }
-    }
-
     @Override
     public void onCreate() {
         Log.d(TAG, "Creating service");
@@ -111,11 +94,12 @@ public class BackgroundService extends Service {
         try {
             File file = getFileStreamPath(REMINDER_FILE_NAME);
             if (file.exists()) {
+                if (file.length() == 0) return;
                 Log.d(TAG, "read map from file");
                 FileInputStream fileInputStream = openFileInput(REMINDER_FILE_NAME);
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
                 Object readObject = objectInputStream.readObject();
-                if (readObject != null) reminderDateTimeMap = (SerializableSparseArray<LocalDateTime>) readObject;
+                reminderDateTimeMap = (SerializableSparseArray<LocalDateTime>) readObject;
                 Log.d(TAG, "reminder map size is " + reminderDateTimeMap.size());
                 objectInputStream.close();
                 fileInputStream.close();
@@ -155,7 +139,7 @@ public class BackgroundService extends Service {
         isServiceWithIntent = intent != null;
 
         // schedule task
-        timer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL * 60 * 1000);
+        timer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, TIMER_INTERVAL * 1000);
 
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
@@ -185,10 +169,8 @@ public class BackgroundService extends Service {
                     for (Note note : notes) {
                         // It's a time based note
                         boolean timeBasedNote = note.getTime() != null;
-                        // It's a location based note
-                        boolean locationBasedNote = note.getLocation() != null;
 
-                        if (timeBasedNote && locationBasedNote) {
+                        if (timeBasedNote && note.hasLocation()) {
                             handleLocationBasedNote(now, currentLocation, note, notesToNotify, false);
                         }
                         // time based only
@@ -196,7 +178,7 @@ public class BackgroundService extends Service {
                             remindTimedNote(now, notesToNotify, note);
                         }
                         // location based only
-                        else if (locationBasedNote) {
+                        else if (note.hasLocation()) {
                             handleLocationBasedNote(now, currentLocation, note, notesToNotify, true);
                         } else // neither time nor location
                         {
@@ -229,10 +211,13 @@ public class BackgroundService extends Service {
                     // Do not notify me about note past time
                     if (now.isAfter(currentNote.getTime())) return;
 
+                    int safetyFactor = getPreferenceValue(getString(R.string.time_only_safety_factor_preference_key));
+                    int interval = getPreferenceValue(getString(R.string.time_only_reminder_interval_preference_key));
+
                     // If an entry was set, do remind me by the predetermined interval
-                    if (!remindByInterval(now, notesToNotify, currentNote, TIME_ONLY_REMINDER_INTERVAL)) {
+                    if (!remindByInterval(now, notesToNotify, currentNote, interval)) {
                         // Else calculate the safety time
-                        LocalDateTime noteSafetyTime = currentNote.getTime().minusMinutes(TIME_ONLY_SAFETY_FACTOR);
+                        LocalDateTime noteSafetyTime = currentNote.getTime().minusMinutes(safetyFactor);
                         // we are not in the warning range
                         if (noteSafetyTime.isAfter(now)) {
                             Log.d(TAG, "noteSafetyTime is after now - next notification will be at " +
@@ -241,15 +226,17 @@ public class BackgroundService extends Service {
                             // We're in the warning range
                             if (!isServiceWithIntent) notesToNotify.add(currentNote);
                             Log.d(TAG, "noteSafetyTime isn't after now - next notification will be at "
-                                    + scheduleReminder(currentNote, now.plusMinutes(TIME_ONLY_REMINDER_INTERVAL)));
+                                    + scheduleReminder(currentNote, now.plusMinutes(interval)));
                         }
                     }
                 }
 
                 private void remindGeneralNote(LocalDateTime now, List<Note> notesToNotify,
                                                Note currentNote) {
-                    if (!remindByInterval(now, notesToNotify, currentNote, GENERAL_REMINDER_INTERVAL)) {
-                        scheduleReminder(currentNote, now.plusMinutes(GENERAL_REMINDER_INTERVAL));
+                    int interval = getPreferenceValue(getString(R.string.general_reminder_interval_preference_key));
+                    if (!remindByInterval(now, notesToNotify, currentNote, interval)) {
+                        Log.d(TAG, "next notification will be at " +
+                        scheduleReminder(currentNote, now.plusMinutes(interval)));
                     }
                 }
 
@@ -289,12 +276,16 @@ public class BackgroundService extends Service {
                         if (distanceMatrix == null) return;
 
                         if (isLocationOnly) {
-                            if (distanceMatrix.getDistance() < LOCATION_ONLY_DISTANCE_FACTOR) {
-                                if (!remindByInterval(now, notesToNotify, currentNote,
-                                        LOCATION_ONLY_REMINDER_INTERVAL)){
+                            int safetyFactor = getPreferenceValue(getString
+                                    (R.string.location_only_safety_factor_preference_key));
+                            int interval = getPreferenceValue(getString
+                                    (R.string.location_only_reminder_interval_preference_key));
+
+                            if (distanceMatrix.getDistance() < safetyFactor) {
+                                if (!remindByInterval(now, notesToNotify, currentNote, interval)){
                                     notesToNotify.add(currentNote);
                                     Log.d(TAG, "next notification will be at " +
-                                            scheduleReminder(currentNote, now.plusMinutes(LOCATION_ONLY_REMINDER_INTERVAL)));
+                                            scheduleReminder(currentNote, now.plusMinutes(interval)));
                                 }
                                 etaMap.put(currentNote, distanceMatrix);
                             }
@@ -310,8 +301,11 @@ public class BackgroundService extends Service {
                                 return;
                             }
 
+                            int safetyFactor = getPreferenceValue(getString
+                                    (R.string.time_location_safety_factor_preference_key));
+
                             // Check if we'll not make it on time (note's time minus ETA is in warning range)
-                            LocalDateTime noteSafetyTime = departTime.minusMinutes(TIME_LOCATION_SAFETY_FACTOR);
+                            LocalDateTime noteSafetyTime = departTime.minusMinutes(safetyFactor);
                             if (now.isAfter(noteSafetyTime)) {
                                 // Calculate interval
                                 int interval = Minutes.minutesBetween(now, departTime).getMinutes()/2;
@@ -326,9 +320,9 @@ public class BackgroundService extends Service {
                             }
                         }
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, e.getMessage(), e);
                     } catch (ExecutionException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, e.getMessage(), e);
                     }
                 }
 
@@ -364,6 +358,11 @@ public class BackgroundService extends Service {
         }
     }
 
+    private int getPreferenceValue(String key) {
+        return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(BackgroundService.this).
+                getString(key, "0"));
+    }
+
     @Override
     public void onDestroy() {
         Log.d(TAG, "Destroying service");
@@ -381,12 +380,8 @@ public class BackgroundService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return mBinder;
+        return null;
     }
-
-    // This is the object that receives interactions from clients.  See
-    // RemoteService for a more complete example.
-    private final IBinder mBinder = new LocalBinder();
 
     /**
      * Show a notification while this service is running.

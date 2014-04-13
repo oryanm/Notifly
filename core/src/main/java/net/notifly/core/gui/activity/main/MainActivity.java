@@ -23,7 +23,7 @@ public class MainActivity extends ActionBarActivity implements
     @AfterViews
     void setUp() {
         if (!BackgroundService.ALIVE) {
-            Log.d("MainActivity", "started background service");
+            Log.d("MainActivity", "starting background service");
             BackgroundService_.intent(getApplication()).start();
         }
     }
@@ -35,7 +35,7 @@ public class MainActivity extends ActionBarActivity implements
 
         switch (position) {
             case NAVIGATION_SECTION_NOTES:
-                tag = "notes";
+                tag = NotesMainFragment.FRAGMENT_TAG;
                 fragment = NotesMainFragment.newInstance();
                 break;
             default:

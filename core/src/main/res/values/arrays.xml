@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string-array name="entries_time_current_location_preference">
+        <item>@string/israel</item>
+        <item>@string/usa</item>
+    </string-array>
+
+    <string-array name="entry_values_current_location_preference">
+        <item>@string/israel</item>
+        <item>@string/usa</item>
+    </string-array>
+
     <string-array name="entries_time_safety_factor_preference">
         <item>"10 min"</item>
         <item>"15 min"</item>

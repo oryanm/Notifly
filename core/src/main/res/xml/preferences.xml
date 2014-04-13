@@ -3,52 +3,69 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" android:layout_height="fill_parent">
 
     <PreferenceCategory
-        android:title="@string/note_safety_factor">
+        android:title="@string/language_region_category_title">
+        </PreferenceCategory>
+    <ListPreference
+        android:key="@string/curr_location_preference_key"
+        android:title="@string/current_location_title"
+        android:summary="@string/current_location_summary"
+        android:entries="@array/entries_time_current_location_preference"
+        android:entryValues="@array/entry_values_current_location_preference"
+        android:defaultValue="@string/israel"
+        android:dialogTitle="@string/dialog_curr_location_preference"/>
+    <PreferenceCategory
+        android:title="@string/note_safety_factor_category_title">
         <ListPreference
-            android:key="time_location_safety_factor"
+            android:key="@string/time_location_safety_factor_preference_key"
             android:title="@string/time_location_based_note_safety_factor_title"
             android:summary="@string/time_location_based_note_safety_factor_summary"
             android:entries="@array/entries_time_safety_factor_preference"
             android:entryValues="@array/entry_values_time_safety_factor_preference"
+            android:defaultValue="10"
             android:dialogTitle="@string/dialog_safety_factor_preference"/>
         <ListPreference
-            android:key="time_only_safety_factor"
-            android:title="@string/time_based_note_safety_factor_title"
+            android:key="@string/time_only_safety_factor_preference_key"
+            android:title="@string/time_only_based_note_title"
             android:summary="@string/time_based_note_safety_factor_summary"
             android:entries="@array/entries_time_safety_factor_preference"
             android:entryValues="@array/entry_values_time_safety_factor_preference"
+            android:defaultValue="15"
             android:dialogTitle="@string/dialog_safety_factor_preference"/>
         <ListPreference
-            android:key="location_only_safety_factor"
+            android:key="@string/location_only_safety_factor_preference_key"
             android:title="@string/location_based_note_title"
             android:summary="@string/location_only_based_note_safety_factor_summary"
             android:entries="@array/entries_location_safety_factor_preference"
             android:entryValues="@array/entry_values_location_safety_factor_preference"
+            android:defaultValue="300"
             android:dialogTitle="@string/dialog_safety_factor_preference"/>
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/note_interval">
+        android:title="@string/note_interval_category_title">
         <ListPreference
-            android:key="general_reminder_interval"
+            android:key="@string/general_reminder_interval_preference_key"
             android:title="@string/general_note_title"
             android:summary="@string/general_reminder_interval_summary"
             android:entries="@array/entries_long_interval_preference"
             android:entryValues="@array/entry_values_long_interval_preference"
+            android:defaultValue="30"
             android:dialogTitle="@string/dialog_interval_preference"/>
         <ListPreference
-            android:key="time_only_reminder_interval"
+            android:key="@string/time_only_reminder_interval_preference_key"
             android:title="@string/time_only_based_note_title"
             android:summary="@string/time_only_based_reminder_interval_summary"
             android:entries="@array/entries_short_interval_preference"
             android:entryValues="@array/entry_values_short_interval_preference"
+            android:defaultValue="5"
             android:dialogTitle="@string/dialog_interval_preference"/>
         <ListPreference
-            android:key="location_only_reminder_interval"
+            android:key="@string/location_only_reminder_interval_preference_key"
             android:title="@string/location_based_note_title"
             android:summary="@string/location_only_reminder_interval_summary"
             android:entries="@array/entries_short_interval_preference"
             android:entryValues="@array/entry_values_short_interval_preference"
+            android:defaultValue="5"
             android:dialogTitle="@string/dialog_interval_preference"/>
     </PreferenceCategory>
 

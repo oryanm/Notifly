@@ -1,12 +1,9 @@
 package net.notifly.core.gui.activity.main;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.View;
-import android.widget.AdapterView;
 
 import com.fortysevendeg.swipelistview.BaseSwipeListViewListener;
 import com.fortysevendeg.swipelistview.SwipeListView;
@@ -14,7 +11,6 @@ import com.fortysevendeg.swipelistview.SwipeListView;
 import net.notifly.core.Notifly;
 import net.notifly.core.R;
 import net.notifly.core.entity.Note;
-import net.notifly.core.gui.activity.main.swipe.NotesSwipeListViewListener;
 import net.notifly.core.gui.activity.note.NewNoteActivity_;
 import net.notifly.core.sql.NotesDAO;
 import net.notifly.core.util.LocationHandler;
@@ -23,7 +19,6 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.App;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
@@ -34,6 +29,7 @@ import org.androidannotations.annotations.ViewById;
 public class NotesMainFragment extends Fragment implements AddressLoader.Callbacks {
     public static final int NEW_NOTE_CODE = 1;
     public static final String EXTRA_NOTE = "net.notifly.core.note";
+    public static final String FRAGMENT_TAG = "notes";
 
     @App
     Notifly notifly;
@@ -111,5 +107,16 @@ public class NotesMainFragment extends Fragment implements AddressLoader.Callbac
     @Override
     public void notifyPostExecute() {
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (SettingsFragment.isLocaleChanged)
+        {
+            adapter.notifyDataSetChanged();
+            SettingsFragment.isLocaleChanged = false;
+        }
     }
 }

@@ -40,22 +40,45 @@
     <string name="save_location">Save favorite location</string>
     <string name="location_title">Title</string>
 
+    <!-- Settings main title-->
     <string name="title_activity_settings">Settings</string>
-    <string name="time_based_note_safety_factor_title">Time based note</string>
+
+    <!-- Settings categories -->
+    <string name="language_region_category_title">Language and Region</string>
+    <string name="note_safety_factor_category_title">Note Safety Factor</string>
+    <string name="note_interval_category_title">Note Interval</string>
+
+    <!-- Settings keys -->
+    <string name="curr_location_preference_key">curr_location_preference</string>
+    <string name="time_location_safety_factor_preference_key">time_location_safety_factor_preference</string>
+    <string name="time_only_safety_factor_preference_key">time_only_safety_factor_preference</string>
+    <string name="location_only_safety_factor_preference_key">location_only_safety_factor_preference</string>
+    <string name="general_reminder_interval_preference_key">general_reminder_interval_preference</string>
+    <string name="time_only_reminder_interval_preference_key">time_only_reminder_interval_preference</string>
+    <string name="location_only_reminder_interval_preference_key">location_only_reminder_interval_preference</string>
+
+    <!-- Settings titles -->
+    <string name="current_location_title">Current Location</string>
     <string name="time_location_based_note_safety_factor_title">Time and location based note</string>
-    <string name="dialog_safety_factor_preference">Define safety factor</string>
-    <string name="note_preferences">Note preferences</string>
-    <string name="note_safety_factor">Note Safety Factor</string>
-    <string name="note_interval">Note Interval</string>
-    <string name="time_location_based_note_safety_factor_summary">Defines the safety factor for time and location based notes</string>
-    <string name="time_based_note_safety_factor_summary">Defines the safety factor for time only based notes</string>
-    <string name="location_only_based_note_safety_factor_summary">Defines the distance safety factor for location only based notes</string>
-    <string name="dialog_interval_preference">Define Interval</string>
     <string name="general_note_title">General note</string>
     <string name="time_only_based_note_title">Time only based note</string>
     <string name="location_based_note_title">Location only based note</string>
+
+    <!-- Settings summaries -->
+    <string name="time_location_based_note_safety_factor_summary">Defines the safety factor for time and location based notes</string>
+    <string name="time_based_note_safety_factor_summary">Defines the safety factor for time only based notes</string>
+    <string name="location_only_based_note_safety_factor_summary">Defines the distance safety factor for location only based notes</string>
     <string name="general_reminder_interval_summary">Defines the reminder interval for notes without location or time</string>
     <string name="time_only_based_reminder_interval_summary">Defines the reminder interval for time only based notes</string>
     <string name="location_only_reminder_interval_summary">Defines the reminder interval for location only based notes</string>
+    <string name="current_location_summary">Defines the user\'s current location - affects measure units and date/time format</string>
 
+    <!-- Settings dialog titles -->
+    <string name="dialog_curr_location_preference">Define Location</string>
+    <string name="dialog_safety_factor_preference">Define Safety Factor</string>
+    <string name="dialog_interval_preference">Define Interval</string>
+
+    <!-- Settings countries -->
+    <string name="israel">Israel</string>
+    <string name="usa">USA</string>
 </resources>
