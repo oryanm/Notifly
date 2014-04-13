@@ -11,7 +11,6 @@
         android:summary="@string/current_location_summary"
         android:entries="@array/entries_time_current_location_preference"
         android:entryValues="@array/entry_values_current_location_preference"
-        android:defaultValue="@string/israel"
         android:dialogTitle="@string/dialog_curr_location_preference"/>
     <PreferenceCategory
         android:title="@string/note_safety_factor_category_title">

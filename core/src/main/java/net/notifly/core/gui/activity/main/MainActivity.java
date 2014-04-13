@@ -1,6 +1,7 @@
 package net.notifly.core.gui.activity.main;
 
 import android.app.Fragment;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 
@@ -22,6 +23,8 @@ public class MainActivity extends ActionBarActivity implements
 
     @AfterViews
     void setUp() {
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
         if (!BackgroundService.ALIVE) {
             Log.d("MainActivity", "starting background service");
             BackgroundService_.intent(getApplication()).start();

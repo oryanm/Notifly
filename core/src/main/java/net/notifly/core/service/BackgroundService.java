@@ -167,14 +167,11 @@ public class BackgroundService extends Service {
 
                     List<Note> notesToNotify = new ArrayList<Note>();
                     for (Note note : notes) {
-                        // It's a time based note
-                        boolean timeBasedNote = note.getTime() != null;
-
-                        if (timeBasedNote && note.hasLocation()) {
+                        if (note.hasTime() && note.hasLocation()) {
                             handleLocationBasedNote(now, currentLocation, note, notesToNotify, false);
                         }
                         // time based only
-                        else if (timeBasedNote) {
+                        else if (note.hasTime()) {
                             remindTimedNote(now, notesToNotify, note);
                         }
                         // location based only

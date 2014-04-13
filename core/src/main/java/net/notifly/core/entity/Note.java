@@ -91,6 +91,10 @@ public class Note implements Parcelable
         return this.location != null;
     }
 
+    public boolean hasTime() {
+        return this.time != null;
+    }
+
   @Override
   public int describeContents()
   {

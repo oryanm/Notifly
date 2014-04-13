@@ -2,22 +2,24 @@ package net.notifly.core.gui.activity.main;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.widget.Toast;
+
+import com.google.common.collect.HashBiMap;
 
 import net.notifly.core.R;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 public class SettingsFragment extends PreferenceFragment
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static boolean isLocaleChanged = false;
 
-    private Map<String, Locale> countryToLocaleMap = new HashMap<String, Locale>();
+    private HashBiMap<String, Locale> countryToLocaleMap = HashBiMap.create();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -26,7 +28,26 @@ public class SettingsFragment extends PreferenceFragment
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
 
+        // Initialize the country to locale map
         initCountryToLocaleMap();
+
+        // Set the current location by the default locale
+        setCurrentLocationByDefaultLocale();
+    }
+
+    private void setCurrentLocationByDefaultLocale() {
+        SharedPreferences sharedPreferences = getPreferenceManager().getSharedPreferences();
+        String key = getString(R.string.curr_location_preference_key);
+        if (sharedPreferences.getString(key, null) == null)
+        {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            String country = countryToLocaleMap.inverse().get(Locale.getDefault());
+            editor.putString(key, country);
+            editor.commit();
+
+            // Update UI
+            ((ListPreference)findPreference(key)).setValue(country);
+        }
     }
 
     private void initCountryToLocaleMap() {
@@ -59,6 +80,11 @@ public class SettingsFragment extends PreferenceFragment
             Locale.setDefault(countryToLocaleMap.get(
                     sharedPreferences.getString(key, getString(R.string.israel))));
             isLocaleChanged = true;
+        }
+        else
+        {
+            Toast.makeText(getActivity(), "Changes in note's preferences will only take affect " +
+                    "the next time the note is being notified to the user", Toast.LENGTH_LONG).show();
         }
     }
 }
