@@ -8,9 +8,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.widget.Toast;
 
-import com.google.common.collect.HashBiMap;
-
 import net.notifly.core.R;
+import net.notifly.core.util.GeneralUtils;
 
 import java.util.Locale;
 
@@ -19,17 +18,12 @@ public class SettingsFragment extends PreferenceFragment
 
     public static boolean isLocaleChanged = false;
 
-    private HashBiMap<String, Locale> countryToLocaleMap = HashBiMap.create();
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
-
-        // Initialize the country to locale map
-        initCountryToLocaleMap();
 
         // Set the current location by the default locale
         setCurrentLocationByDefaultLocale();
@@ -41,18 +35,13 @@ public class SettingsFragment extends PreferenceFragment
         if (sharedPreferences.getString(key, null) == null)
         {
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            String country = countryToLocaleMap.inverse().get(Locale.getDefault());
+            String country = GeneralUtils.countryToLocaleMap.inverse().get(Locale.getDefault());
             editor.putString(key, country);
             editor.commit();
 
             // Update UI
             ((ListPreference)findPreference(key)).setValue(country);
         }
-    }
-
-    private void initCountryToLocaleMap() {
-        countryToLocaleMap.put(getString(R.string.israel), new Locale("he", "IL"));
-        countryToLocaleMap.put(getString(R.string.usa), new Locale("en", "US"));
     }
 
     @Override
@@ -77,7 +66,7 @@ public class SettingsFragment extends PreferenceFragment
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.curr_location_preference_key)))
         {
-            Locale.setDefault(countryToLocaleMap.get(
+            Locale.setDefault(GeneralUtils.countryToLocaleMap.get(
                     sharedPreferences.getString(key, getString(R.string.israel))));
             isLocaleChanged = true;
         }

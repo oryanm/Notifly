@@ -8,6 +8,7 @@ import android.util.Log;
 import net.notifly.core.R;
 import net.notifly.core.service.BackgroundService;
 import net.notifly.core.service.BackgroundService_;
+import net.notifly.core.util.GeneralUtils;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
@@ -24,6 +25,10 @@ public class MainActivity extends ActionBarActivity implements
     @AfterViews
     void setUp() {
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+        // Initialize the country-to-locale map and change the default locale if user
+        // current location preference was set
+        GeneralUtils.initCountryToLocaleMap(this);
 
         if (!BackgroundService.ALIVE) {
             Log.d("MainActivity", "starting background service");
