@@ -13,6 +13,7 @@ import net.notifly.core.R;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.note.NewNoteActivity_;
 import net.notifly.core.sql.NotesDAO;
+import net.notifly.core.util.FileUtils;
 import net.notifly.core.util.LocationHandler;
 
 import org.androidannotations.annotations.AfterViews;
@@ -30,6 +31,8 @@ public class NotesMainFragment extends Fragment implements AddressLoader.Callbac
     public static final int NEW_NOTE_CODE = 1;
     public static final String EXTRA_NOTE = "net.notifly.core.note";
     public static final String FRAGMENT_TAG = "notes";
+
+    private static final String TAG = "NotesMainFragment";
 
     @App
     Notifly notifly;
@@ -79,6 +82,8 @@ public class NotesMainFragment extends Fragment implements AddressLoader.Callbac
             int position = adapter.getPosition(note);
 
             if (position >= 0) {
+                // First remove the note from the reminder file
+                FileUtils.deleteNoteFromReminderFile(TAG, getActivity(), note.getId());
                 adapter.remove(note);
             } else {
                 position = 0;
@@ -92,6 +97,9 @@ public class NotesMainFragment extends Fragment implements AddressLoader.Callbac
     }
 
     void deleteNote(Note note, int position) {
+        // First remove the note from the reminder file
+        FileUtils.deleteNoteFromReminderFile(TAG, getActivity(), note.getId());
+
         NotesDAO notesDAO = new NotesDAO(getActivity());
         notesDAO.deleteNote(note);
         notesDAO.close();

@@ -4,7 +4,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
@@ -23,6 +22,7 @@ import net.notifly.core.entity.DistanceMatrix;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.main.MainActivity_;
 import net.notifly.core.sql.NotesDAO;
+import net.notifly.core.util.FileUtils;
 import net.notifly.core.util.SerializableSparseArray;
 
 import org.androidannotations.annotations.EService;
@@ -30,17 +30,11 @@ import org.androidannotations.annotations.SystemService;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
@@ -52,10 +46,11 @@ import java.util.concurrent.ExecutionException;
 public class BackgroundService extends Service {
     // Constants
     public static final int TIMER_INTERVAL = 30; // In seconds
-    private static final String REMINDER_FILE_NAME = "reminder";
     private static final String TAG = "BackgroundService";
 
+    // static members
     public static boolean ALIVE = false;
+    public static Stack<Integer> modifiedNotes = new Stack<Integer>();
 
     @SystemService
     NotificationManager notificationManager;
@@ -73,9 +68,8 @@ public class BackgroundService extends Service {
     private int NOTIFICATION = R.string.local_service_started;
 
     private Map<Note, DistanceMatrix> etaMap = new HashMap<Note, DistanceMatrix>();
-    private SerializableSparseArray<LocalDateTime> reminderDateTimeMap = new SerializableSparseArray<LocalDateTime>();
+    private SerializableSparseArray<LocalDateTime> reminderDateTimeMap;
 
-    private boolean isServiceWithIntent = true;
     private boolean isMapChanged = false;
 
     @Override
@@ -86,57 +80,13 @@ public class BackgroundService extends Service {
         // init joda time
         ResourceZoneInfoProvider.init(this);
 
-        readReminderMapFromFile();
+        reminderDateTimeMap = FileUtils.readReminderMapFromFile(TAG, this);
         Log.d(TAG, "Finished creating service");
-    }
-
-    private void readReminderMapFromFile() {
-        try {
-            File file = getFileStreamPath(REMINDER_FILE_NAME);
-            if (file.exists()) {
-                if (file.length() == 0) return;
-                Log.d(TAG, "read map from file");
-                FileInputStream fileInputStream = openFileInput(REMINDER_FILE_NAME);
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                Object readObject = objectInputStream.readObject();
-                reminderDateTimeMap = (SerializableSparseArray<LocalDateTime>) readObject;
-                Log.d(TAG, "reminder map size is " + reminderDateTimeMap.size());
-                objectInputStream.close();
-                fileInputStream.close();
-            } else {
-                file.createNewFile();
-            }
-
-        } catch (java.io.IOException e) {
-            Log.e(TAG, e.getMessage(), e);
-        } catch (ClassNotFoundException e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
-    }
-
-    private void writeReminderMapToFile() {
-        try {
-            if (isMapChanged) {
-                Log.d(TAG, "write map to file");
-                FileOutputStream fileOutputStream = openFileOutput(REMINDER_FILE_NAME, Context.MODE_PRIVATE);
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-                objectOutputStream.writeObject(reminderDateTimeMap);
-                Log.d(TAG, "reminder map size is " + reminderDateTimeMap.size());
-                objectOutputStream.close();
-                fileOutputStream.close();
-                isMapChanged = false;
-            }
-
-        } catch (java.io.IOException e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "Received start id " + startId + ": " + intent);
-
-        isServiceWithIntent = intent != null;
 
         // schedule task
         timer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, TIMER_INTERVAL * 1000);
@@ -160,8 +110,6 @@ public class BackgroundService extends Service {
                     List<Note> notes = notesDAO.getAllNotes();
                     notesDAO.close();
 
-                    // First check if any of the notes were deleted
-                    checkForDeletedNotes(notes);
                     // Clear the ETA map
                     etaMap.clear();
 
@@ -183,25 +131,19 @@ public class BackgroundService extends Service {
                         }
                     }
 
+                    // Write current reminder map to reminder map file
                     writeReminderMapToFile();
 
                     if (notesToNotify.size() > 0)
                         showNotification(getShortContent(notesToNotify), getExtendedContent(notesToNotify));
                 }
 
-                private void checkForDeletedNotes(List<Note> notes) {
-                    Set<Integer> noteIds = new HashSet<Integer>();
-                    for (Note note : notes) {
-                        noteIds.add(note.getId());
-                    }
+                private void writeReminderMapToFile() {
+                    // Remove the modified notes from reminder map
+                    while (!modifiedNotes.isEmpty()) reminderDateTimeMap.remove(modifiedNotes.pop());
 
-                    for (int i = 0; i < reminderDateTimeMap.size(); i++) {
-                        // If the list of notes doesn't contain the note id which is located in the map then remove it
-                        if (!noteIds.contains(reminderDateTimeMap.keyAt(i))) {
-                            reminderDateTimeMap.remove(reminderDateTimeMap.keyAt(i));
-                            isMapChanged = true;
-                        }
-                    }
+                    FileUtils.writeReminderMapToFile(TAG, BackgroundService.this, isMapChanged, reminderDateTimeMap);
+                    isMapChanged = false;
                 }
 
                 private void remindTimedNote(LocalDateTime now, List<Note> notesToNotify, Note currentNote) {
@@ -221,7 +163,7 @@ public class BackgroundService extends Service {
                                     scheduleReminder(currentNote, noteSafetyTime));
                         } else {
                             // We're in the warning range
-                            if (!isServiceWithIntent) notesToNotify.add(currentNote);
+                            notesToNotify.add(currentNote);
                             Log.d(TAG, "noteSafetyTime isn't after now - next notification will be at "
                                     + scheduleReminder(currentNote, now.plusMinutes(interval)));
                         }
