@@ -6,6 +6,7 @@ import android.location.Geocoder;
 import android.util.Log;
 
 import net.notifly.core.entity.DistanceMatrix;
+import net.notifly.core.entity.Location;
 
 import org.androidannotations.annotations.EBean;
 import org.json.JSONArray;
@@ -148,4 +149,14 @@ public class LocationHandler
     return new DistanceMatrix(duration.getLong("value"), distance.getLong("value"),
       duration.getString("text"), distance.getString("text"));
   }
+
+    public static String getLatitudeLongitudeString(Location location)
+    {
+        return location.getLatitude() + "," + location.getLongitude();
+    }
+
+    public static String getLatitudeLongitudeString(android.location.Location location)
+    {
+        return location.getLatitude() + "," + location.getLongitude();
+    }
 }
