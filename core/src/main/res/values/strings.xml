@@ -38,6 +38,7 @@
     <string name="delete_note">Discard note</string>
 
     <string name="save_location">Save favorite location</string>
+    <string name="delete_location">Discard location</string>
     <string name="location_title">Title</string>
 
     <!-- Settings main title-->

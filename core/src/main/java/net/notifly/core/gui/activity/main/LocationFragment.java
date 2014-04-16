@@ -1,6 +1,8 @@
 package net.notifly.core.gui.activity.main;
 
+import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -9,14 +11,20 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 
+import net.notifly.core.Notifly;
 import net.notifly.core.R;
 import net.notifly.core.entity.Location;
+import net.notifly.core.entity.Note;
+import net.notifly.core.gui.activity.note.NewNoteActivity;
+import net.notifly.core.gui.activity.note.NewNoteActivity_;
 import net.notifly.core.sql.LocationDAO;
 import net.notifly.core.util.LocationHandler;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.App;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
@@ -29,7 +37,8 @@ public class LocationFragment extends Fragment implements
         ActionMode.Callback,
         AdapterView.OnItemClickListener,
         AdapterView.OnItemLongClickListener {
-
+    @App
+    Notifly notifly;
     @ViewById(android.R.id.list)
     AbsListView locationsListView;
     @Bean
@@ -91,6 +100,21 @@ public class LocationFragment extends Fragment implements
         adapter.remove(location);
     }
 
+    void newNote(int position) {
+        Location location = adapter.getItem(position);
+        Intent intent = new Intent(getActivity(), NewNoteActivity_.class);
+        intent.putExtra(NewNoteActivity.EXTRA_NOTE, new Note("", location));
+        startActivityForResult(intent, NewNoteActivity.NEW_NOTE_CODE);
+    }
+
+    @OnActivityResult(NewNoteActivity.NEW_NOTE_CODE)
+    void afterNewNote(int resultCode, Intent intent) {
+        if (resultCode == Activity.RESULT_OK) {
+            Note note = intent.getParcelableExtra(NewNoteActivity.EXTRA_NOTE);
+            notifly.addNote(note, this);
+        }
+    }
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (actionMode != null) {
@@ -127,6 +151,10 @@ public class LocationFragment extends Fragment implements
         switch (item.getItemId()) {
             case R.id.action_delete_location:
                 delete(selectedLocationPosition);
+                mode.finish();
+                return true;
+            case R.id.action_add_location_note:
+                newNote(selectedLocationPosition);
                 mode.finish();
                 return true;
             default:

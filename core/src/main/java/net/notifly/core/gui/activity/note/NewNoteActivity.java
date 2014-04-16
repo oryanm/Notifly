@@ -21,7 +21,6 @@ import net.notifly.core.R;
 import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.main.FavoriteLocationDialogFragment;
-import net.notifly.core.gui.activity.main.NotesMainFragment;
 import net.notifly.core.gui.activity.map.SelectLocationActivity_;
 import net.notifly.core.sql.LocationDAO;
 import net.notifly.core.sql.NotesDAO;
@@ -51,14 +50,16 @@ public class NewNoteActivity extends ActionBarActivity implements
         RadialTimePickerDialog.OnTimeSetListener,
         FavoriteLocationDialogFragment.FavoriteLocationDialogListener
 {
+    public static final int NEW_NOTE_CODE = 1;
     private static final int LOCATION_SELECT_CODE = 2;
+    public static final String EXTRA_NOTE = "net.notifly.core.note";
     public static final String EXTRA_LOCATION = "net.notifly.core.location";
 
     Address address = LocationHandler.ERROR_ADDRESS;
 
     @App
     Notifly notifly;
-    @Extra(NotesMainFragment.EXTRA_NOTE)
+    @Extra(EXTRA_NOTE)
     Note note = new Note();
     @Bean
     LocationHandler locationHandler;
@@ -167,7 +168,7 @@ public class NewNoteActivity extends ActionBarActivity implements
             notes.close();
 
             Intent intent = new Intent();
-            intent.putExtra(NotesMainFragment.EXTRA_NOTE, note);
+            intent.putExtra(EXTRA_NOTE, note);
             setResult(RESULT_OK, intent);
             finish();
         } else {

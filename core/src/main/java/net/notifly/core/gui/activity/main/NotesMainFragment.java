@@ -1,5 +1,6 @@
 package net.notifly.core.gui.activity.main;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.view.Menu;
@@ -11,6 +12,7 @@ import com.fortysevendeg.swipelistview.SwipeListView;
 import net.notifly.core.Notifly;
 import net.notifly.core.R;
 import net.notifly.core.entity.Note;
+import net.notifly.core.gui.activity.note.NewNoteActivity;
 import net.notifly.core.gui.activity.note.NewNoteActivity_;
 import net.notifly.core.sql.NotesDAO;
 import net.notifly.core.util.FileUtils;
@@ -28,8 +30,6 @@ import org.androidannotations.annotations.ViewById;
 @EFragment(R.layout.fragment_main)
 @OptionsMenu(R.menu.main)
 public class NotesMainFragment extends Fragment implements AddressLoader.Callbacks {
-    public static final int NEW_NOTE_CODE = 1;
-    public static final String EXTRA_NOTE = "net.notifly.core.note";
     public static final String FRAGMENT_TAG = "notes";
 
     private static final String TAG = "NotesMainFragment";
@@ -64,21 +64,21 @@ public class NotesMainFragment extends Fragment implements AddressLoader.Callbac
     void editNote(Note note) {
         swipeListView.closeOpenedItems();
         Intent intent = new Intent(getActivity(), NewNoteActivity_.class);
-        intent.putExtra(EXTRA_NOTE, note);
-        startActivityForResult(intent, NEW_NOTE_CODE);
+        intent.putExtra(NewNoteActivity.EXTRA_NOTE, note);
+        startActivityForResult(intent, NewNoteActivity.NEW_NOTE_CODE);
     }
 
     @OptionsItem(R.id.action_add_note)
     void openNewNoteActivity() {
         swipeListView.closeOpenedItems();
         Intent intent = new Intent(getActivity(), NewNoteActivity_.class);
-        startActivityForResult(intent, NEW_NOTE_CODE);
+        startActivityForResult(intent, NewNoteActivity.NEW_NOTE_CODE);
     }
 
-    @OnActivityResult(NEW_NOTE_CODE)
+    @OnActivityResult(NewNoteActivity.NEW_NOTE_CODE)
     void afterNewNote(int resultCode, Intent intent) {
-        if (resultCode == MainActivity.RESULT_OK) {
-            Note note = intent.getParcelableExtra(EXTRA_NOTE);
+        if (resultCode == Activity.RESULT_OK) {
+            Note note = intent.getParcelableExtra(NewNoteActivity.EXTRA_NOTE);
             int position = adapter.getPosition(note);
 
             if (position >= 0) {
