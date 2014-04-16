@@ -5,7 +5,7 @@ Location centered reminders
 Road map
 ========
 
-* ~~extend Application to ~~
+* ~~extend Application to~~
   * ~~save notes and locations as global vars~~
   * ~~preload addresses~~
 * test background service 
