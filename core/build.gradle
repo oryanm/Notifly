@@ -93,10 +93,10 @@ dependencies {
         exclude (group: 'org.apache.httpcomponents', module: 'httpclient')
     }
 
-//    // Notifly's server module
-//    compile('net.notifly.server:messaging:v1-1.18.0-rc-SNAPSHOT') {
-//        exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
-//    }
+    // Notifly's server module
+    compile('net.notifly.server:messaging:v1-1.18.0-rc-SNAPSHOT') {
+        exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
+    }
 }
 
 apt {
