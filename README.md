@@ -5,16 +5,16 @@ Location centered reminders
 Road map
 ========
 
-* extend Application to 
-  * save notes and locations as global vars
-  * preload addresses
+* ~~extend Application to ~~
+  * ~~save notes and locations as global vars~~
+  * ~~preload addresses~~
 * test background service 
-* create settings activity
+* ~~create settings activity~~
 * ~~create favorite locations fragment~~
-  * show title and address 
+  * ~~show title and address~~ 
   * add order
-  * add ability to edit/delete
-  * add button to create note with a selected location preloaded
+  * ~~add ability to edit/delete~~
+  * ~~add button to create note with a selected location preloaded~~
 * ~~enable note editing~~
 * add option to sort/order notes and locations
 * add color for notes
