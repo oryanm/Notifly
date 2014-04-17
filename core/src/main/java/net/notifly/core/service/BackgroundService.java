@@ -7,13 +7,17 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.LocationClient;
 
 import net.danlew.android.joda.ResourceZoneInfoProvider;
 import net.notifly.core.Notifly;
@@ -43,7 +47,9 @@ import java.util.TimerTask;
  * Created by Barak on 21/03/2014.
  */
 @EService
-public class BackgroundService extends Service {
+public class BackgroundService extends Service implements
+        GooglePlayServicesClient.ConnectionCallbacks,
+        GooglePlayServicesClient.OnConnectionFailedListener{
     @App
     Notifly notifly;
 
@@ -57,9 +63,6 @@ public class BackgroundService extends Service {
 
     @SystemService
     NotificationManager notificationManager;
-
-    @SystemService
-    LocationManager locationManager;
 
     // run on another Thread to avoid crash
     private Handler handler = new Handler();
@@ -75,6 +78,8 @@ public class BackgroundService extends Service {
 
     private boolean isMapChanged = false;
 
+    private LocationClient locationClient;
+
     @Override
     public void onCreate() {
         Log.d(TAG, "Creating service");
@@ -83,8 +88,15 @@ public class BackgroundService extends Service {
         // init joda time
         ResourceZoneInfoProvider.init(this);
 
+        setUpLocationClient();
+
         reminderDateTimeMap = FileUtils.readReminderMapFromFile(TAG, this);
         Log.d(TAG, "Finished creating service");
+    }
+
+    private void setUpLocationClient() {
+        if (locationClient == null) locationClient = new LocationClient(this, this, this);
+        if (!locationClient.isConnected() || !locationClient.isConnecting()) locationClient.connect();
     }
 
     @Override
@@ -107,7 +119,7 @@ public class BackgroundService extends Service {
 
                 @Override
                 public void run() {
-                    Location currentLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+                    Location currentLocation = locationClient.isConnected() ? locationClient.getLastLocation() : null;
                     LocalDateTime now = LocalDateTime.now();
 
                     // Clear the ETA map
@@ -115,6 +127,9 @@ public class BackgroundService extends Service {
 
                     List<Note> notesToNotify = new ArrayList<Note>();
                     for (Note note : notifly.getNotes()) {
+                        // We don't want to process modified note
+                        if (modifiedNotes.contains(note.getId())) continue;
+
                         if (note.hasTime() && note.hasLocation()) {
                             handleLocationBasedNote(now, currentLocation, note, notesToNotify, false);
                         }
@@ -208,11 +223,13 @@ public class BackgroundService extends Service {
 
     private void handleLocationBasedNote(LocalDateTime now, Location currentLocation, Note currentNote,
                                          List<Note> notesToNotify, boolean isLocationOnly) {
+        if (currentLocation == null) return;
+
         String org = LocationHandler.getLatitudeLongitudeString(currentLocation);
         String dest = LocationHandler.getLatitudeLongitudeString(currentNote.getLocation());
         try {
             // TODO: Get the mode of transportation from currentNote
-            DistanceMatrix distanceMatrix = new RetreiveDistanceMatrixTask().execute(org, dest, "driving").get();
+            DistanceMatrix distanceMatrix = LocationHandler.getDistanceMatrixUsingTask(org, dest, "driving");
 
             // TODO: check what can we do when Google fails to return distance matrix
             if (distanceMatrix == null) return;
@@ -261,6 +278,7 @@ public class BackgroundService extends Service {
         if (now.isAfter(noteSafetyTime)) {
             // Calculate interval
             int interval = (int) Math.ceil(Minutes.minutesBetween(now, departTime).getMinutes() / (float) 2);
+            if (interval == 0) return;
             if (!remindByInterval(now, notesToNotify, currentNote, interval))
             {
                 notesToNotify.add(currentNote);
@@ -353,5 +371,17 @@ public class BackgroundService extends Service {
 
         // Send the notification.
         notificationManager.notify(NOTIFICATION, notification);
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+    }
+
+    @Override
+    public void onDisconnected() {
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
     }
 }

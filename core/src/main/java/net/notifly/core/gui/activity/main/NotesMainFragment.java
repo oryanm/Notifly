@@ -16,7 +16,6 @@ import net.notifly.core.gui.activity.note.NewNoteActivity;
 import net.notifly.core.gui.activity.note.NewNoteActivity_;
 import net.notifly.core.sql.NotesDAO;
 import net.notifly.core.util.FileUtils;
-import net.notifly.core.util.LocationHandler;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.App;
@@ -40,8 +39,6 @@ public class NotesMainFragment extends Fragment implements AddressLoader.Callbac
     SwipeListView swipeListView;
     @Bean
     NotesAdapter adapter;
-    @Bean
-    LocationHandler locationHandler;
 
     public static NotesMainFragment newInstance() {
         NotesMainFragment fragment = new NotesMainFragment_();
@@ -123,6 +120,9 @@ public class NotesMainFragment extends Fragment implements AddressLoader.Callbac
 
         if (SettingsFragment.isLocaleChanged)
         {
+            notifly.resetLocationHandler();
+            notifly.locationAddressCache.evictAll();
+            notifly.loadLocations();
             adapter.notifyDataSetChanged();
             SettingsFragment.isLocaleChanged = false;
         }

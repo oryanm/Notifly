@@ -10,14 +10,13 @@ import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.main.AddressLoader;
 import net.notifly.core.sql.NotesDAO;
 import net.notifly.core.util.GeneralUtils;
+import net.notifly.core.util.LocationHandler;
 
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.EApplication;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -25,11 +24,16 @@ import javax.annotation.Nullable;
 public class Notifly extends Application {
     List<Note> notes = new ArrayList<Note>();
 
-    LruCache<Location, Address> locationAddressCache = new LruCache<Location, Address>(50);
+    public LruCache<Location, Address> locationAddressCache = new LruCache<Location, Address>(50);
+
+    private LocationHandler locationHandler;
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        locationHandler = new LocationHandler(this);
+        GeneralUtils.initCountryToLocaleMap(this);
         ResourceZoneInfoProvider.init(this);
         loadNotes();
     }
@@ -42,7 +46,7 @@ public class Notifly extends Application {
     }
 
     @Background
-    void loadLocations() {
+    public void loadLocations() {
         for (Note note : notes) {
             if (note.hasLocation()) {
                 new AddressLoader(this, note.getLocation()).execute();
@@ -68,5 +72,14 @@ public class Notifly extends Application {
         if (note.hasLocation()) {
             new AddressLoader(this, note.getLocation()).setListener(callback).execute();
         }
+    }
+
+    public LocationHandler getLocationHandler() {
+        return locationHandler;
+    }
+
+    public void resetLocationHandler()
+    {
+        locationHandler = new LocationHandler(this);
     }
 }

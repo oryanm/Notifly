@@ -1,6 +1,6 @@
 package net.notifly.core.util;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Address;
 import android.os.Parcel;
@@ -17,12 +17,12 @@ import java.util.Locale;
 public class GeneralUtils {
     public static HashBiMap<String, Locale> countryToLocaleMap = HashBiMap.create();
 
-    public static void initCountryToLocaleMap(Activity activity) {
-        countryToLocaleMap.put(activity.getString(R.string.israel), new Locale("he", "IL"));
-        countryToLocaleMap.put(activity.getString(R.string.usa), new Locale("en", "US"));
+    public static void initCountryToLocaleMap(Context context) {
+        countryToLocaleMap.put(context.getString(R.string.israel), new Locale("he", "IL"));
+        countryToLocaleMap.put(context.getString(R.string.usa), new Locale("en", "US"));
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
-        String country = preferences.getString(activity.getString(R.string.curr_location_preference_key), null);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String country = preferences.getString(context.getString(R.string.curr_location_preference_key), null);
         if (country != null)
         {
             Locale.setDefault(countryToLocaleMap.get(country));

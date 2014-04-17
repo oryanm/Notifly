@@ -10,7 +10,6 @@ import net.notifly.core.Notifly;
 import net.notifly.core.entity.Location;
 import net.notifly.core.sql.LocationDAO;
 import net.notifly.core.util.GeneralUtils;
-import net.notifly.core.util.LocationHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,15 +17,14 @@ import java.util.List;
 public class AddressAdapter extends ArrayAdapter<String> implements Filterable {
     public static final int MAX_RESULTS = 5;
 
+    private Notifly notifly;
+
     private List<Address> addresses = new ArrayList<Address>();
     private List<Location> favorites = new ArrayList<Location>();
-    private LocationHandler locationHandler;
 
     public AddressAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
-
-        locationHandler = new LocationHandler(context);
-
+        notifly = (Notifly) context.getApplicationContext();
         LocationDAO locationDAO = new LocationDAO(context);
         favorites = locationDAO.getFavoriteLocations();
         locationDAO.close();
@@ -39,6 +37,7 @@ public class AddressAdapter extends ArrayAdapter<String> implements Filterable {
 
     @Override
     public String getItem(int index) {
+        if (addresses.isEmpty()) return "";
         return GeneralUtils.toString(addresses.get(index));
     }
 
@@ -70,17 +69,17 @@ public class AddressAdapter extends ArrayAdapter<String> implements Filterable {
             }
 
             private void getAddresses(CharSequence constraint) {
-                addresses.addAll(locationHandler.getAddresses(constraint.toString(), MAX_RESULTS));
+                addresses.addAll(notifly.getLocationHandler().getAddresses(constraint.toString(), MAX_RESULTS));
             }
 
             private void getFavoriteAddresses(CharSequence constraint) {
                 for (Location location : favorites) {
                     if (location.getTitle().contains(constraint)) {
-                        Address address = ((Notifly) getContext().getApplicationContext()).get(location);
+                        Address address = notifly.get(location);
 
                         if (address == null) {
-                            address = locationHandler.getAddress(location);
-                            ((Notifly) getContext().getApplicationContext()).put(location, address);
+                            address = notifly.getLocationHandler().getAddress(location);
+                            notifly.put(location, address);
                         }
 
                         addresses.add(address);

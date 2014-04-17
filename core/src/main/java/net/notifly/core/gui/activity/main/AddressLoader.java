@@ -11,13 +11,11 @@ import net.notifly.core.util.LocationHandler;
 
 public class AddressLoader extends AsyncTask<Void, Void, Address> {
     Notifly notifly;
-    LocationHandler locationHandler;
     Location location;
     Callbacks listener;
 
     public AddressLoader(Context context, Location location) {
         this.notifly = (Notifly) context.getApplicationContext();
-        this.locationHandler = new LocationHandler(context);
         this.location = location;
     }
 
@@ -26,7 +24,12 @@ public class AddressLoader extends AsyncTask<Void, Void, Address> {
         Address address = notifly.get(location);
 
         if (address == null) {
-            return locationHandler.getAddress(location);
+            address = notifly.getLocationHandler().getAddress(location);
+            if (address.equals(LocationHandler.ERROR_ADDRESS))
+            {
+                return LocationHandler.getAddressesFromWeb(Double.toString(location.getLatitude()) +
+                        "," + Double.toString(location.getLongitude()), 1).iterator().next();
+            }
         }
 
         return address;
