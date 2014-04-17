@@ -117,16 +117,20 @@ public class NewNoteActivity extends ActionBarActivity implements
 
     @Click(R.id.timeEditText)
     void setTimePicker() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = getDateTimeForPicker();
         RadialTimePickerDialog timePickerDialog = RadialTimePickerDialog.newInstance(
                 NewNoteActivity.this, now.getHourOfDay(), now.getMinuteOfHour(),
                 DateFormat.is24HourFormat(NewNoteActivity.this));
         timePickerDialog.show(getSupportFragmentManager(), "timePickerDialogFragment");
     }
 
+    private LocalDateTime getDateTimeForPicker() {
+        return note.getTime() == null ? LocalDateTime.now() : note.getTime();
+    }
+
     @Click(R.id.dateEditText)
     void setDatePicker() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = getDateTimeForPicker();
         CalendarDatePickerDialog calendarDatePickerDialog = CalendarDatePickerDialog
                 .newInstance(NewNoteActivity.this, now.getYear(), now.getMonthOfYear() - 1, now.getDayOfMonth());
         calendarDatePickerDialog.show(getSupportFragmentManager(), "fragment_date_picker_name");
