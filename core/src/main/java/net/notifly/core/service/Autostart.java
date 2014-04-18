@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import org.androidannotations.annotations.EReceiver;
+
+@EReceiver
 public class Autostart extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d("net.notifly.core.service.AutoStart", "before starting service");

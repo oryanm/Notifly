@@ -20,8 +20,8 @@
     <string name="action_save">Save</string>
 
     <!-- Service -->
-    <string name="local_service_started">service started!</string>
-    <string name="local_service_stopped">service stopped!</string>
+    <string name="local_service_started">Notifly service started!</string>
+    <string name="local_service_stopped">Notifly service stopped!</string>
 
     <!-- note -->
     <string name="title_activity_new_note">New note</string>

@@ -37,8 +37,10 @@ import org.joda.time.Minutes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -60,6 +62,7 @@ public class BackgroundService extends Service implements
     // static members
     public static boolean ALIVE = false;
     public static Stack<Integer> modifiedNotes = new Stack<Integer>();
+    public static Set<Integer> dismissedNotes = new HashSet<Integer>();
 
     @SystemService
     NotificationManager notificationManager;
@@ -71,7 +74,7 @@ public class BackgroundService extends Service implements
 
     // Unique Identification Number for the Notification.
     // We use it on Notification start, and to cancel it.
-    private int NOTIFICATION = R.string.local_service_started;
+    public static int NOTIFICATION_ID = R.string.local_service_started;
 
     private Map<Note, DistanceMatrix> etaMap = new HashMap<Note, DistanceMatrix>();
     private SerializableSparseArray<LocalDateTime> reminderDateTimeMap;
@@ -79,6 +82,8 @@ public class BackgroundService extends Service implements
     private boolean isMapChanged = false;
 
     private LocationClient locationClient;
+
+    private List<Note> notesToNotify = new ArrayList<Note>();
 
     @Override
     public void onCreate() {
@@ -91,6 +96,8 @@ public class BackgroundService extends Service implements
         setUpLocationClient();
 
         reminderDateTimeMap = FileUtils.readReminderMapFromFile(TAG, this);
+        dismissedNotes = FileUtils.readDismissedFromFile(TAG, this);
+
         Log.d(TAG, "Finished creating service");
     }
 
@@ -122,35 +129,34 @@ public class BackgroundService extends Service implements
                     Location currentLocation = locationClient.isConnected() ? locationClient.getLastLocation() : null;
                     LocalDateTime now = LocalDateTime.now();
 
-                    // Clear the ETA map
+                    // Clear all
                     etaMap.clear();
+                    notesToNotify.clear();
 
-                    List<Note> notesToNotify = new ArrayList<Note>();
                     for (Note note : notifly.getNotes()) {
-                        // We don't want to process modified note
-                        if (modifiedNotes.contains(note.getId())) continue;
+                        // We don't want to process a modified or a dismissed note
+                        if (modifiedNotes.contains(note.getId()) || dismissedNotes.contains(note.getId())) continue;
 
                         if (note.hasTime() && note.hasLocation()) {
-                            handleLocationBasedNote(now, currentLocation, note, notesToNotify, false);
+                            handleLocationBasedNote(now, currentLocation, note, false);
                         }
                         // time based only
                         else if (note.hasTime()) {
-                            remindTimedNote(now, notesToNotify, note);
+                            remindTimedNote(now, note);
                         }
                         // location based only
                         else if (note.hasLocation()) {
-                            handleLocationBasedNote(now, currentLocation, note, notesToNotify, true);
+                            handleLocationBasedNote(now, currentLocation, note, true);
                         } else // neither time nor location
                         {
-                            remindGeneralNote(now, notesToNotify, note);
+                            remindGeneralNote(now, note);
                         }
                     }
 
                     // Write current reminder map to reminder map file
                     writeReminderMapToFile();
 
-                    if (notesToNotify.size() > 0)
-                        showNotification(getShortContent(notesToNotify), getExtendedContent(notesToNotify));
+                    if (notesToNotify.size() > 0) showNotification(getShortContent(), getExtendedContent());
                 }
             });
         }
@@ -164,7 +170,7 @@ public class BackgroundService extends Service implements
         isMapChanged = false;
     }
 
-    private void remindTimedNote(LocalDateTime now, List<Note> notesToNotify, Note currentNote) {
+    private void remindTimedNote(LocalDateTime now, Note currentNote) {
         // Do not notify me about note past time
         if (now.isAfter(currentNote.getTime())) return;
 
@@ -186,8 +192,7 @@ public class BackgroundService extends Service implements
         }
     }
 
-    private void remindGeneralNote(LocalDateTime now, List<Note> notesToNotify,
-                                   Note currentNote) {
+    private void remindGeneralNote(LocalDateTime now, Note currentNote) {
         int interval = getPreferenceValue(getString(R.string.general_reminder_interval_preference_key));
         if (!remindByInterval(now, notesToNotify, currentNote, interval)) {
             writeNotificationToLog(currentNote, scheduleReminder(currentNote, now.plusMinutes(interval)));
@@ -222,7 +227,7 @@ public class BackgroundService extends Service implements
     }
 
     private void handleLocationBasedNote(LocalDateTime now, Location currentLocation, Note currentNote,
-                                         List<Note> notesToNotify, boolean isLocationOnly) {
+                                         boolean isLocationOnly) {
         if (currentLocation == null) return;
 
         String org = LocationHandler.getLatitudeLongitudeString(currentLocation);
@@ -235,19 +240,19 @@ public class BackgroundService extends Service implements
             if (distanceMatrix == null) return;
 
             if (isLocationOnly) {
-                remindLocationNote(now, currentNote, notesToNotify, distanceMatrix);
+                remindLocationNote(now, currentNote, distanceMatrix);
             } else // time and location based currentNote
             {
                 // Do not notify me about note past time
                 if (now.isAfter(currentNote.getTime())) return;
-                remindTimeLocationNote(now, currentNote, notesToNotify, distanceMatrix);
+                remindTimeLocationNote(now, currentNote, distanceMatrix);
             }
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
     }
 
-    private void remindLocationNote(LocalDateTime now, Note currentNote, List<Note> notesToNotify, DistanceMatrix distanceMatrix) {
+    private void remindLocationNote(LocalDateTime now, Note currentNote, DistanceMatrix distanceMatrix) {
         int safetyFactor = getPreferenceValue(getString
                 (R.string.location_only_safety_factor_preference_key));
         int interval = getPreferenceValue(getString
@@ -262,7 +267,7 @@ public class BackgroundService extends Service implements
         }
     }
 
-    private void remindTimeLocationNote(LocalDateTime now, Note currentNote, List<Note> notesToNotify, DistanceMatrix distanceMatrix) {
+    private void remindTimeLocationNote(LocalDateTime now, Note currentNote, DistanceMatrix distanceMatrix) {
         LocalDateTime departTime = currentNote.getTime().minusSeconds((int) distanceMatrix.getDuration());
         if (now.isAfter(departTime))
         {
@@ -289,12 +294,12 @@ public class BackgroundService extends Service implements
         }
     }
 
-    private String getShortContent(List<Note> notesToNotify) {
+    private String getShortContent() {
         return "You have " + notesToNotify.size() + " incoming task" +
-                ((notesToNotify.size() > 0) ? "s!" : "!");
+                ((notesToNotify.size() > 1) ? "s!" : "!");
     }
 
-    private String getExtendedContent(List<Note> notesToNotify) {
+    private String getExtendedContent() {
         String msg = "Incoming tasks: \n";
         for (int i = 0; i < notesToNotify.size(); i++) {
             Note note = notesToNotify.get(i);
@@ -329,7 +334,7 @@ public class BackgroundService extends Service implements
         ALIVE = false;
 
         // Cancel the persistent notification.
-        notificationManager.cancel(NOTIFICATION);
+        notificationManager.cancel(NOTIFICATION_ID);
 
         // Tell the user we stopped.
         Toast.makeText(this, R.string.local_service_stopped, Toast.LENGTH_SHORT).show();
@@ -351,15 +356,30 @@ public class BackgroundService extends Service implements
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, MainActivity_.class), 0);
 
-        // Set the icon, scrolling text and timestamp
-        Notification notification;
-
+        // Building the notification
         String title = "Notifly";
-        notification = new NotificationCompat.Builder(this).setContentIntent(contentIntent)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this).setContentIntent(contentIntent)
                 .setSmallIcon(R.drawable.ic_launcher).setTicker(text).setWhen(System.currentTimeMillis())
                 .setAutoCancel(true).setContentTitle(title)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
-                .setContentText(text).build();
+                .setContentText(text);
+
+        // If there's only one note to notify on, display dismiss option
+        if (notesToNotify.size() == 1)
+        {
+            // Init the broadcast receiver intent
+            Intent broadcastIntent = new Intent(this, NoteBroadcastReceiver_.class);
+
+            broadcastIntent.putExtra(Note.class.getName(), notesToNotify.iterator().next());
+            broadcastIntent.setAction(NoteBroadcastReceiver.DISMISS_ACTION);
+
+            // The PendingIntent to dismiss notes
+            PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(this, 0, broadcastIntent, 0);
+
+            builder.addAction(R.drawable.abc_ic_clear, "Dismiss", dismissPendingIntent);
+        }
+
+        Notification notification = builder.build();
 
         // Setting vibration, sound and led light
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
@@ -370,7 +390,7 @@ public class BackgroundService extends Service implements
         notification.flags |= Notification.FLAG_SHOW_LIGHTS;
 
         // Send the notification.
-        notificationManager.notify(NOTIFICATION, notification);
+        notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
     @Override
