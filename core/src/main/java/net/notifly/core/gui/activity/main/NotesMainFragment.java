@@ -120,9 +120,7 @@ public class NotesMainFragment extends Fragment implements AddressLoader.Callbac
 
         if (SettingsFragment.isLocaleChanged)
         {
-            notifly.resetLocationHandler();
-            notifly.locationAddressCache.evictAll();
-            notifly.loadLocations();
+            notifly.resetAddresses();
             adapter.notifyDataSetChanged();
             SettingsFragment.isLocaleChanged = false;
         }

@@ -133,7 +133,7 @@ public class NewNoteActivity extends ActionBarActivity implements
     }
 
     private LocalDateTime getDateTimeForPicker() {
-        return note.hasTime() ? LocalDateTime.now() : note.getTime();
+        return !note.hasTime() ? LocalDateTime.now() : note.getTime();
     }
 
     @Override

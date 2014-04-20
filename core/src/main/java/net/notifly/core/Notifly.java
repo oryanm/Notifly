@@ -13,6 +13,7 @@ import net.notifly.core.util.GeneralUtils;
 import net.notifly.core.util.LocationHandler;
 
 import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EApplication;
 
 import java.util.ArrayList;
@@ -26,13 +27,13 @@ public class Notifly extends Application {
 
     public LruCache<Location, Address> locationAddressCache = new LruCache<Location, Address>(50);
 
-    private LocationHandler locationHandler;
+    @Bean
+    LocationHandler locationHandler;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        locationHandler = new LocationHandler(this);
         GeneralUtils.initCountryToLocaleMap(this);
         ResourceZoneInfoProvider.init(this);
         loadNotes();
@@ -42,11 +43,11 @@ public class Notifly extends Application {
         NotesDAO notesDAO = new NotesDAO(this);
         notes = notesDAO.getAllNotes();
         notesDAO.close();
-        loadLocations();
+        loadAddresses();
     }
 
     @Background
-    public void loadLocations() {
+    public void loadAddresses() {
         for (Note note : notes) {
             if (note.hasLocation()) {
                 new AddressLoader(this, note.getLocation()).execute();
@@ -78,8 +79,9 @@ public class Notifly extends Application {
         return locationHandler;
     }
 
-    public void resetLocationHandler()
-    {
+    public void resetAddresses() {
         locationHandler = new LocationHandler(this);
+        locationAddressCache.evictAll();
+        loadAddresses();
     }
 }
