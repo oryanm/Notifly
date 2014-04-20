@@ -41,7 +41,11 @@ Links
 
 [Swipe List View](https://github.com/47deg/android-swipelistview)
 
+[DragSortListView](https://github.com/bauerca/drag-sort-listview)
+* [repo](https://github.com/Goddchen/mvn-repo)
+
 [subtlepatterns](http://subtlepatterns.com)
+
 
 Google app engine:
 ------------------
