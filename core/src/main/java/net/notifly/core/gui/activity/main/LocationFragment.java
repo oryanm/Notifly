@@ -11,6 +11,8 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 
+import com.mobeta.android.dslv.DragSortListView;
+
 import net.notifly.core.Notifly;
 import net.notifly.core.R;
 import net.notifly.core.entity.Location;
@@ -40,7 +42,7 @@ public class LocationFragment extends Fragment implements
     @App
     Notifly notifly;
     @ViewById(android.R.id.list)
-    AbsListView locationsListView;
+    DragSortListView locationsListView;
     @Bean
     LocationHandler locationHandler;
     @Bean
@@ -72,6 +74,17 @@ public class LocationFragment extends Fragment implements
         locationsListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         locationsListView.setOnItemClickListener(this);
         locationsListView.setOnItemLongClickListener(this);
+        locationsListView.setDropListener(new DragSortListView.DropListener() {
+            @Override
+            public void drop(int from, int to) {
+                if (from != to) {
+                    Location item = adapter.getItem(from);
+                    adapter.remove(item);
+                    adapter.insert(item, to);
+                    locationsListView.moveCheckState(from, to);
+                }
+            }
+        });
     }
 
     private void loadAddresses() {

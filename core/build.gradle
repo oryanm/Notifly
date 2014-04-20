@@ -13,7 +13,10 @@ apply plugin: 'android-apt'
 
 repositories {
     maven { url 'http://google-api-client-libraries.appspot.com/mavenrepo' }
+    // repo for SwipeListView
     maven { url 'http://clinker.47deg.com/nexus/content/groups/public' }
+    // repo for DragSortListView
+    maven { url 'https://github.com/Goddchen/mvn-repo/raw/master/' }
     mavenCentral()
     mavenLocal()
 }
@@ -63,6 +66,8 @@ dependencies {
     compile('com.fortysevendeg.swipelistview:swipelistview:1.0-SNAPSHOT@aar') {
         transitive = true
     }
+    // DragSortListView
+    compile 'com.mobeta.android.dslv:drag-sort-listview:0.6.1'
 
     // Dagger
     apt "com.squareup.dagger:dagger-compiler:${daggerVersion}"
