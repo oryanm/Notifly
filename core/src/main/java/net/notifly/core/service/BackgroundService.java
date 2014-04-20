@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -13,7 +14,6 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -51,7 +51,7 @@ import java.util.TimerTask;
 @EService
 public class BackgroundService extends Service implements
         GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener{
+        GooglePlayServicesClient.OnConnectionFailedListener {
     @App
     Notifly notifly;
 
@@ -103,7 +103,8 @@ public class BackgroundService extends Service implements
 
     private void setUpLocationClient() {
         if (locationClient == null) locationClient = new LocationClient(this, this, this);
-        if (!locationClient.isConnected() || !locationClient.isConnecting()) locationClient.connect();
+        if (!locationClient.isConnected() || !locationClient.isConnecting())
+            locationClient.connect();
     }
 
     @Override
@@ -135,7 +136,8 @@ public class BackgroundService extends Service implements
 
                     for (Note note : notifly.getNotes()) {
                         // We don't want to process a modified or a dismissed note
-                        if (modifiedNotes.contains(note.getId()) || dismissedNotes.contains(note.getId())) continue;
+                        if (modifiedNotes.contains(note.getId()) || dismissedNotes.contains(note.getId()))
+                            continue;
 
                         if (note.hasTime() && note.hasLocation()) {
                             handleLocationBasedNote(now, currentLocation, note, false);
@@ -156,7 +158,8 @@ public class BackgroundService extends Service implements
                     // Write current reminder map to reminder map file
                     writeReminderMapToFile();
 
-                    if (notesToNotify.size() > 0) showNotification(getShortContent(), getExtendedContent());
+                    if (notesToNotify.size() > 0)
+                        showNotification(getShortContent(), getExtendedContent());
                 }
             });
         }
@@ -234,7 +237,8 @@ public class BackgroundService extends Service implements
         String dest = LocationHandler.getLatitudeLongitudeString(currentNote.getLocation());
         try {
             // TODO: Get the mode of transportation from currentNote
-            DistanceMatrix distanceMatrix = LocationHandler.getDistanceMatrixUsingTask(org, dest, "driving");
+            DistanceMatrix distanceMatrix = LocationHandler.
+                    getDistanceMatrixUsingTask(org, dest, currentNote.getTravelMode());
 
             // TODO: check what can we do when Google fails to return distance matrix
             if (distanceMatrix == null) return;
@@ -259,7 +263,7 @@ public class BackgroundService extends Service implements
                 (R.string.location_only_reminder_interval_preference_key));
 
         if (distanceMatrix.getDistance() <= safetyFactor) {
-            if (!remindByInterval(now, notesToNotify, currentNote, interval)){
+            if (!remindByInterval(now, notesToNotify, currentNote, interval)) {
                 notesToNotify.add(currentNote);
                 writeNotificationToLog(currentNote, scheduleReminder(currentNote, now.plusMinutes(interval)));
             }
@@ -269,8 +273,7 @@ public class BackgroundService extends Service implements
 
     private void remindTimeLocationNote(LocalDateTime now, Note currentNote, DistanceMatrix distanceMatrix) {
         LocalDateTime departTime = currentNote.getTime().minusSeconds((int) distanceMatrix.getDuration());
-        if (now.isAfter(departTime))
-        {
+        if (now.isAfter(departTime)) {
             // TODO: decide what to do when we are past depart time
             return;
         }
@@ -284,8 +287,7 @@ public class BackgroundService extends Service implements
             // Calculate interval
             int interval = (int) Math.ceil(Minutes.minutesBetween(now, departTime).getMinutes() / (float) 2);
             if (interval == 0) return;
-            if (!remindByInterval(now, notesToNotify, currentNote, interval))
-            {
+            if (!remindByInterval(now, notesToNotify, currentNote, interval)) {
                 notesToNotify.add(currentNote);
                 writeNotificationToLog(currentNote, scheduleReminder(currentNote, now.plusMinutes(interval)));
             }
@@ -323,8 +325,7 @@ public class BackgroundService extends Service implements
         return msg;
     }
 
-    private void writeNotificationToLog(Note currNote, LocalDateTime atTime)
-    {
+    private void writeNotificationToLog(Note currNote, LocalDateTime atTime) {
         Log.d(TAG, currNote.getTitle() + " next notification will be at " + atTime);
     }
 
@@ -332,15 +333,6 @@ public class BackgroundService extends Service implements
     public void onDestroy() {
         Log.d(TAG, "Destroying service");
         ALIVE = false;
-
-        // Cancel the persistent notification.
-        notificationManager.cancel(NOTIFICATION_ID);
-
-        // Tell the user we stopped.
-        Toast.makeText(this, R.string.local_service_stopped, Toast.LENGTH_SHORT).show();
-
-        // Display a notification about us stopping.  We put an icon in the status bar.
-        showNotification(getText(R.string.local_service_stopped).toString(), "");
     }
 
     @Override
@@ -359,14 +351,18 @@ public class BackgroundService extends Service implements
         // Building the notification
         String title = "Notifly";
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this).setContentIntent(contentIntent)
-                .setSmallIcon(R.drawable.ic_launcher).setTicker(text).setWhen(System.currentTimeMillis())
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher))
+                .setTicker(text).setWhen(System.currentTimeMillis())
                 .setAutoCancel(true).setContentTitle(title)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                 .setContentText(text);
 
-        // If there's only one note to notify on, display dismiss option
-        if (notesToNotify.size() == 1)
-        {
+        // There's more than one to be notified about, so display default app icon
+        if (notesToNotify.size() > 1) {
+            builder.setSmallIcon(R.drawable.ic_launcher);
+        }
+        // Else there's only one note to notify on, display dismiss option and travel mode icon
+        else {
             // Init the broadcast receiver intent
             Intent broadcastIntent = new Intent(this, NoteBroadcastReceiver_.class);
 
@@ -377,6 +373,9 @@ public class BackgroundService extends Service implements
             PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(this, 0, broadcastIntent, 0);
 
             builder.addAction(R.drawable.abc_ic_clear, "Dismiss", dismissPendingIntent);
+
+            Note note = notesToNotify.iterator().next();
+            builder.setSmallIcon(getResources().getIdentifier("ic_" + note.getTravelMode(), "drawable", getPackageName()));
         }
 
         Notification notification = builder.build();

@@ -82,4 +82,10 @@
     <!-- Settings countries -->
     <string name="israel">Israel</string>
     <string name="usa">USA</string>
+
+    <!-- Travel Mode -->
+    <string name="walking">walking</string>
+    <string name="driving">driving</string>
+    <string name="bicycling">bicycling</string>
+    <string name="transit">transit</string>
 </resources>

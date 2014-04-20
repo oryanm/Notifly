@@ -11,31 +11,29 @@ import java.util.List;
 
 import static net.notifly.core.sql.NotiflySQLiteHelper.DATETIME_PATTERN;
 
-public class NotesDAO extends AbstractDAO
-{
-  public static final String TABLE_NAME = "note";
+public class NotesDAO extends AbstractDAO {
+    public static final String TABLE_NAME = "note";
 
-  public static final String CREATE_STATEMENT = " CREATE TABLE " + TABLE_NAME + "(" +
-    COLUMNS.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-    COLUMNS.TITLE + " TEXT NOT NULL, " +
-    COLUMNS.DESCRIPTION + " TEXT, " +
-    COLUMNS.TIME + " DATETIME, " +
-    COLUMNS.LOCATION + " INT, " +
-    " FOREIGN KEY( " + COLUMNS.LOCATION + " ) REFERENCES " +
-    LocationDAO.TABLE_NAME + "( " + LocationDAO.COLUMNS.ID + " ) " + ")";
+    public static final String CREATE_STATEMENT = " CREATE TABLE " + TABLE_NAME + "(" +
+            COLUMNS.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            COLUMNS.TITLE + " TEXT NOT NULL, " +
+            COLUMNS.DESCRIPTION + " TEXT, " +
+            COLUMNS.TIME + " DATETIME, " +
+            COLUMNS.LOCATION + " INT, " +
+            COLUMNS.TRAVEL_MODE + " TEXT, " +
+            " FOREIGN KEY( " + COLUMNS.LOCATION + " ) REFERENCES " +
+            LocationDAO.TABLE_NAME + "( " + LocationDAO.COLUMNS.ID + " ))";
 
-  public static final String DROP_STATEMENT = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    public static final String DROP_STATEMENT = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
-  enum COLUMNS
-  {
-    /* todo: might need to change to _ID due to content provider, BaseColumns._ID?. */
-    ID, TITLE, DESCRIPTION, LOCATION, TIME
-  }
+    enum COLUMNS {
+        /* todo: might need to change to _ID due to content provider, BaseColumns._ID?. */
+        ID, TITLE, DESCRIPTION, LOCATION, TIME, TRAVEL_MODE
+    }
 
-  public NotesDAO(Context context)
-  {
-    super(context);
-  }
+    public NotesDAO(Context context) {
+        super(context);
+    }
 
     public long addOrUpdateNote(Note note) {
         if (note.getId() != -1) {
@@ -61,6 +59,8 @@ public class NotesDAO extends AbstractDAO
                 values.put(COLUMNS.TIME.name(), note.getTime().toString(DATETIME_PATTERN));
             }
 
+            values.put(COLUMNS.TRAVEL_MODE.name(), note.getTravelMode());
+
             id = database.insert(TABLE_NAME, null, values);
             database.setTransactionSuccessful();
         } finally {
@@ -81,6 +81,7 @@ public class NotesDAO extends AbstractDAO
                     new LocationDAO(database).addLocationIfNotExists(note.getLocation()) : null);
             values.put(COLUMNS.TIME.name(), note.getTime() != null ?
                     note.getTime().toString(DATETIME_PATTERN) : null);
+            values.put(COLUMNS.TRAVEL_MODE.name(), note.getTravelMode());
 
             database.update(TABLE_NAME, values,
                     String.format("%s = ? ", COLUMNS.ID.name()),
@@ -99,32 +100,31 @@ public class NotesDAO extends AbstractDAO
                 new String[]{String.valueOf(note.getId())});
     }
 
-  public List<Note> getAllNotes()
-  {
-    List<Note> notes = new ArrayList<Note>();
-    Cursor cursor = query(database, QueryBuilder
-      .select(COLUMNS.ID.name(), COLUMNS.TITLE.name(),
-        COLUMNS.DESCRIPTION.name(), COLUMNS.LOCATION.name(), COLUMNS.TIME.name())
-      .from(TABLE_NAME));
+    public List<Note> getAllNotes() {
+        List<Note> notes = new ArrayList<Note>();
+        Cursor cursor = query(database, QueryBuilder
+                .select(COLUMNS.ID.name(), COLUMNS.TITLE.name(), COLUMNS.DESCRIPTION.name(),
+                        COLUMNS.LOCATION.name(), COLUMNS.TIME.name(), COLUMNS.TRAVEL_MODE.name())
+                .from(TABLE_NAME));
 
-    if (cursor.moveToFirst())
-    {
-      do
-      {
-        Note note = new Note();
-        note.setId(cursor.getInt(COLUMNS.ID.ordinal()));
-        note.setTitle(cursor.getString(COLUMNS.TITLE.ordinal()));
-        String time = cursor.getString(COLUMNS.TIME.ordinal());
-        if (time != null) note.setTime(parseTime(time));
-        note.setDescription(cursor.getString(COLUMNS.DESCRIPTION.ordinal()));
-        int locId = cursor.getInt(COLUMNS.LOCATION.ordinal());
-        if (locId != 0) note.setLocation(new LocationDAO(database).getLocation(locId));
-        notes.add(note);
-      } while (cursor.moveToNext());
+        if (cursor.moveToFirst()) {
+            do {
+                Note note = new Note();
+                note.setId(cursor.getInt(COLUMNS.ID.ordinal()));
+                note.setTitle(cursor.getString(COLUMNS.TITLE.ordinal()));
+                String time = cursor.getString(COLUMNS.TIME.ordinal());
+                if (time != null) note.setTime(parseTime(time));
+                note.setDescription(cursor.getString(COLUMNS.DESCRIPTION.ordinal()));
+                int locId = cursor.getInt(COLUMNS.LOCATION.ordinal());
+                if (locId != 0) note.setLocation(new LocationDAO(database).getLocation(locId));
+                note.setTravelMode(cursor.getString(COLUMNS.TRAVEL_MODE.ordinal()));
+
+                notes.add(note);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+
+        return notes;
     }
-
-    cursor.close();
-
-    return notes;
-  }
 }

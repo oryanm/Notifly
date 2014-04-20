@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.doomonafireball.betterpickers.calendardatepicker.CalendarDatePickerDialog;
@@ -73,6 +74,10 @@ public class NewNoteActivity extends ActionBarActivity implements
     EditText description;
     @ViewById(R.id.locationTextView)
     AutoCompleteTextView locationTextView;
+    @ViewById(R.id.driving)
+    ImageButton drivingImageButton;
+    @ViewById(R.id.walking)
+    ImageButton walkingImageButton;
 
     @AfterViews
     void loadNote() {
@@ -86,6 +91,20 @@ public class NewNoteActivity extends ActionBarActivity implements
 
         if (note.hasLocation()) {
             setAddress(notifly.get(note.getLocation()));
+        }
+
+        setTravelMode(note.getTravelMode());
+    }
+
+    private void setTravelMode(String travelMode)
+    {
+        if (travelMode.equals(LocationHandler.TravelMode.DRIVING))
+        {
+            setDrivingTravelMode();
+        }
+        else if (travelMode.equals(LocationHandler.TravelMode.WALKING))
+        {
+            setWalkingTravelMode();
         }
     }
 
@@ -215,5 +234,21 @@ public class NewNoteActivity extends ActionBarActivity implements
         Toast toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
+    }
+
+    @Click(R.id.driving)
+    void setDrivingTravelMode()
+    {
+        note.setTravelMode(LocationHandler.TravelMode.DRIVING);
+        drivingImageButton.setImageResource(R.drawable.ic_driving_selected);
+        walkingImageButton.setImageResource(R.drawable.ic_walking);
+    }
+
+    @Click(R.id.walking)
+    void setWalkingTravelMode()
+    {
+        note.setTravelMode(LocationHandler.TravelMode.WALKING);
+        drivingImageButton.setImageResource(R.drawable.ic_driving);
+        walkingImageButton.setImageResource(R.drawable.ic_walking_selected);
     }
 }

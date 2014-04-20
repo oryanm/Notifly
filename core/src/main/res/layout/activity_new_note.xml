@@ -101,4 +101,38 @@
         android:inputType="textMultiLine"
         android:id="@+id/descriptionEditText"
         android:hint="@string/note_description" />
+    <LinearLayout
+        android:id="@+id/travelModeLayout"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/descriptionEditText"
+        android:dividerPadding="10dp">
+        <ImageButton
+            android:id="@+id/walking"
+            android:layout_width="0dp"
+            android:layout_weight=".33"
+            android:layout_height="@android:dimen/app_icon_size"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/walking"
+            android:src="@drawable/ic_walking"/>
+        <ImageButton
+            android:id="@+id/bicycling"
+            android:layout_width="0dp"
+            android:layout_weight=".33"
+            android:layout_height="@android:dimen/app_icon_size"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/bicycling"
+            android:src="@drawable/ic_bicycling"
+            android:visibility="gone"/>
+        <ImageButton
+            android:id="@+id/driving"
+            android:layout_width="0dp"
+            android:layout_weight=".33"
+            android:layout_height="@android:dimen/app_icon_size"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/driving"
+            android:src="@drawable/ic_driving_selected"/>
+        </LinearLayout>
+
 </RelativeLayout>
