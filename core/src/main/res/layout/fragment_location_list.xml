@@ -6,10 +6,14 @@
     tools:context="net.notifly.core.gui.activity.main.LocationFragment"
     android:tag="favorite_locations">
 
-    <ListView
+    <com.mobeta.android.dslv.DragSortListView
+        xmlns:dslv="http://schemas.android.com/apk/res-auto"
         android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        dslv:drag_handle_id="@+id/dragImageView"
+        dslv:float_background_color="@color/blue"
+        />
 
     <ImageView
         android:layout_width="match_parent"
