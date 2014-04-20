@@ -124,16 +124,16 @@ public class NewNoteActivity extends ActionBarActivity implements
         timePickerDialog.show(getSupportFragmentManager(), "timePickerDialogFragment");
     }
 
-    private LocalDateTime getDateTimeForPicker() {
-        return note.getTime() == null ? LocalDateTime.now() : note.getTime();
-    }
-
     @Click(R.id.dateEditText)
     void setDatePicker() {
         LocalDateTime now = getDateTimeForPicker();
         CalendarDatePickerDialog calendarDatePickerDialog = CalendarDatePickerDialog
                 .newInstance(NewNoteActivity.this, now.getYear(), now.getMonthOfYear() - 1, now.getDayOfMonth());
         calendarDatePickerDialog.show(getSupportFragmentManager(), "fragment_date_picker_name");
+    }
+
+    private LocalDateTime getDateTimeForPicker() {
+        return note.hasTime() ? LocalDateTime.now() : note.getTime();
     }
 
     @Override
