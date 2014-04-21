@@ -4,7 +4,7 @@ package net.notifly.core.entity;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import net.notifly.core.util.LocationHandler;
+import net.notifly.core.util.TravelMode;
 
 import org.joda.time.LocalDateTime;
 
@@ -14,7 +14,7 @@ public class Note implements Parcelable {
     String description;
     LocalDateTime time;
     Location location;
-    String travelMode = LocationHandler.TravelMode.DRIVING;
+    TravelMode travelMode = TravelMode.DRIVING;
 
     public Note(String title, LocalDateTime time) {
         this.title = title;
@@ -75,11 +75,11 @@ public class Note implements Parcelable {
         this.location = location;
     }
 
-    public String getTravelMode() {
+    public TravelMode getTravelMode() {
         return travelMode;
     }
 
-    public void setTravelMode(String travelMode) {
+    public void setTravelMode(TravelMode travelMode) {
         this.travelMode = travelMode;
     }
 
@@ -103,7 +103,7 @@ public class Note implements Parcelable {
         dest.writeString(description);
         dest.writeLong(time == null ? 0 : time.toDate().getTime());
         dest.writeParcelable(location, flags);
-        dest.writeString(travelMode);
+        dest.writeString(travelMode.toString());
     }
 
     public static final Parcelable.Creator<Note> CREATOR = new Parcelable.Creator<Note>() {
@@ -123,7 +123,7 @@ public class Note implements Parcelable {
         long timeLong = in.readLong();
         this.time = timeLong == 0 ? null : new LocalDateTime(timeLong);
         this.location = in.readParcelable(Location.class.getClassLoader());
-        this.travelMode = in.readString();
+        this.travelMode = TravelMode.getMode(in.readString());
     }
 
     @Override

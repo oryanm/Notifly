@@ -27,6 +27,7 @@ import net.notifly.core.sql.LocationDAO;
 import net.notifly.core.sql.NotesDAO;
 import net.notifly.core.util.GeneralUtils;
 import net.notifly.core.util.LocationHandler;
+import net.notifly.core.util.TravelMode;
 import net.notifly.core.util.adapters.TextWatcherAdapter;
 
 import org.androidannotations.annotations.AfterViews;
@@ -96,13 +97,13 @@ public class NewNoteActivity extends ActionBarActivity implements
         setTravelMode(note.getTravelMode());
     }
 
-    private void setTravelMode(String travelMode)
+    private void setTravelMode(TravelMode travelMode)
     {
-        if (travelMode.equals(LocationHandler.TravelMode.DRIVING))
+        if (travelMode.equals(TravelMode.DRIVING))
         {
             setDrivingTravelMode();
         }
-        else if (travelMode.equals(LocationHandler.TravelMode.WALKING))
+        else if (travelMode.equals(TravelMode.WALKING))
         {
             setWalkingTravelMode();
         }
@@ -239,7 +240,7 @@ public class NewNoteActivity extends ActionBarActivity implements
     @Click(R.id.driving)
     void setDrivingTravelMode()
     {
-        note.setTravelMode(LocationHandler.TravelMode.DRIVING);
+        note.setTravelMode(TravelMode.DRIVING);
         drivingImageButton.setImageResource(R.drawable.ic_driving_selected);
         walkingImageButton.setImageResource(R.drawable.ic_walking);
     }
@@ -247,7 +248,7 @@ public class NewNoteActivity extends ActionBarActivity implements
     @Click(R.id.walking)
     void setWalkingTravelMode()
     {
-        note.setTravelMode(LocationHandler.TravelMode.WALKING);
+        note.setTravelMode(TravelMode.WALKING);
         drivingImageButton.setImageResource(R.drawable.ic_driving);
         walkingImageButton.setImageResource(R.drawable.ic_walking_selected);
     }

@@ -238,7 +238,7 @@ public class BackgroundService extends Service implements
         try {
             // TODO: Get the mode of transportation from currentNote
             DistanceMatrix distanceMatrix = LocationHandler.
-                    getDistanceMatrixUsingTask(org, dest, currentNote.getTravelMode());
+                    getDistanceMatrixUsingTask(org, dest, currentNote.getTravelMode().toString());
 
             // TODO: check what can we do when Google fails to return distance matrix
             if (distanceMatrix == null) return;

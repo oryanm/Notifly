@@ -30,14 +30,6 @@ import java.util.concurrent.ExecutionException;
 
 @EBean
 public class LocationHandler {
-    public static class TravelMode
-    {
-        public static final String DRIVING = "driving";
-        public static final String WALKING = "walking";
-        public static final String BICYCLING = "bicycling";
-        public static final String TRANSIT = "transit";
-    }
-
     // TODO: Incorporate this in the app to get transit distance and time
     private final static String DIRECTIONS_URL = "http://maps.googleapis.com/maps/api/directions/" +
             "json?origin=:org&destination=:dest&sensor=false&departure_time=:departTime&mode=transit";

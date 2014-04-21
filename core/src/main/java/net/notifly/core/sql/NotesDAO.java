@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 
 import net.notifly.core.entity.Note;
+import net.notifly.core.util.TravelMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +60,7 @@ public class NotesDAO extends AbstractDAO {
                 values.put(COLUMNS.TIME.name(), note.getTime().toString(DATETIME_PATTERN));
             }
 
-            values.put(COLUMNS.TRAVEL_MODE.name(), note.getTravelMode());
+            values.put(COLUMNS.TRAVEL_MODE.name(), note.getTravelMode().toString());
 
             id = database.insert(TABLE_NAME, null, values);
             database.setTransactionSuccessful();
@@ -81,7 +82,7 @@ public class NotesDAO extends AbstractDAO {
                     new LocationDAO(database).addLocationIfNotExists(note.getLocation()) : null);
             values.put(COLUMNS.TIME.name(), note.getTime() != null ?
                     note.getTime().toString(DATETIME_PATTERN) : null);
-            values.put(COLUMNS.TRAVEL_MODE.name(), note.getTravelMode());
+            values.put(COLUMNS.TRAVEL_MODE.name(), note.getTravelMode().toString());
 
             database.update(TABLE_NAME, values,
                     String.format("%s = ? ", COLUMNS.ID.name()),
@@ -117,7 +118,7 @@ public class NotesDAO extends AbstractDAO {
                 note.setDescription(cursor.getString(COLUMNS.DESCRIPTION.ordinal()));
                 int locId = cursor.getInt(COLUMNS.LOCATION.ordinal());
                 if (locId != 0) note.setLocation(new LocationDAO(database).getLocation(locId));
-                note.setTravelMode(cursor.getString(COLUMNS.TRAVEL_MODE.ordinal()));
+                note.setTravelMode(TravelMode.getMode(cursor.getString(COLUMNS.TRAVEL_MODE.ordinal())));
 
                 notes.add(note);
             } while (cursor.moveToNext());
