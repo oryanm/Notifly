@@ -352,17 +352,14 @@ public class BackgroundService extends Service implements
         String title = "Notifly";
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this).setContentIntent(contentIntent)
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher))
-                .setTicker(text).setWhen(System.currentTimeMillis())
-                .setAutoCancel(true).setContentTitle(title)
+                .setTicker(text).setWhen(System.currentTimeMillis()).setAutoCancel(true)
+                .setContentTitle(title).setSmallIcon(R.drawable.ic_launcher)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                 .setContentText(text);
 
-        // There's more than one to be notified about, so display default app icon
-        if (notesToNotify.size() > 1) {
-            builder.setSmallIcon(R.drawable.ic_launcher);
-        }
-        // Else there's only one note to notify on, display dismiss option and travel mode icon
-        else {
+        // If there's only one note to notify on, display dismiss option and travel mode icon
+        if (notesToNotify.size() == 1)
+        {
             // Init the broadcast receiver intent
             Intent broadcastIntent = new Intent(this, NoteBroadcastReceiver_.class);
 
@@ -375,7 +372,10 @@ public class BackgroundService extends Service implements
             builder.addAction(R.drawable.abc_ic_clear, "Dismiss", dismissPendingIntent);
 
             Note note = notesToNotify.iterator().next();
-            builder.setSmallIcon(getResources().getIdentifier("ic_" + note.getTravelMode(), "drawable", getPackageName()));
+            if (note.hasLocation()) {
+                builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), getResources().
+                        getIdentifier("ic_" + note.getTravelMode(), "drawable", getPackageName())));
+            }
         }
 
         Notification notification = builder.build();
