@@ -2,7 +2,7 @@ package net.notifly.core.util;
 
 public enum TravelMode
 {
-    DRIVING("DRIVING"),WALKING("walking"),BICYCLING("bicycling"),TRANSIT("transit");
+    DRIVING("driving"),WALKING("walking"),BICYCLING("bicycling"),TRANSIT("transit");
 
     private String mode;
 
