@@ -3,6 +3,7 @@ package net.notifly.core.gui.activity.main;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,12 +25,14 @@ import net.notifly.core.util.LocationHandler;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.App;
+import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @EFragment(R.layout.fragment_location)
@@ -38,7 +41,8 @@ public class LocationFragment extends Fragment implements
         AddressLoader.Callbacks,
         ActionMode.Callback,
         AdapterView.OnItemClickListener,
-        AdapterView.OnItemLongClickListener {
+        AdapterView.OnItemLongClickListener,
+        DragSortListView.DropListener {
     @App
     Notifly notifly;
     @ViewById(android.R.id.list)
@@ -74,17 +78,7 @@ public class LocationFragment extends Fragment implements
         locationsListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         locationsListView.setOnItemClickListener(this);
         locationsListView.setOnItemLongClickListener(this);
-        locationsListView.setDropListener(new DragSortListView.DropListener() {
-            @Override
-            public void drop(int from, int to) {
-                if (from != to) {
-                    Location item = adapter.getItem(from);
-                    adapter.remove(item);
-                    adapter.insert(item, to);
-                    locationsListView.moveCheckState(from, to);
-                }
-            }
-        });
+        locationsListView.setDropListener(this);
     }
 
     private void loadAddresses() {
@@ -179,5 +173,40 @@ public class LocationFragment extends Fragment implements
     public void onDestroyActionMode(ActionMode mode) {
         locationsListView.setItemChecked(-1, true);
         actionMode = null;
+    }
+
+    @Override
+    public void drop(int from, int to) {
+        Log.i(LocationFragment.class.getName(), String.format("Drop range: %d - %d", from, to));
+        if (from != to) {
+            reorderAdapter(from, to);
+            updateOrder(Math.min(from, to), Math.max(from, to));
+        }
+    }
+
+    private void reorderAdapter(int from, int to) {
+        Location item = adapter.getItem(from);
+        adapter.remove(item);
+        adapter.insert(item, to);
+        locationsListView.moveCheckState(from, to);
+    }
+
+    private void updateOrder(int from, int to) {
+        List<Location> reordered = new ArrayList<Location>();
+
+        for (int i = from; i <= to; i++) {
+            Location location = adapter.getItem(i);
+            location.setOrder(i);
+            reordered.add(location);
+        }
+
+        updateOrder(reordered);
+    }
+
+    @Background
+    void updateOrder(List<Location> reordered) {
+        LocationDAO locationDAO = new LocationDAO(this.getActivity());
+        locationDAO.updateOrder(reordered);
+        locationDAO.close();
     }
 }

@@ -15,30 +15,38 @@ public class Location implements Parcelable {
     private double latitude;
     boolean isFavorite = false;
     String title = "";
+    int order = -1;
 
     // transient member
     public Address address = LocationHandler.ERROR_ADDRESS;
 
-    public Location(int id, double latitude, double longitude) {
+    public Location(int id, double longitude, double latitude, int order) {
         this.id = id;
         this.longitude = longitude;
         this.latitude = latitude;
+        this.order = order;
     }
 
-    public Location(double latitude, double longitude) {
+    private Location(double latitude, double longitude) {
         this.longitude = longitude;
         this.latitude = latitude;
     }
 
+    private Location(Address address) {
+        this.longitude = address.getLongitude();
+        this.latitude = address.getLatitude();
+        this.address = address;
+    }
+
     public Location asFavorite(String title) {
-        Location location = new Location(this.id, this.latitude, this.longitude);
+        Location location = new Location(this.id, this.latitude, this.longitude, this.order);
         location.isFavorite = true;
         location.title = title;
         return location;
     }
 
     public static Location from(Address address) {
-        return new Location(address.getLatitude(), address.getLongitude());
+        return new Location(address);
     }
 
     public static Location from(LatLng latLng) {
@@ -67,6 +75,14 @@ public class Location implements Parcelable {
 
     public String getTitle() {
         return title;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 
     @Override

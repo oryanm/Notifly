@@ -21,12 +21,13 @@ public class LocationDAO extends AbstractDAO
     COLUMNS.LATITUDE + " REAL NOT NULL, " +
     COLUMNS.LONGITUDE + " REAL NOT NULL, " +
     COLUMNS.IS_FAVORITE + " INTEGER NOT NULL, " +
-    COLUMNS.TITLE + " TEXT NOT NULL " +
+    COLUMNS.TITLE + " TEXT NOT NULL, " +
+    COLUMNS.ORDERING + " INTEGER NOT NULL " +
           ")";
 
   public static final String DROP_STATEMENT = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
-  enum COLUMNS { ID, LATITUDE, LONGITUDE, IS_FAVORITE, TITLE }
+  enum COLUMNS { ID, LATITUDE, LONGITUDE, IS_FAVORITE, TITLE, ORDERING}
 
   public LocationDAO(Context context)
   {
@@ -54,6 +55,7 @@ public class LocationDAO extends AbstractDAO
         values.put(COLUMNS.LONGITUDE.name(), location.getLongitude());
         values.put(COLUMNS.IS_FAVORITE.name(), location.isFavorite());
         values.put(COLUMNS.TITLE.name(), location.getTitle());
+        values.put(COLUMNS.ORDERING.name(), location.getOrder());
 
         return database.insert(TABLE_NAME, null, values);
     }
@@ -62,7 +64,7 @@ public class LocationDAO extends AbstractDAO
         Location location = null/*todo: don't return null*/;
         Cursor cursor = query(database, QueryBuilder
                 .select(COLUMNS.ID.name(), COLUMNS.LATITUDE.name(), COLUMNS.LONGITUDE.name(),
-                        COLUMNS.IS_FAVORITE.name(), COLUMNS.TITLE.name())
+                        COLUMNS.IS_FAVORITE.name(), COLUMNS.TITLE.name(), COLUMNS.ORDERING.name())
                 .from(TABLE_NAME)
                 .where(String.format("%s = ? ", COLUMNS.ID.name()), String.valueOf(id)));
 
@@ -71,7 +73,8 @@ public class LocationDAO extends AbstractDAO
             location = new Location(
                     cursor.getInt(COLUMNS.ID.ordinal()),
                     cursor.getDouble(COLUMNS.LATITUDE.ordinal()),
-                    cursor.getDouble(COLUMNS.LONGITUDE.ordinal()));
+                    cursor.getDouble(COLUMNS.LONGITUDE.ordinal()),
+                    cursor.getInt(COLUMNS.ORDERING.ordinal()));
 
             if (cursor.getInt(COLUMNS.IS_FAVORITE.ordinal()) == TRUE) {
                 location = location.asFavorite(cursor.getString(COLUMNS.TITLE.ordinal()));
@@ -86,16 +89,18 @@ public class LocationDAO extends AbstractDAO
         List<Location> locations = new ArrayList<Location>();
         Cursor cursor = query(database, QueryBuilder
                 .select(COLUMNS.ID.name(), COLUMNS.LATITUDE.name(), COLUMNS.LONGITUDE.name(),
-                        COLUMNS.IS_FAVORITE.name(), COLUMNS.TITLE.name())
+                        COLUMNS.IS_FAVORITE.name(), COLUMNS.TITLE.name(), COLUMNS.ORDERING.name())
                 .from(TABLE_NAME)
-                .where(String.format("%s = ? ", COLUMNS.IS_FAVORITE.name()), String.valueOf(TRUE)));
+                .where(String.format("%s = ? ", COLUMNS.IS_FAVORITE.name()), String.valueOf(TRUE))
+                .orderBy(COLUMNS.ORDERING.name()));
 
         if (cursor.moveToFirst()) {
             do {
                 Location location = new Location(
                         cursor.getInt(COLUMNS.ID.ordinal()),
                         cursor.getDouble(COLUMNS.LATITUDE.ordinal()),
-                        cursor.getDouble(COLUMNS.LONGITUDE.ordinal()));
+                        cursor.getDouble(COLUMNS.LONGITUDE.ordinal()),
+                        cursor.getInt(COLUMNS.ORDERING.ordinal()));
 
                 locations.add(location.asFavorite(cursor.getString(COLUMNS.TITLE.ordinal())));
             } while (cursor.moveToNext());
@@ -113,5 +118,26 @@ public class LocationDAO extends AbstractDAO
         database.update(TABLE_NAME, values,
                 String.format("%s = ? ", COLUMNS.ID.name()),
                 new String[]{String.valueOf(location.getId())});
+    }
+
+    public void updateOrder(Location location) {
+        ContentValues values = new ContentValues();
+        values.put(COLUMNS.ORDERING.name(), location.getOrder());
+
+        database.update(TABLE_NAME, values,
+                String.format("%s = ? ", COLUMNS.ID.name()),
+                new String[]{String.valueOf(location.getId())});
+    }
+
+    public void updateOrder(List<Location> locations) {
+        database.beginTransaction();
+        try {
+            for (Location location : locations) {
+                updateOrder(location);
+            }
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
     }
 }
