@@ -8,6 +8,7 @@ import android.text.format.DateFormat;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -23,6 +24,7 @@ import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.main.FavoriteLocationDialogFragment;
 import net.notifly.core.gui.activity.map.SelectLocationActivity_;
+import net.notifly.core.gui.view.TagsTokenView;
 import net.notifly.core.sql.LocationDAO;
 import net.notifly.core.sql.NotesDAO;
 import net.notifly.core.util.GeneralUtils;
@@ -44,6 +46,8 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
+
+import java.util.Arrays;
 
 @EActivity(R.layout.activity_new_note)
 @OptionsMenu(R.menu.new_note)
@@ -79,6 +83,8 @@ public class NewNoteActivity extends ActionBarActivity implements
     ImageButton drivingImageButton;
     @ViewById(R.id.walking)
     ImageButton walkingImageButton;
+    @ViewById(R.id.tagsView)
+    TagsTokenView tagsView;
 
     @AfterViews
     void loadNote() {
@@ -97,21 +103,17 @@ public class NewNoteActivity extends ActionBarActivity implements
         setTravelMode(note.getTravelMode());
     }
 
-    private void setTravelMode(TravelMode travelMode)
-    {
-        if (travelMode.equals(TravelMode.DRIVING))
-        {
-            setDrivingTravelMode();
-        }
-        else if (travelMode.equals(TravelMode.WALKING))
-        {
-            setWalkingTravelMode();
-        }
-    }
-
     void setAddress(Address address) {
         this.address = address;
         locationTextView.setText(GeneralUtils.toString(this.address));
+    }
+
+    private void setTravelMode(TravelMode travelMode) {
+        if (travelMode.equals(TravelMode.DRIVING)) {
+            setDrivingTravelMode();
+        } else if (travelMode.equals(TravelMode.WALKING)) {
+            setWalkingTravelMode();
+        }
     }
 
     @AfterViews
@@ -133,6 +135,13 @@ public class NewNoteActivity extends ActionBarActivity implements
                 }
             }
         });
+    }
+
+    @AfterViews
+    void setTagsAdapter() {
+        tagsView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+                // todo:
+                Arrays.asList("todo", "load", "tags", "from", "db")));
     }
 
     @Click(R.id.timeEditText)
