@@ -71,7 +71,7 @@ public class LocationHandler {
     private Geocoder geocoder;
 
     public LocationHandler(Context context) {
-        geocoder = new Geocoder(context, new Locale("he", "IL"));
+        geocoder = new Geocoder(context, Locale.getDefault());
     }
 
     public Address getAddress(net.notifly.core.entity.Location location) {

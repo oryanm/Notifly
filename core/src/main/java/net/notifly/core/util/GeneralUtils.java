@@ -21,6 +21,10 @@ public class GeneralUtils {
         countryToLocaleMap.put(context.getString(R.string.israel), new Locale("he", "IL"));
         countryToLocaleMap.put(context.getString(R.string.usa), new Locale("en", "US"));
 
+        initLocaleByPreference(context);
+    }
+
+    private static void initLocaleByPreference(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String country = preferences.getString(context.getString(R.string.curr_location_preference_key), null);
         if (country != null)
