@@ -27,6 +27,7 @@ import net.notifly.core.gui.activity.map.SelectLocationActivity_;
 import net.notifly.core.gui.view.TagsTokenView;
 import net.notifly.core.sql.LocationDAO;
 import net.notifly.core.sql.NotesDAO;
+import net.notifly.core.sql.TagsDAO;
 import net.notifly.core.util.GeneralUtils;
 import net.notifly.core.util.LocationHandler;
 import net.notifly.core.util.TravelMode;
@@ -48,6 +49,9 @@ import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @EActivity(R.layout.activity_new_note)
 @OptionsMenu(R.menu.new_note)
@@ -139,9 +143,15 @@ public class NewNoteActivity extends ActionBarActivity implements
 
     @AfterViews
     void setTagsAdapter() {
+        TagsDAO tagsDAO = new TagsDAO(this);
+        Set<String> tags = tagsDAO.getTags();
+        tagsDAO.close();
         tagsView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-                // todo:
-                Arrays.asList("todo", "load", "tags", "from", "db")));
+                tags.toArray(new String[tags.size()])));
+
+        for (String tag : note.getTags()) {
+            tagsView.addObject(tag);
+        }
     }
 
     @Click(R.id.timeEditText)
@@ -195,6 +205,8 @@ public class NewNoteActivity extends ActionBarActivity implements
             note.setTitle(titleString);
             note.setDescription(description.getText().toString());
             if (LocationHandler.isValid(address)) note.setLocation(Location.from(address));
+            List<Object> objects = tagsView.getObjects();
+            note.setTags(new HashSet(objects));
 
             NotesDAO notes = new NotesDAO(this);
             note.setId((int) notes.addOrUpdateNote(note));

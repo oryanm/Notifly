@@ -8,6 +8,10 @@ import net.notifly.core.util.TravelMode;
 
 import org.joda.time.LocalDateTime;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 public class Note implements Parcelable {
     int id = -1;
     String title;
@@ -15,6 +19,7 @@ public class Note implements Parcelable {
     LocalDateTime time;
     Location location;
     TravelMode travelMode = TravelMode.DRIVING;
+    Set<String> tags = new HashSet<String>();
 
     public Note(String title, LocalDateTime time) {
         this.title = title;
@@ -55,6 +60,10 @@ public class Note implements Parcelable {
         return location;
     }
 
+    public Set<String> getTags() {
+        return tags;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -83,6 +92,10 @@ public class Note implements Parcelable {
         this.travelMode = travelMode;
     }
 
+    public void setTags(Set<String> tags) {
+        this.tags = tags;
+    }
+
     public boolean hasLocation() {
         return this.location != null;
     }
@@ -104,6 +117,7 @@ public class Note implements Parcelable {
         dest.writeLong(time == null ? 0 : time.toDate().getTime());
         dest.writeParcelable(location, flags);
         dest.writeString(travelMode.toString());
+        dest.writeStringList(new ArrayList<String>(tags));
     }
 
     public static final Parcelable.Creator<Note> CREATOR = new Parcelable.Creator<Note>() {
@@ -124,6 +138,9 @@ public class Note implements Parcelable {
         this.time = timeLong == 0 ? null : new LocalDateTime(timeLong);
         this.location = in.readParcelable(Location.class.getClassLoader());
         this.travelMode = TravelMode.getMode(in.readString());
+        ArrayList<String> tags = new ArrayList<String>();
+        in.readStringList(tags);
+        this.tags = new HashSet<String>(tags);
     }
 
     @Override

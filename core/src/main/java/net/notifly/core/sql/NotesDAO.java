@@ -63,6 +63,9 @@ public class NotesDAO extends AbstractDAO {
             values.put(COLUMNS.TRAVEL_MODE.name(), note.getTravelMode().toString());
 
             id = database.insert(TABLE_NAME, null, values);
+
+            new TagsDAO(database).updateTags(note);
+
             database.setTransactionSuccessful();
         } finally {
             database.endTransaction();
@@ -87,6 +90,9 @@ public class NotesDAO extends AbstractDAO {
             database.update(TABLE_NAME, values,
                     String.format("%s = ? ", COLUMNS.ID.name()),
                     new String[]{String.valueOf(note.getId())});
+
+            new TagsDAO(database).updateTags(note);
+
             database.setTransactionSuccessful();
         } finally {
             database.endTransaction();
@@ -119,6 +125,7 @@ public class NotesDAO extends AbstractDAO {
                 int locId = cursor.getInt(COLUMNS.LOCATION.ordinal());
                 if (locId != 0) note.setLocation(new LocationDAO(database).getLocation(locId));
                 note.setTravelMode(TravelMode.getMode(cursor.getString(COLUMNS.TRAVEL_MODE.ordinal())));
+                note.setTags(new TagsDAO(database).getTags(note));
 
                 notes.add(note);
             } while (cursor.moveToNext());

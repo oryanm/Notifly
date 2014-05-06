@@ -16,7 +16,7 @@ public class NotiflySQLiteHelper extends SQLiteOpenHelper {
      * Changing this const will trigger the {@code onUpgrade} method
      * the next time a database instance will be created
      */
-    public static final int DATABASE_VERSION = 10;
+    public static final int DATABASE_VERSION = 11;
 
     /**
      * Default pattern used by SQLite for datetime columns
@@ -38,6 +38,7 @@ public class NotiflySQLiteHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(NotesDAO.CREATE_STATEMENT);
         db.execSQL(LocationDAO.CREATE_STATEMENT);
+        db.execSQL(TagsDAO.CREATE_STATEMENT);
     }
 
     @Override
@@ -45,6 +46,7 @@ public class NotiflySQLiteHelper extends SQLiteOpenHelper {
         // put migration scripts here
         db.execSQL(NotesDAO.DROP_STATEMENT);
         db.execSQL(LocationDAO.DROP_STATEMENT);
+        db.execSQL(TagsDAO.DROP_STATEMENT);
         onCreate(db);
     }
 }
