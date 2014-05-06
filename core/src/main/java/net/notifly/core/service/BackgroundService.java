@@ -52,9 +52,6 @@ import java.util.TimerTask;
 public class BackgroundService extends Service implements
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener {
-    @App
-    Notifly notifly;
-
     // Constants
     public static final int TIMER_INTERVAL = 30; // In seconds
     private static final String TAG = "BackgroundService";
@@ -63,6 +60,10 @@ public class BackgroundService extends Service implements
     public static boolean ALIVE = false;
     public static Stack<Integer> modifiedNotes = new Stack<Integer>();
     public static Set<Integer> dismissedNotes = new HashSet<Integer>();
+    private Set<Integer> notesPastDepartTime = new HashSet<Integer>();
+
+    @App
+    Notifly notifly;
 
     @SystemService
     NotificationManager notificationManager;
@@ -167,7 +168,12 @@ public class BackgroundService extends Service implements
 
     private void writeReminderMapToFile() {
         // Remove the modified notes from reminder map
-        while (!modifiedNotes.isEmpty()) reminderDateTimeMap.remove(modifiedNotes.pop());
+        while (!modifiedNotes.isEmpty())
+        {
+            Integer noteId = modifiedNotes.pop();
+            reminderDateTimeMap.remove(noteId);
+            notesPastDepartTime.remove(noteId);
+        }
 
         FileUtils.writeReminderMapToFile(TAG, BackgroundService.this, isMapChanged, reminderDateTimeMap);
         isMapChanged = false;
@@ -243,12 +249,18 @@ public class BackgroundService extends Service implements
             // TODO: check what can we do when Google fails to return distance matrix
             if (distanceMatrix == null) return;
 
+            etaMap.put(currentNote, distanceMatrix);
+
             if (isLocationOnly) {
                 remindLocationNote(now, currentNote, distanceMatrix);
             } else // time and location based currentNote
             {
                 // Do not notify me about note past time
-                if (now.isAfter(currentNote.getTime())) return;
+                if (now.isAfter(currentNote.getTime()))
+                {
+                    notesPastDepartTime.remove(currentNote.getId());
+                    return;
+                }
                 remindTimeLocationNote(now, currentNote, distanceMatrix);
             }
         } catch (Exception e) {
@@ -267,14 +279,19 @@ public class BackgroundService extends Service implements
                 notesToNotify.add(currentNote);
                 writeNotificationToLog(currentNote, scheduleReminder(currentNote, now.plusMinutes(interval)));
             }
-            etaMap.put(currentNote, distanceMatrix);
         }
     }
 
     private void remindTimeLocationNote(LocalDateTime now, Note currentNote, DistanceMatrix distanceMatrix) {
         LocalDateTime departTime = currentNote.getTime().minusSeconds((int) distanceMatrix.getDuration());
         if (now.isAfter(departTime)) {
-            // TODO: decide what to do when we are past depart time
+            notesPastDepartTime.add(currentNote.getId());
+
+            int interval = 2;
+            if (!remindByInterval(now, notesToNotify, currentNote, interval)) {
+                notesToNotify.add(currentNote);
+                writeNotificationToLog(currentNote, scheduleReminder(currentNote, now.plusMinutes(interval)));
+            }
             return;
         }
 
@@ -291,8 +308,6 @@ public class BackgroundService extends Service implements
                 notesToNotify.add(currentNote);
                 writeNotificationToLog(currentNote, scheduleReminder(currentNote, now.plusMinutes(interval)));
             }
-
-            etaMap.put(currentNote, distanceMatrix);
         }
     }
 
@@ -312,8 +327,12 @@ public class BackgroundService extends Service implements
             boolean locationBasedNote = note.getLocation() != null;
 
             if (timeBasedNote && locationBasedNote) {
+                if (notesPastDepartTime.contains(note.getId())){
+                    msg += "You'll be late ";
+                }
                 msg += " ,ETA: " + etaMap.get(note).getDurationText();
-            } else if (timeBasedNote) {
+            }
+            if (timeBasedNote) {
                 msg += " , due time: " + note.getTime().toString("HH:mm");
             } else if (locationBasedNote) {
                 msg += " , in " + etaMap.get(note).getDistanceText() + " within " +
