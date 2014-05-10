@@ -19,6 +19,7 @@ import com.doomonafireball.betterpickers.radialtimepicker.RadialPickerLayout;
 import com.doomonafireball.betterpickers.radialtimepicker.RadialTimePickerDialog;
 
 import net.notifly.core.Notifly;
+import net.notifly.core.ParseServer;
 import net.notifly.core.R;
 import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
@@ -48,7 +49,6 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -211,6 +211,8 @@ public class NewNoteActivity extends ActionBarActivity implements
             NotesDAO notes = new NotesDAO(this);
             note.setId((int) notes.addOrUpdateNote(note));
             notes.close();
+
+            ParseServer.getInstance(this).submitNoteToServer(note);
 
             Intent intent = new Intent();
             intent.putExtra(EXTRA_NOTE, note);
