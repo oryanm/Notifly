@@ -242,7 +242,6 @@ public class BackgroundService extends Service implements
         String org = LocationHandler.getLatitudeLongitudeString(currentLocation);
         String dest = LocationHandler.getLatitudeLongitudeString(currentNote.getLocation());
         try {
-            // TODO: Get the mode of transportation from currentNote
             DistanceMatrix distanceMatrix = LocationHandler.
                     getDistanceMatrixUsingTask(org, dest, currentNote.getTravelMode().toString());
 
@@ -393,7 +392,7 @@ public class BackgroundService extends Service implements
             Note note = notesToNotify.iterator().next();
             if (note.hasLocation()) {
                 builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), getResources().
-                        getIdentifier("ic_" + note.getTravelMode(), "drawable", getPackageName())));
+                        getIdentifier("ic_" + note.getTravelMode() + "_selected", "drawable", getPackageName())));
             }
         }
 
