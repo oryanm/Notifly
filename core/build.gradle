@@ -102,6 +102,9 @@ dependencies {
     compile('net.notifly.server:messaging:v1-1.18.0-rc-SNAPSHOT') {
         exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
     }
+
+    // Import all libraries under libs folder
+    compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
 apt {
