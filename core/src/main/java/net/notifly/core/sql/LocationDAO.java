@@ -18,6 +18,7 @@ public class LocationDAO extends AbstractDAO
 
   public static final String CREATE_STATEMENT = " CREATE TABLE " + TABLE_NAME + "(" +
     COLUMNS.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    COLUMNS.NAME + " TEXT NOT NULL, " +
     COLUMNS.LATITUDE + " REAL NOT NULL, " +
     COLUMNS.LONGITUDE + " REAL NOT NULL, " +
     COLUMNS.IS_FAVORITE + " INTEGER NOT NULL, " +
@@ -27,7 +28,7 @@ public class LocationDAO extends AbstractDAO
 
   public static final String DROP_STATEMENT = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
-  enum COLUMNS { ID, LATITUDE, LONGITUDE, IS_FAVORITE, TITLE, ORDERING}
+  enum COLUMNS { ID, NAME, LATITUDE, LONGITUDE, IS_FAVORITE, TITLE, ORDERING}
 
   public LocationDAO(Context context)
   {
@@ -51,6 +52,7 @@ public class LocationDAO extends AbstractDAO
 
     public long addLocation(Location location) {
         ContentValues values = new ContentValues();
+        values.put(COLUMNS.NAME.name(), location.getName());
         values.put(COLUMNS.LATITUDE.name(), location.getLatitude());
         values.put(COLUMNS.LONGITUDE.name(), location.getLongitude());
         values.put(COLUMNS.IS_FAVORITE.name(), location.isFavorite());
@@ -63,7 +65,8 @@ public class LocationDAO extends AbstractDAO
     public Location getLocation(int id) {
         Location location = null/*todo: don't return null*/;
         Cursor cursor = query(database, QueryBuilder
-                .select(COLUMNS.ID.name(), COLUMNS.LATITUDE.name(), COLUMNS.LONGITUDE.name(),
+                .select(COLUMNS.ID.name(), COLUMNS.NAME.name(),
+                        COLUMNS.LATITUDE.name(), COLUMNS.LONGITUDE.name(),
                         COLUMNS.IS_FAVORITE.name(), COLUMNS.TITLE.name(), COLUMNS.ORDERING.name())
                 .from(TABLE_NAME)
                 .where(String.format("%s = ? ", COLUMNS.ID.name()), String.valueOf(id)));
@@ -72,6 +75,7 @@ public class LocationDAO extends AbstractDAO
 
             location = new Location(
                     cursor.getInt(COLUMNS.ID.ordinal()),
+                    cursor.getString(COLUMNS.NAME.ordinal()),
                     cursor.getDouble(COLUMNS.LATITUDE.ordinal()),
                     cursor.getDouble(COLUMNS.LONGITUDE.ordinal()),
                     cursor.getInt(COLUMNS.ORDERING.ordinal()));
@@ -88,7 +92,8 @@ public class LocationDAO extends AbstractDAO
     public List<Location> getFavoriteLocations() {
         List<Location> locations = new ArrayList<Location>();
         Cursor cursor = query(database, QueryBuilder
-                .select(COLUMNS.ID.name(), COLUMNS.LATITUDE.name(), COLUMNS.LONGITUDE.name(),
+                .select(COLUMNS.ID.name(), COLUMNS.NAME.name(),
+                        COLUMNS.LATITUDE.name(), COLUMNS.LONGITUDE.name(),
                         COLUMNS.IS_FAVORITE.name(), COLUMNS.TITLE.name(), COLUMNS.ORDERING.name())
                 .from(TABLE_NAME)
                 .where(String.format("%s = ? ", COLUMNS.IS_FAVORITE.name()), String.valueOf(TRUE))
@@ -98,6 +103,7 @@ public class LocationDAO extends AbstractDAO
             do {
                 Location location = new Location(
                         cursor.getInt(COLUMNS.ID.ordinal()),
+                        cursor.getString(COLUMNS.NAME.ordinal()),
                         cursor.getDouble(COLUMNS.LATITUDE.ordinal()),
                         cursor.getDouble(COLUMNS.LONGITUDE.ordinal()),
                         cursor.getInt(COLUMNS.ORDERING.ordinal()));

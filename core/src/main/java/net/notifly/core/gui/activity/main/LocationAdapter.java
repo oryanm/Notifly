@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import net.notifly.core.R;
 import net.notifly.core.entity.Location;
-import net.notifly.core.util.GeneralUtils;
 
 import org.androidannotations.annotations.EBean;
 
@@ -34,9 +33,8 @@ public class LocationAdapter extends ArrayAdapter<Location> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        // Populate the data into the template view using the data object
         viewHolder.title.setText(location.getTitle());
-        viewHolder.address.setText(GeneralUtils.toString(location.address));
+        viewHolder.address.setText(location.toString());
         return convertView;
     }
 

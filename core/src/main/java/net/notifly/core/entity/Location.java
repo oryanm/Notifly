@@ -4,13 +4,12 @@ import android.location.Address;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import net.notifly.core.util.GeneralUtils;
 import net.notifly.core.util.LocationHandler;
 
 public class Location implements Parcelable {
     private int id;
+    private String name = "";
     private double longitude;
     private double latitude;
     boolean isFavorite = false;
@@ -20,26 +19,23 @@ public class Location implements Parcelable {
     // transient member
     public Address address = LocationHandler.ERROR_ADDRESS;
 
-    public Location(int id, double longitude, double latitude, int order) {
+    public Location(int id, String name, double longitude, double latitude, int order) {
         this.id = id;
+        this.name = name;
         this.longitude = longitude;
         this.latitude = latitude;
         this.order = order;
     }
 
-    private Location(double latitude, double longitude) {
-        this.longitude = longitude;
-        this.latitude = latitude;
-    }
-
     private Location(Address address) {
+        this.name = GeneralUtils.toString(address);
         this.longitude = address.getLongitude();
         this.latitude = address.getLatitude();
         this.address = address;
     }
 
     public Location asFavorite(String title) {
-        Location location = new Location(this.id, this.latitude, this.longitude, this.order);
+        Location location = new Location(this.id, this.name, this.latitude, this.longitude, this.order);
         location.isFavorite = true;
         location.title = title;
         return location;
@@ -49,16 +45,12 @@ public class Location implements Parcelable {
         return new Location(address);
     }
 
-    public static Location from(LatLng latLng) {
-        return new Location(latLng.latitude, latLng.longitude);
-    }
-
-    public static Location from(android.location.Location location) {
-        return new Location(location.getLatitude(), location.getLongitude());
-    }
-
     public int getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public double getLongitude() {
@@ -88,7 +80,7 @@ public class Location implements Parcelable {
     @Override
     public String toString() {
         return LocationHandler.isValid(address) ? GeneralUtils.toString(address) :
-                !title.isEmpty() ? title :
+                !name.isEmpty() ? name :
                         getLatitude() + "," + getLongitude();
     }
 
@@ -100,10 +92,12 @@ public class Location implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
+        dest.writeString(name);
         dest.writeDouble(latitude);
         dest.writeDouble(longitude);
         GeneralUtils.writeBoolean(dest, isFavorite);
         dest.writeString(title);
+        dest.writeInt(order);
     }
 
     public static final Parcelable.Creator<Location> CREATOR = new Parcelable.Creator<Location>() {
@@ -118,10 +112,12 @@ public class Location implements Parcelable {
 
     private Location(Parcel in) {
         this.id = in.readInt();
+        this.name = in.readString();
         this.latitude = in.readDouble();
         this.longitude = in.readDouble();
         this.isFavorite = GeneralUtils.readBoolean(in);
         this.title = in.readString();
+        this.order = in.readInt();
     }
 
     @Override

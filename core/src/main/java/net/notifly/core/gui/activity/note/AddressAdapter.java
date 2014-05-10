@@ -52,7 +52,10 @@ public class AddressAdapter extends ArrayAdapter<String> implements Filterable {
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults filterResults = new FilterResults();
 
-                if (constraint != null) {
+                if (constraint != null &&
+                        // limit constraint to min 3 cause any less might
+                        // cause slow reaction from google maps service
+                        constraint.length() >= 3) {
                     filterResults.count = 0;
                     addresses.clear();
                     filterResults.values = addresses;

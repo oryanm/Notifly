@@ -7,7 +7,6 @@ import android.util.Log;
 
 import net.notifly.core.Notifly;
 import net.notifly.core.entity.Location;
-import net.notifly.core.util.LocationHandler;
 
 public class AddressLoader extends AsyncTask<Void, Void, Address> {
     Notifly notifly;
@@ -25,11 +24,6 @@ public class AddressLoader extends AsyncTask<Void, Void, Address> {
 
         if (address == null) {
             address = notifly.getLocationHandler().getAddress(location);
-            if (address.equals(LocationHandler.ERROR_ADDRESS))
-            {
-                return LocationHandler.getAddressesFromWeb(Double.toString(location.getLatitude()) +
-                        "," + Double.toString(location.getLongitude()), 1).iterator().next();
-            }
         }
 
         return address;

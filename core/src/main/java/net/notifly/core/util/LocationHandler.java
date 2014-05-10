@@ -75,7 +75,7 @@ public class LocationHandler {
     }
 
     public Address getAddress(net.notifly.core.entity.Location location) {
-        return getAddress(location.getLatitude(), location.getLongitude());
+        return getAddress(location.getName());
     }
 
     public Address getAddress(double latitude, double longitude) {
@@ -97,6 +97,38 @@ public class LocationHandler {
         }
 
         return addresses.iterator().next();
+    }
+
+    public Address getAddress(String name) {
+        List<Address> addresses = getAddresses(name, 1);
+
+        return addresses.isEmpty() ? ERROR_ADDRESS : addresses.iterator().next();
+    }
+
+    public List<Address> getAddresses(String name, int maxResults) {
+        Log.d(LocationHandler.class.getName(), String.format("Looking for address at %s", name));
+
+        List<Address> addresses = null;
+
+        try {
+            addresses = geocoder.getFromLocationName(name, maxResults,
+                    LOWER_LEFT_LATITUDE, LOWER_LEFT_LONGITUDE, UPPER_RIGHT_LATITUDE, UPPER_RIGHT_LONGITUDE);
+        } catch (IOException e) {
+            Log.e(LocationHandler.class.getName(), "Failed to load address from google", e);
+            try {
+                addresses = getAddressesFromWeb(name, maxResults);
+            } catch (Exception e1) {
+                Log.e(LocationHandler.class.getName(),
+                        String.format("Failed to load addresses from: %s", name), e);
+            }
+        }
+
+        // in case google returns null or exception happened
+        return addresses != null ? addresses : new ArrayList<Address>();
+    }
+
+    public static boolean isValid(Address address) {
+        return !ERROR_ADDRESS.equals(address);
     }
 
     public static List<Address> getAddressesFromWeb(String geoAddress, int maxResults) {
@@ -163,41 +195,6 @@ public class LocationHandler {
 
     private static String setDisplayLanguage(String urlString) {
         return urlString.replace(":displayLanguage", Locale.getDefault().toString());
-    }
-
-    public static boolean isValid(Address address) {
-        return !ERROR_ADDRESS.equals(address);
-    }
-
-    public List<Address> getAddresses(String name, int maxResults) {
-        List<Address> addresses = null;
-
-        try {
-            addresses = geocoder.getFromLocationName(name, maxResults,
-                    LOWER_LEFT_LATITUDE, LOWER_LEFT_LONGITUDE, UPPER_RIGHT_LATITUDE, UPPER_RIGHT_LONGITUDE);
-        } catch (IOException e) {
-            try {
-                addresses = getAddressesUsingTask(name, maxResults);
-            } catch (Exception e1) {
-                Log.e(LocationHandler.class.getName(),
-                        String.format("Failed to load addresses from: %s", name), e);
-            }
-        }
-
-        // in case google returns null or exception happened
-        return addresses != null ? addresses : new ArrayList<Address>();
-    }
-
-    private List<Address> getAddressesUsingTask(String name, int maxResults)
-            throws InterruptedException, ExecutionException {
-        return new AsyncTask<Object, Void, List<Address>>() {
-            @Override
-            protected List<Address> doInBackground(Object... params) {
-                List<Address> addresses = getAddressesFromWeb(params[0].toString(), (Integer) params[1]);
-                return (addresses.isEmpty() ||
-                        addresses.iterator().next().equals(ERROR_ADDRESS)) ? null : addresses;
-            }
-        }.execute(name, maxResults).get();
     }
 
     public static DistanceMatrix getDistanceMatrix(String orgAddress, String destAddress, String mode) throws IOException, JSONException {
