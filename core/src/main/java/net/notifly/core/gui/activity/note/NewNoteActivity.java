@@ -212,7 +212,7 @@ public class NewNoteActivity extends ActionBarActivity implements
             note.setId((int) notes.addOrUpdateNote(note));
             notes.close();
 
-            ParseServer.getInstance(this).submitNoteToServer(note);
+            if (note.hasLocation()) ParseServer.getInstance(this).submitNoteToServer(note);
 
             Intent intent = new Intent();
             intent.putExtra(EXTRA_NOTE, note);
