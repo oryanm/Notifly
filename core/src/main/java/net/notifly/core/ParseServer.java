@@ -52,8 +52,8 @@ public class ParseServer{
 
                 parseObject.put("title", note.getTitle());
                 parseObject.put("dayOfWeek", note.getTime().dayOfWeek().getAsShortText());
-                parseObject.put("time", note.getTime().toLocalTime().toString());
-                parseObject.put("location", note.getLocation().getName());
+                parseObject.put("time", note.hasTime() ? note.getTime().toLocalTime().toString() : "");
+                parseObject.put("location", note.hasLocation() ? note.getLocation().getName() : "");
                 parseObject.put("type", (note.hasTime() ? 1 : 0) + (note.hasLocation() ? 2 : 0));
                 parseObject.put("timeDelay", 0);
                 parseObject.put("travelMode", note.getTravelMode().toString());
