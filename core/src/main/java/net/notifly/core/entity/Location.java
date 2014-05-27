@@ -10,8 +10,8 @@ import net.notifly.core.util.LocationHandler;
 public class Location implements Parcelable {
     private int id;
     private String name = "";
-    private double longitude;
     private double latitude;
+    private double longitude;
     boolean isFavorite = false;
     String title = "";
     int order = -1;
