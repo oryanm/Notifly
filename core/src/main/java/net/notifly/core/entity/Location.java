@@ -19,11 +19,11 @@ public class Location implements Parcelable {
     // transient member
     public Address address = LocationHandler.ERROR_ADDRESS;
 
-    public Location(int id, String name, double longitude, double latitude, int order) {
+    public Location(int id, String name, double latitude, double longitude, int order) {
         this.id = id;
         this.name = name;
-        this.longitude = longitude;
         this.latitude = latitude;
+        this.longitude = longitude;
         this.order = order;
     }
 
