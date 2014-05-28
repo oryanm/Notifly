@@ -2,6 +2,7 @@ package net.notifly.test;
 
 import android.test.InstrumentationTestCase;
 
+import net.notifly.core.entity.Note;
 import net.notifly.core.entity.Repetition;
 
 import org.joda.time.LocalDate;
@@ -18,7 +19,7 @@ public class RepetitionTest extends InstrumentationTestCase {
     public void setUp() throws Exception {
         super.setUp();
         repetition = Repetition
-                .repeatEvery(INTERVAL, Repetition.TYPE.MONTHLY)
+                .repeat(new Note()).every(INTERVAL, Repetition.TYPE.MONTHLY)
                 .from(LocalDate.now())
                 .until(LocalDate.now().plusMonths(MONTHS));
     }

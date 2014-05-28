@@ -8,6 +8,7 @@ import org.joda.time.Weeks;
 import org.joda.time.Years;
 
 public class Repetition {
+    Note note;
     TYPE type;
     int interval;
     LocalDate start;
@@ -15,13 +16,18 @@ public class Repetition {
 
     boolean[] days;
 
-    public Repetition(TYPE type, int interval) {
-        this.type = type;
-        this.interval = interval;
+    public Repetition(Note note) {
+        this.note = note;
     }
 
-    public static Repetition repeatEvery(int interval, TYPE type) {
-        return new Repetition(type, interval);
+    public static Repetition repeat(Note note) {
+        return new Repetition(note);
+    }
+
+    public Repetition every(int interval, TYPE type) {
+        this.type = type;
+        this.interval = interval;
+        return this;
     }
 
     public Repetition from(LocalDate start) {
@@ -76,8 +82,12 @@ public class Repetition {
         return false;
     }
 
-    private boolean hasEnd() {
+    public boolean hasEnd() {
         return end != null;
+    }
+
+    public Note getNote() {
+        return note;
     }
 
     public TYPE getType() {

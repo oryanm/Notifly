@@ -17,6 +17,7 @@ public class Note implements Parcelable {
     String title;
     String description;
     LocalDateTime time;
+    Repetition repetition;
     Location location;
     TravelMode travelMode = TravelMode.DRIVING;
     Set<String> tags = new HashSet<String>();
@@ -56,6 +57,10 @@ public class Note implements Parcelable {
         return time;
     }
 
+    public Repetition getRepetition() {
+        return repetition;
+    }
+
     public Location getLocation() {
         return location;
     }
@@ -80,6 +85,10 @@ public class Note implements Parcelable {
         this.time = time;
     }
 
+    public void setRepetition(Repetition repetition) {
+        this.repetition = repetition;
+    }
+
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -102,6 +111,10 @@ public class Note implements Parcelable {
 
     public boolean hasTime() {
         return this.time != null;
+    }
+
+    public boolean repeats() {
+        return this.repetition != null;
     }
 
     @Override

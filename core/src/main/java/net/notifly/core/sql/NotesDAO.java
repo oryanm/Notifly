@@ -52,12 +52,17 @@ public class NotesDAO extends AbstractDAO {
             ContentValues values = new ContentValues();
             values.put(COLUMNS.TITLE.name(), note.getTitle());
             values.put(COLUMNS.DESCRIPTION.name(), note.getDescription());
-            if (note.getLocation() != null) {
-                values.put(COLUMNS.LOCATION.name(), new LocationDAO(database)
-                        .addLocationIfNotExists(note.getLocation()));
+            if (note.hasLocation()) {
+                values.put(COLUMNS.LOCATION.name(),
+                        new LocationDAO(database).addLocationIfNotExists(note.getLocation()));
             }
-            if (note.getTime() != null) {
+
+            if (note.hasTime()) {
                 values.put(COLUMNS.TIME.name(), note.getTime().toString(DATETIME_PATTERN));
+
+                if (note.repeats()) {
+                    new RepetitionDAO(database).addRepetition(note.getRepetition());
+                }
             }
 
             values.put(COLUMNS.TRAVEL_MODE.name(), note.getTravelMode().toString());
@@ -85,6 +90,13 @@ public class NotesDAO extends AbstractDAO {
                     new LocationDAO(database).addLocationIfNotExists(note.getLocation()) : null);
             values.put(COLUMNS.TIME.name(), note.getTime() != null ?
                     note.getTime().toString(DATETIME_PATTERN) : null);
+
+            if (note.repeats()) {
+                new RepetitionDAO(database).addOrUpdate(note.getRepetition());
+            } else {
+                new RepetitionDAO(database).deleteRepetition(note.getId());
+            }
+
             values.put(COLUMNS.TRAVEL_MODE.name(), note.getTravelMode().toString());
 
             database.update(TABLE_NAME, values,
@@ -103,6 +115,10 @@ public class NotesDAO extends AbstractDAO {
 
 
     public void deleteNote(Note note) {
+        if (note.repeats()) {
+            new RepetitionDAO(database).deleteRepetition(note.getRepetition());
+        }
+
         database.delete(TABLE_NAME, String.format("%s = ? ", COLUMNS.ID.name()),
                 new String[]{String.valueOf(note.getId())});
     }
@@ -124,6 +140,7 @@ public class NotesDAO extends AbstractDAO {
                 note.setDescription(cursor.getString(COLUMNS.DESCRIPTION.ordinal()));
                 int locId = cursor.getInt(COLUMNS.LOCATION.ordinal());
                 if (locId != 0) note.setLocation(new LocationDAO(database).getLocation(locId));
+                note.setRepetition(new RepetitionDAO(database).getRepetition(note));
                 note.setTravelMode(TravelMode.getMode(cursor.getString(COLUMNS.TRAVEL_MODE.ordinal())));
                 note.setTags(new TagsDAO(database).getTags(note));
 

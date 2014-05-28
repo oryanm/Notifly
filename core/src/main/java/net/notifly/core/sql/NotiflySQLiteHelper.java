@@ -16,13 +16,15 @@ public class NotiflySQLiteHelper extends SQLiteOpenHelper {
      * Changing this const will trigger the {@code onUpgrade} method
      * the next time a database instance will be created
      */
-    public static final int DATABASE_VERSION = 13;
+    public static final int DATABASE_VERSION = 14;
 
     /**
      * Default pattern used by SQLite for datetime columns
      */
     public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATE_PATTERN = "yyyy-MM-dd";
     public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormat.forPattern(DATETIME_PATTERN);
+    public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern(DATE_PATTERN);
 
     /**
      * Const representing boolean values in SQLite
@@ -39,6 +41,7 @@ public class NotiflySQLiteHelper extends SQLiteOpenHelper {
         db.execSQL(NotesDAO.CREATE_STATEMENT);
         db.execSQL(LocationDAO.CREATE_STATEMENT);
         db.execSQL(TagsDAO.CREATE_STATEMENT);
+        db.execSQL(RepetitionDAO.CREATE_STATEMENT);
     }
 
     @Override
@@ -47,6 +50,7 @@ public class NotiflySQLiteHelper extends SQLiteOpenHelper {
         db.execSQL(NotesDAO.DROP_STATEMENT);
         db.execSQL(LocationDAO.DROP_STATEMENT);
         db.execSQL(TagsDAO.DROP_STATEMENT);
+        db.execSQL(RepetitionDAO.DROP_STATEMENT);
         onCreate(db);
     }
 }
