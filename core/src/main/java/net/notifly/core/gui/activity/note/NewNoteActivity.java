@@ -2,6 +2,7 @@ package net.notifly.core.gui.activity.note;
 
 import android.content.Intent;
 import android.location.Address;
+import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.format.DateFormat;
@@ -26,6 +27,7 @@ import net.notifly.core.ParseServer;
 import net.notifly.core.R;
 import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
+import net.notifly.core.entity.Repetition;
 import net.notifly.core.gui.activity.map.SelectLocationActivity_;
 import net.notifly.core.gui.view.TagsTokenView;
 import net.notifly.core.sql.LocationDAO;
@@ -59,8 +61,8 @@ import java.util.Set;
 public class NewNoteActivity extends ActionBarActivity implements
         CalendarDatePickerDialog.OnDateSetListener,
         RadialTimePickerDialog.OnTimeSetListener,
-        FavoriteLocationDialogFragment.FavoriteLocationDialogListener
-{
+        FavoriteLocationDialogFragment.FavoriteLocationDialogListener,
+        RepetitionDialogFragment.RepetitionDialogListener {
     public static final int NEW_NOTE_CODE = 1;
     private static final int LOCATION_SELECT_CODE = 2;
     public static final String EXTRA_NOTE = "net.notifly.core.note";
@@ -91,7 +93,7 @@ public class NewNoteActivity extends ActionBarActivity implements
     @ViewById(R.id.tagsView)
     TagsTokenView tagsView;
     @ViewById(R.id.repetitionText)
-    TextView repetition;
+    TextView repetitionText;
 
 
     @AfterViews
@@ -104,8 +106,7 @@ public class NewNoteActivity extends ActionBarActivity implements
             time.setText(note.getTime().toString(DateTimeFormat.shortTime()));
 
             if (note.repeats()) {
-                repetition.setVisibility(View.VISIBLE);
-                repetition.setText(note.getRepetition().toString());
+                showRepetitionText(note.getRepetition());
             }
         }
 
@@ -204,6 +205,32 @@ public class NewNoteActivity extends ActionBarActivity implements
         date.setText("");
         time.setText("");
         note.setTime(null);
+        note.setRepetition(null);
+        repetitionText.setVisibility(View.GONE);
+    }
+
+    @Click(R.id.repeatButton)
+    public void repeat(View view) {
+        if (note.hasTime()) {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(RepetitionDialogFragment.NOTE_KEY, note);
+            RepetitionDialogFragment fragment = new RepetitionDialogFragment();
+            fragment.setArguments(bundle);
+            fragment.show(getFragmentManager(), RepetitionDialogFragment.FRAGMENT_TAG);
+        }
+    }
+
+    @Override
+    public void onRepetitionSave(Repetition repetition) {
+        note.setRepetition(repetition);
+        note.setTime(repetition.getStart().toLocalDateTime(note.getTime().toLocalTime()));
+        date.setText(note.getTime().toString(DateTimeFormat.mediumDate()));
+        showRepetitionText(repetition);
+    }
+
+    private void showRepetitionText(Repetition repetition) {
+        repetitionText.setText(repetition.toString());
+        repetitionText.setVisibility(View.VISIBLE);
     }
 
     @OptionsItem(R.id.action_save_note)

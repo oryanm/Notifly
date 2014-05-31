@@ -91,4 +91,10 @@
     <string name="driving">driving</string>
     <string name="bicycling">bicycling</string>
     <string name="transit">transit</string>
+
+    <string name="repetition_interval">Repeat every</string>
+    <string name="repetition_start_date">Starts on</string>
+    <string name="repetition_end_date">Ends</string>
+    <string name="repetition_ends_never">Never</string>
+    <string name="repetition_ends_on">On</string>
 </resources>

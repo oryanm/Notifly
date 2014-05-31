@@ -54,7 +54,7 @@
             android:layout_weight="1"
             android:contentDescription="@string/repeat"
             android:src="@drawable/ic_action_repeat"
-            android:onClick="clear" />
+            android:onClick="repeat" />
 
         <ImageButton
             style="?android:borderlessButtonStyle"
@@ -73,7 +73,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/linearLayout3"
         android:id="@+id/repetitionText"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="?android:attr/textAppearanceSmall"
         android:layout_margin="8dp"
         android:visibility="gone" />
 
