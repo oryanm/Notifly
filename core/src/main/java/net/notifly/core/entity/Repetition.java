@@ -42,8 +42,14 @@ public class Repetition {
 
     @Override
     public String toString() {
-        return String.format("Repeat every %d %s, start on %s and end on %s",
-                interval, type.desc, start.toString(), end.toString());
+        String s = String.format("Repeat every %d %s, start on %s",
+                interval, type.desc, start.toString());
+
+        if (hasEnd()) {
+            s += String.format(" and end on %s", end.toString());
+        }
+
+        return s;
     }
 
     public boolean occursAt(LocalDate date) {
@@ -143,5 +149,10 @@ public class Repetition {
         }
 
         abstract ReadablePeriod getPeriod(int interval);
+
+        @Override
+        public String toString() {
+            return desc;
+        }
     }
 }
