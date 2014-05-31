@@ -126,6 +126,9 @@ public class Repetition implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        /* we don't parcel the note since that would cause an infinite loop
+        when the note would try to parcel it's repetition*/
+
         dest.writeInt(type.ordinal());
         dest.writeInt(interval);
         dest.writeLong(start.toDate().getTime());
