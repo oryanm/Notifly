@@ -1,5 +1,8 @@
 package net.notifly.core.entity;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 import org.joda.time.Months;
@@ -7,7 +10,7 @@ import org.joda.time.ReadablePeriod;
 import org.joda.time.Weeks;
 import org.joda.time.Years;
 
-public class Repetition {
+public class Repetition implements Parcelable {
     Note note;
     TYPE type;
     int interval;
@@ -114,6 +117,37 @@ public class Repetition {
 
     public boolean[] getDays() {
         return days;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(type.ordinal());
+        dest.writeInt(interval);
+        dest.writeLong(start.toDate().getTime());
+        dest.writeLong(hasEnd() ? end.toDate().getTime() : 0);
+    }
+
+    public static final Parcelable.Creator<Repetition> CREATOR = new Parcelable.Creator<Repetition>() {
+        public Repetition createFromParcel(Parcel in) {
+            return new Repetition(in);
+        }
+
+        public Repetition[] newArray(int size) {
+            return new Repetition[size];
+        }
+    };
+
+    public Repetition(Parcel in) {
+        this.type = TYPE.values()[in.readInt()];
+        this.interval = in.readInt();
+        this.start = new LocalDate(in.readLong());
+        long timeLong = in.readLong();
+        this.end = timeLong == 0 ? null : new LocalDate(timeLong);
     }
 
     public enum TYPE {
