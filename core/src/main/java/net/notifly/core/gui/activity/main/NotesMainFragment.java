@@ -14,7 +14,9 @@ import net.notifly.core.R;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.note.NewNoteActivity;
 import net.notifly.core.gui.activity.note.NewNoteActivity_;
+import net.notifly.core.gui.activity.settings.SettingsFragment;
 import net.notifly.core.sql.NotesDAO;
+import net.notifly.core.util.AddressLoader;
 import net.notifly.core.util.FileUtils;
 
 import org.androidannotations.annotations.AfterViews;

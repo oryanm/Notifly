@@ -21,12 +21,15 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/titleEditText"
+        android:divider="?android:dividerHorizontal"
+        android:showDividers="middle"
+        android:dividerPadding="8dp"
         android:id="@+id/linearLayout3">
 
         <EditText
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="3.5"
+            android:layout_weight="3"
             android:inputType="date"
             android:id="@+id/dateEditText"
             android:hint="@string/note_date"
@@ -39,9 +42,19 @@
             android:inputType="time"
             android:id="@+id/timeEditText"
             android:hint="@string/note_time"
-            android:layout_weight="3.5"
+            android:layout_weight="3"
             android:focusable="false"
             android:longClickable="false" />
+
+        <ImageButton
+            style="?android:borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/repeatButton"
+            android:layout_weight="1"
+            android:contentDescription="@string/repeat"
+            android:src="@drawable/ic_action_repeat"
+            android:onClick="clear" />
 
         <ImageButton
             style="?android:borderlessButtonStyle"
@@ -55,12 +68,22 @@
 
     </LinearLayout>
 
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linearLayout3"
+        android:id="@+id/repetitionText"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_margin="8dp"
+        android:visibility="gone"
+       android:text="sadas" />
+
     <LinearLayout
         android:id="@+id/locationLayout"
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/linearLayout3"
+        android:layout_below="@id/repetitionText"
         android:divider="?android:dividerHorizontal"
         android:showDividers="middle"
         android:dividerPadding="8dp">

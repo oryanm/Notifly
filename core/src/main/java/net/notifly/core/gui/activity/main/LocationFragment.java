@@ -21,6 +21,7 @@ import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.note.NewNoteActivity;
 import net.notifly.core.gui.activity.note.NewNoteActivity_;
 import net.notifly.core.sql.LocationDAO;
+import net.notifly.core.util.AddressLoader;
 import net.notifly.core.util.LocationHandler;
 
 import org.androidannotations.annotations.AfterViews;

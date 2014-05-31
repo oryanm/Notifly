@@ -12,18 +12,20 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.doomonafireball.betterpickers.calendardatepicker.CalendarDatePickerDialog;
 import com.doomonafireball.betterpickers.radialtimepicker.RadialPickerLayout;
 import com.doomonafireball.betterpickers.radialtimepicker.RadialTimePickerDialog;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 import net.notifly.core.Notifly;
 import net.notifly.core.ParseServer;
 import net.notifly.core.R;
 import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
-import net.notifly.core.gui.activity.main.FavoriteLocationDialogFragment;
 import net.notifly.core.gui.activity.map.SelectLocationActivity_;
 import net.notifly.core.gui.view.TagsTokenView;
 import net.notifly.core.sql.LocationDAO;
@@ -49,7 +51,6 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -89,15 +90,23 @@ public class NewNoteActivity extends ActionBarActivity implements
     ImageButton walkingImageButton;
     @ViewById(R.id.tagsView)
     TagsTokenView tagsView;
+    @ViewById(R.id.repetitionText)
+    TextView repetition;
+
 
     @AfterViews
     void loadNote() {
         title.setText(note.getTitle());
         description.setText(note.getDescription());
 
-        if (note.getTime() != null) {
+        if (note.hasTime()) {
             date.setText(note.getTime().toString(DateTimeFormat.mediumDate()));
             time.setText(note.getTime().toString(DateTimeFormat.shortTime()));
+
+            if (note.repeats()) {
+                repetition.setVisibility(View.VISIBLE);
+                repetition.setText(note.getRepetition().toString());
+            }
         }
 
         if (note.hasLocation()) {
@@ -206,7 +215,7 @@ public class NewNoteActivity extends ActionBarActivity implements
             note.setDescription(description.getText().toString());
             if (LocationHandler.isValid(address)) note.setLocation(Location.from(address));
             List<Object> objects = tagsView.getObjects();
-            note.setTags(new HashSet(objects));
+            note.setTags(Sets.newHashSet(Iterables.filter(objects, String.class)));
 
             NotesDAO notes = new NotesDAO(this);
             note.setId((int) notes.addOrUpdateNote(note));

@@ -1,4 +1,4 @@
-package net.notifly.core.gui.activity.main;
+package net.notifly.core.gui.activity.note;
 
 import android.app.Activity;
 import android.app.AlertDialog;

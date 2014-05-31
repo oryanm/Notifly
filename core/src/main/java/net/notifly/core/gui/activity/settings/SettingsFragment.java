@@ -1,4 +1,4 @@
-package net.notifly.core.gui.activity.main;
+package net.notifly.core.gui.activity.settings;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;

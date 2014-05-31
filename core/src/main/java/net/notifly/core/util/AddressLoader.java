@@ -1,4 +1,4 @@
-package net.notifly.core.gui.activity.main;
+package net.notifly.core.util;
 
 import android.content.Context;
 import android.location.Address;

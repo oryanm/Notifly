@@ -7,8 +7,8 @@ import android.util.LruCache;
 import net.danlew.android.joda.ResourceZoneInfoProvider;
 import net.notifly.core.entity.Location;
 import net.notifly.core.entity.Note;
-import net.notifly.core.gui.activity.main.AddressLoader;
 import net.notifly.core.sql.NotesDAO;
+import net.notifly.core.util.AddressLoader;
 import net.notifly.core.util.GeneralUtils;
 import net.notifly.core.util.LocationHandler;
 

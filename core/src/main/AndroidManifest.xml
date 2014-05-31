@@ -55,7 +55,7 @@
             android:name=".gui.activity.map.SelectLocationActivity_"
             android:label="@string/title_activity_select_location" />
         <activity
-            android:name=".gui.activity.main.SettingsActivity"
+            android:name=".gui.activity.settings.SettingsActivity"
             android:label="@string/title_activity_settings" />
 
         <meta-data

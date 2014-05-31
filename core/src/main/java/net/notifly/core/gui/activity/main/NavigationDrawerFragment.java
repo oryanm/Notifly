@@ -21,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import net.notifly.core.R;
+import net.notifly.core.gui.activity.settings.SettingsActivity;
 
 
 /**
