@@ -42,7 +42,7 @@ public class MainActivity extends ActionBarActivity implements
                 fragment = NotesMainFragment.newInstance();
                 break;
             default:
-                tag = "favorite_locations";
+                tag = LocationFragment.FRAGMENT_TAG;
                 fragment = getFragmentManager().findFragmentByTag(tag);
 
                 if (fragment == null) {

@@ -44,6 +44,8 @@ public class LocationFragment extends Fragment implements
         AdapterView.OnItemClickListener,
         AdapterView.OnItemLongClickListener,
         DragSortListView.DropListener {
+    public static final String FRAGMENT_TAG = "favorite_locations";
+
     @App
     Notifly notifly;
     @ViewById(android.R.id.list)
