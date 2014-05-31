@@ -75,8 +75,7 @@
         android:id="@+id/repetitionText"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_margin="8dp"
-        android:visibility="gone"
-       android:text="sadas" />
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/locationLayout"
@@ -134,8 +133,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:contentDescription="@string/walking"
-            android:src="@drawable/ic_walking"
-             />
+            android:src="@drawable/ic_walking" />
 
         <ImageButton
             style="?android:borderlessButtonStyle"
