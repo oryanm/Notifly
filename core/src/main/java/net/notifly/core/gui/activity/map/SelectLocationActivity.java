@@ -64,12 +64,14 @@ public class SelectLocationActivity extends Activity {
         LatLng cameraTarget;
         float zoom = GoogleMapsZoom.CITY_LEVEL;
 
-        if (address == null) {
+        if (address != null) {
+            cameraTarget = new LatLng(address.getLatitude(), address.getLongitude());
+        } else if (!locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
+            return CameraUpdateFactory.zoomTo(GoogleMapsZoom.MAX_VALUE);
+        } else {
             Location currentLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
             cameraTarget = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
             zoom = GoogleMapsZoom.NEIGHBORHOOD_LEVEL;
-        } else {
-            cameraTarget = new LatLng(address.getLatitude(), address.getLongitude());
         }
 
         return CameraUpdateFactory.newLatLngZoom(cameraTarget, zoom);
