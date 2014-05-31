@@ -131,6 +131,7 @@ public class Note implements Parcelable {
         dest.writeParcelable(location, flags);
         dest.writeString(travelMode.toString());
         dest.writeStringList(new ArrayList<String>(tags));
+        dest.writeParcelable(repetition, flags);
     }
 
     public static final Parcelable.Creator<Note> CREATOR = new Parcelable.Creator<Note>() {
@@ -154,6 +155,7 @@ public class Note implements Parcelable {
         ArrayList<String> tags = new ArrayList<String>();
         in.readStringList(tags);
         this.tags = new HashSet<String>(tags);
+        this.repetition = in.readParcelable(Repetition.class.getClassLoader());
     }
 
     @Override
