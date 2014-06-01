@@ -1,7 +1,10 @@
 package net.notifly.core;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.parse.GetCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
@@ -15,7 +18,7 @@ import java.util.Arrays;
 /**
  * Created by Barak on 10/05/2014.
  */
-public class ParseServer{
+public class ParseServer {
     public static final String PARSE_APPLICATION_ID = "BTHJOKX3dCsiZhSGPoHnH7hWPu2LZXaHVsQGmxqy";
     public static final String PARSE_CLIENT_KEY = "4ZAQIi5x1bJbtj7Yd1suMwqEil4u8aFFVvjX3fnS";
     public static final String NOTE_OBJECT = "Note";
@@ -23,7 +26,7 @@ public class ParseServer{
     protected static ParseServer instance;
     protected Context appContext;
 
-    public static ParseServer getInstance(Context context){
+    public static ParseServer getInstance(Context context) {
         if (instance == null) {
             instance = new ParseServer(context);
         }
@@ -31,21 +34,19 @@ public class ParseServer{
         return instance;
     }
 
-    protected ParseServer(Context context){
+    protected ParseServer(Context context) {
         appContext = context.getApplicationContext();
 
         Parse.initialize(appContext, PARSE_APPLICATION_ID, PARSE_CLIENT_KEY);
     }
 
-    public void submitNoteToServer(final Note note)
-    {
+    public void submitNoteToServer(final Note note) {
         ParseQuery query = ParseQuery.getQuery(NOTE_OBJECT);
         query.whereEqualTo("noteId", note.getId());
         query.getFirstInBackground(new GetCallback() {
             @Override
             public void done(ParseObject parseObject, ParseException e) {
-                if (parseObject == null)
-                {
+                if (parseObject == null) {
                     parseObject = new ParseObject(NOTE_OBJECT);
                     parseObject.put("noteId", note.getId());
                 }
@@ -63,19 +64,35 @@ public class ParseServer{
         });
     }
 
-    public void lateForNote(Note note, final int timeDelay)
-    {
+    public void lateForNote(Note note, final int timeDelay) {
         ParseQuery query = ParseQuery.getQuery(NOTE_OBJECT);
         query.whereEqualTo("noteId", note.getId());
         query.getFirstInBackground(new GetCallback() {
             @Override
             public void done(ParseObject parseObject, ParseException e) {
-                if (parseObject != null)
-                {
+                if (parseObject != null) {
                     parseObject.put("timeDelay", timeDelay);
                     parseObject.saveInBackground();
                 }
             }
         });
+    }
+
+    public Multimap<String, String> getTagsForTitle() {
+        final Multimap<String, String> multimap = HashMultimap.create();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("TitleTags");
+
+        try {
+            for (ParseObject object : query.find()) {
+                String keyword = object.getString("keyword");
+                for (String tag : object.<String>getList("tags")) {
+                    multimap.put(keyword, tag);
+                }
+            }
+        } catch (ParseException e) {
+            Log.e(ParseServer.class.getName(), e.getMessage(), e);
+        }
+
+        return multimap;
     }
 }

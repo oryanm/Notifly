@@ -19,7 +19,9 @@ import android.widget.Toast;
 import com.doomonafireball.betterpickers.calendardatepicker.CalendarDatePickerDialog;
 import com.doomonafireball.betterpickers.radialtimepicker.RadialPickerLayout;
 import com.doomonafireball.betterpickers.radialtimepicker.RadialTimePickerDialog;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 import net.notifly.core.Notifly;
@@ -38,8 +40,10 @@ import net.notifly.core.util.LocationHandler;
 import net.notifly.core.util.TravelMode;
 import net.notifly.core.util.adapters.TextWatcherAdapter;
 
+import org.androidannotations.annotations.AfterTextChange;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.App;
+import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
@@ -53,6 +57,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -95,6 +100,7 @@ public class NewNoteActivity extends ActionBarActivity implements
     @ViewById(R.id.repetitionText)
     TextView repetitionText;
 
+    Multimap<String, String> titleToTagsMap = HashMultimap.create();
 
     @AfterViews
     void loadNote() {
@@ -115,6 +121,28 @@ public class NewNoteActivity extends ActionBarActivity implements
         }
 
         setTravelMode(note.getTravelMode());
+    }
+
+    @AfterViews
+    void loadSmartTags() {
+        tagsView.allowDuplicates(false);
+        loadTitleToTagsMap();
+    }
+
+    @Background
+    void loadTitleToTagsMap() {
+        titleToTagsMap = ParseServer.getInstance(this).getTagsForTitle();
+    }
+
+    @AfterTextChange(R.id.titleEditText)
+    void titleChanged(TextView view, Editable text) {
+        final List<String> strings = Arrays.asList(text.toString().split(" "));
+
+        for (String word : strings) {
+            for (String tag : titleToTagsMap.get(word)) {
+                tagsView.addObject(tag);
+            }
+        }
     }
 
     void setAddress(Address address) {
@@ -297,16 +325,14 @@ public class NewNoteActivity extends ActionBarActivity implements
     }
 
     @Click(R.id.driving)
-    void setDrivingTravelMode()
-    {
+    void setDrivingTravelMode() {
         note.setTravelMode(TravelMode.DRIVING);
         drivingImageButton.setImageResource(R.drawable.ic_driving_selected);
         walkingImageButton.setImageResource(R.drawable.ic_walking);
     }
 
     @Click(R.id.walking)
-    void setWalkingTravelMode()
-    {
+    void setWalkingTravelMode() {
         note.setTravelMode(TravelMode.WALKING);
         drivingImageButton.setImageResource(R.drawable.ic_driving);
         walkingImageButton.setImageResource(R.drawable.ic_walking_selected);
