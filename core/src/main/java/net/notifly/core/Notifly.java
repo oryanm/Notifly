@@ -18,8 +18,6 @@ import org.androidannotations.annotations.EApplication;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 @EApplication
 public class Notifly extends Application {
     List<Note> notes = new ArrayList<Note>();
@@ -66,7 +64,7 @@ public class Notifly extends Application {
         return notes;
     }
 
-    public void addNote(Note note, @Nullable AddressLoader.Callbacks callback) {
+    public void addNote(Note note, AddressLoader.Callbacks callback) {
         notes.add(note);
         if (note.hasLocation()) {
             new AddressLoader(this, note.getLocation()).setListener(callback).execute();

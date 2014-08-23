@@ -50,7 +50,6 @@ android {
     }
 }
 
-def daggerVersion = '1.2.1';
 def AAnnotationsVersion = '3.0.1'
 
 dependencies {
@@ -69,39 +68,12 @@ dependencies {
     // DragSortListView
     compile 'com.mobeta.android.dslv:drag-sort-listview:0.6.1'
 
-    // Dagger
-    apt "com.squareup.dagger:dagger-compiler:${daggerVersion}"
-    compile "com.squareup.dagger:dagger:${daggerVersion}"
+    // SVM library
+    compile(group: 'nz.ac.waikato.cms.weka', name: 'LibSVM', version: '1.0.6')
 
     // Android annotations
     apt "org.androidannotations:androidannotations:$AAnnotationsVersion"
     compile "org.androidannotations:androidannotations-api:$AAnnotationsVersion"
-
-    // App engine - Google API client library.
-    compile(group: 'com.google.api-client', name: 'google-api-client', version: '1.17.0-rc') {
-        // Exclude artifacts that the Android SDK/Runtime provides.
-        exclude(group: 'xpp3', module: 'xpp3')
-        exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
-        exclude(group: 'junit', module: 'junit')
-        exclude(group: 'com.google.android', module: 'android')
-    }
-
-    // App engine - Android extensions for the Google API client library.
-    compile(group: 'com.google.api-client', name: 'google-api-client-android', version: '1.17.0-rc') {
-        // Exclude play services, since we're not using this yet.
-        exclude(group: 'com.google.android.google-play-services', module: 'google-play-services')
-    }
-
-    // App engine - Android extensions for Google HTTP Client.
-    compile('com.google.http-client:google-http-client-android:1.17.0-rc') {
-        exclude(group: 'com.google.android', module: 'android')
-        exclude (group: 'org.apache.httpcomponents', module: 'httpclient')
-    }
-
-    // Notifly's server module
-    compile('net.notifly.server:messaging:v1-1.18.0-rc-SNAPSHOT') {
-        exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
-    }
 
     // Import all libraries under libs folder
     compile fileTree(dir: 'libs', include: ['*.jar'])

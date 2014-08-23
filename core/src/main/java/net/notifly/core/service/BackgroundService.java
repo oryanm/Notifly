@@ -22,6 +22,7 @@ import com.google.android.gms.location.LocationClient;
 import net.danlew.android.joda.ResourceZoneInfoProvider;
 import net.notifly.core.Notifly;
 import net.notifly.core.R;
+import net.notifly.core.SvmPredict;
 import net.notifly.core.entity.DistanceMatrix;
 import net.notifly.core.entity.Note;
 import net.notifly.core.gui.activity.main.MainActivity_;
@@ -35,6 +36,7 @@ import org.androidannotations.annotations.SystemService;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -281,9 +283,21 @@ public class BackgroundService extends Service implements
         }
     }
 
-    private void remindTimeLocationNote(LocalDateTime now, Note currentNote, DistanceMatrix distanceMatrix) {
-        LocalDateTime departTime = currentNote.getTime().minusSeconds((int) distanceMatrix.getDuration());
+    private void remindTimeLocationNote(LocalDateTime now, Note currentNote,
+                                        DistanceMatrix distanceMatrix) throws IOException {
+
+        Object[] vector = { 0, distanceMatrix.getDuration(), distanceMatrix.getDistance(),
+                currentNote.getTravelMode().ordinal(), currentNote.getTime().hourOfDay().get(),
+                currentNote.getTime().minuteOfHour().get(),
+                currentNote.getTime().dayOfWeek().get(), 0};
+
+        int time = SvmPredict.getInstance(this).Calc(vector);
+        LocalDateTime departTime =
+                currentNote.getTime().minusSeconds((int)distanceMatrix.getDuration()).
+                        minusMinutes(time);
+
         if (now.isAfter(departTime)) {
+            // TODO: save the time as start time for learning (end time when arrived)
             notesPastDepartTime.add(currentNote.getId());
 
             int interval = 2;

@@ -21,8 +21,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import net.notifly.core.R;
+import net.notifly.core.SvmTrain;
 import net.notifly.core.gui.activity.settings.SettingsActivity;
 
+import java.io.IOException;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -236,6 +238,15 @@ public class NavigationDrawerFragment extends Fragment {
 
         if (item.getItemId() == R.id.action_settings) {
             startActivity(new Intent(getActivity(), SettingsActivity.class));
+            return true;
+        }
+
+        if (item.getItemId() == R.id.action_train) {
+            try {
+                SvmTrain.GetInstance(getActivity()).run();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return true;
         }
 
