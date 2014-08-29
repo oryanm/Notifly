@@ -25,6 +25,7 @@ import net.notifly.core.R;
 import net.notifly.core.SvmPredict;
 import net.notifly.core.entity.DistanceMatrix;
 import net.notifly.core.entity.Note;
+import net.notifly.core.entity.SVMVector;
 import net.notifly.core.gui.activity.main.MainActivity_;
 import net.notifly.core.util.FileUtils;
 import net.notifly.core.util.LocationHandler;
@@ -81,6 +82,7 @@ public class BackgroundService extends Service implements
 
     private Map<Note, DistanceMatrix> etaMap = new HashMap<Note, DistanceMatrix>();
     private SerializableSparseArray<LocalDateTime> reminderDateTimeMap;
+    private Map<Note, SVMVector> noteToSvmVectorMap = new HashMap<Note, SVMVector>();
 
     private boolean isMapChanged = false;
 
@@ -189,7 +191,7 @@ public class BackgroundService extends Service implements
         int interval = getPreferenceValue(getString(R.string.time_only_reminder_interval_preference_key));
 
         // If an entry was set, do remind me by the predetermined interval
-        if (!remindByInterval(now, notesToNotify, currentNote, interval)) {
+        if (!remindByInterval(now, currentNote, interval)) {
             // Else calculate the safety time
             LocalDateTime noteSafetyTime = currentNote.getTime().minusMinutes(safetyFactor);
             // we are not in the warning range
@@ -205,14 +207,13 @@ public class BackgroundService extends Service implements
 
     private void remindGeneralNote(LocalDateTime now, Note currentNote) {
         int interval = getPreferenceValue(getString(R.string.general_reminder_interval_preference_key));
-        if (!remindByInterval(now, notesToNotify, currentNote, interval)) {
+        if (!remindByInterval(now, currentNote, interval)) {
             writeNotificationToLog(currentNote, scheduleReminder(currentNote, now.plusMinutes(interval)));
         }
     }
 
     // Returns a boolean value which indicates if an entry for the note exists
-    private boolean remindByInterval(LocalDateTime now, List<Note> notesToNotify, Note currentNote,
-                                     int interval) {
+    private boolean remindByInterval(LocalDateTime now, Note currentNote, int interval) {
         // If the current note has been enlisted to the reminder file
         boolean entryExist = reminderDateTimeMap.get(currentNote.getId()) != null;
         if (entryExist) {
@@ -259,6 +260,13 @@ public class BackgroundService extends Service implements
                 // Do not notify me about note past time
                 if (now.isAfter(currentNote.getTime()))
                 {
+                    // Meaning we have arrived to the destination
+                    if (distanceMatrix.getDistance() < 100)
+                    {
+                        noteToSvmVectorMap.get(currentNote).setLate
+                                (Minutes.minutesBetween(now, currentNote.getTime()).getMinutes());
+                        // TODO: write to TrainingSet.txt
+                    }
                     notesPastDepartTime.remove(currentNote.getId());
                     return;
                 }
@@ -276,7 +284,7 @@ public class BackgroundService extends Service implements
                 (R.string.location_only_reminder_interval_preference_key));
 
         if (distanceMatrix.getDistance() <= safetyFactor) {
-            if (!remindByInterval(now, notesToNotify, currentNote, interval)) {
+            if (!remindByInterval(now, currentNote, interval)) {
                 notesToNotify.add(currentNote);
                 writeNotificationToLog(currentNote, scheduleReminder(currentNote, now.plusMinutes(interval)));
             }
@@ -285,31 +293,33 @@ public class BackgroundService extends Service implements
 
     private void remindTimeLocationNote(LocalDateTime now, Note currentNote,
                                         DistanceMatrix distanceMatrix) throws IOException {
-
-        Object[] vector = { 0, distanceMatrix.getDuration(), distanceMatrix.getDistance(),
-                currentNote.getTravelMode().ordinal(), currentNote.getTime().hourOfDay().get(),
-                currentNote.getTime().minuteOfHour().get(),
-                currentNote.getTime().dayOfWeek().get(), 0};
-
-        int time = SvmPredict.getInstance(this).Calc(vector);
         LocalDateTime departTime =
-                currentNote.getTime().minusSeconds((int)distanceMatrix.getDuration()).
-                        minusMinutes(time);
+                currentNote.getTime().minusSeconds((int) distanceMatrix.getDuration());
 
         if (now.isAfter(departTime)) {
             // TODO: save the time as start time for learning (end time when arrived)
             notesPastDepartTime.add(currentNote.getId());
 
             int interval = 2;
-            if (!remindByInterval(now, notesToNotify, currentNote, interval)) {
+            if (!remindByInterval(now, currentNote, interval)) {
                 notesToNotify.add(currentNote);
                 writeNotificationToLog(currentNote, scheduleReminder(currentNote, now.plusMinutes(interval)));
             }
             return;
         }
 
-        int safetyFactor = getPreferenceValue(getString
-                (R.string.time_location_safety_factor_preference_key));
+        if (!noteToSvmVectorMap.containsKey(currentNote))
+        {
+            noteToSvmVectorMap.put(currentNote, new SVMVector(0, distanceMatrix.getDuration()/60.0,
+                    distanceMatrix.getDistance()/1000.0,
+                    currentNote.getTravelMode().ordinal(), currentNote.getTime().hourOfDay().get(),
+                    currentNote.getTime().minuteOfHour().get(),
+                    currentNote.getTime().dayOfWeek().get(), 0));
+        }
+
+        int time = SvmPredict.getInstance(this).Calc(noteToSvmVectorMap.get(currentNote).toObjectArray());
+        int safetyFactor = time == 0 ? getPreferenceValue(getString
+                (R.string.time_location_safety_factor_preference_key)) : time;
 
         // Check if we'll not make it on time (note's time minus ETA is in warning range)
         LocalDateTime noteSafetyTime = departTime.minusMinutes(safetyFactor);
@@ -317,7 +327,8 @@ public class BackgroundService extends Service implements
             // Calculate interval
             int interval = (int) Math.ceil(Minutes.minutesBetween(now, departTime).getMinutes() / (float) 2);
             if (interval == 0) return;
-            if (!remindByInterval(now, notesToNotify, currentNote, interval)) {
+            if (!remindByInterval(now, currentNote, interval)) {
+                noteToSvmVectorMap.get(currentNote).setEstimation(Minutes.minutesBetween(now, currentNote.getTime()).getMinutes());
                 notesToNotify.add(currentNote);
                 writeNotificationToLog(currentNote, scheduleReminder(currentNote, now.plusMinutes(interval)));
             }
