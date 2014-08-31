@@ -23,6 +23,7 @@ import net.danlew.android.joda.ResourceZoneInfoProvider;
 import net.notifly.core.Notifly;
 import net.notifly.core.R;
 import net.notifly.core.SvmPredict;
+import net.notifly.core.SvmTrain;
 import net.notifly.core.entity.DistanceMatrix;
 import net.notifly.core.entity.Note;
 import net.notifly.core.entity.SVMVector;
@@ -265,7 +266,9 @@ public class BackgroundService extends Service implements
                     {
                         noteToSvmVectorMap.get(currentNote).setLate
                                 (Minutes.minutesBetween(now, currentNote.getTime()).getMinutes());
-                        // TODO: write to TrainingSet.txt
+
+                        SvmTrain.GetInstance(this).
+                                svmSaveVector(noteToSvmVectorMap.get(currentNote).toObjectArray());
                     }
                     notesPastDepartTime.remove(currentNote.getId());
                     return;

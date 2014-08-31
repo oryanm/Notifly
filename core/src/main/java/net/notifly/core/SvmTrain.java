@@ -323,4 +323,20 @@ public class SvmTrain
             svmSaveModel();
         }
     }
+
+    public void svmSaveVector(Object[] vector) throws IOException
+    {
+        DataOutputStream fp = new DataOutputStream(new BufferedOutputStream
+                (context.openFileOutput(TRAINING_SET_FILE_NAME, Context.MODE_PRIVATE)));
+
+        fp.writeBytes("\n" + vector[0].toString() + " ");
+
+        for(int i = 1; i < vector.length; i++)
+        {
+            fp.writeBytes(i + ":" + vector[i] + " ");
+        }
+
+        fp.writeBytes("\n");
+        fp.close();
+    }
 }
